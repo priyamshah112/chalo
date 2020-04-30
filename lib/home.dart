@@ -97,7 +97,7 @@ class _MainHomeState extends State<MainHome> {
                       ),
                     ),
                   ),
-                  hintText: "Search users",
+                  hintText: "Search Users",
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.only(left: 15.0, top: 6.0),
                 ),

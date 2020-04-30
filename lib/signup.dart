@@ -2,10 +2,12 @@ import 'package:chaloapp/login.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
+import 'package:chaloapp/global_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gender_selection/gender_selection.dart';
+import 'package:chaloapp/ProfileSetup.dart';
+import 'forgot.dart';
 //import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-
 //import 'package:flutter_localizations/flutter_localizations.dart';
 //import 'package:flutter_rounded_date_picker/rounded_picker.dart';
 
@@ -61,7 +63,7 @@ class _SignUpState extends State<SignUp> {
                           "Tell us your Details",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              color: Color(0xffFE4A49),
+                              color: Color(primary),
                               fontWeight: FontWeight.bold,
                               fontSize: 35,
                               fontFamily: 'Pacifico'),
@@ -98,7 +100,7 @@ class _SignUpState extends State<SignUp> {
                                       hintText: "First Name",
                                       prefixIcon: Icon(
                                         FontAwesomeIcons.userPlus,
-                                        color: Color(0xfffFE4A49),
+                                        color: Color(primary),
                                         size: 18,
                                       ),
                                       contentPadding: const EdgeInsets.only(
@@ -107,9 +109,9 @@ class _SignUpState extends State<SignUp> {
                                           top: 18.0,
                                           right: 30.0),
                                       filled: true,
-                                      fillColor: Color(0xffffaf4ff),
+                                      fillColor: Color(form1),
                                       hintStyle: TextStyle(
-                                        color: Color(0xfff001730),
+                                        color: Color(formHint),
                                       ),
 //                                    focusedBorder: OutlineInputBorder(
 //                                      borderSide:
@@ -129,7 +131,7 @@ class _SignUpState extends State<SignUp> {
                                     keyboardType: TextInputType.text,
                                     decoration: InputDecoration(
                                       filled: true,
-                                      fillColor: Color(0xffffaf4ff),
+                                      fillColor: Color(form1),
                                       contentPadding: const EdgeInsets.only(
                                           left: 30.0,
                                           bottom: 18.0,
@@ -138,12 +140,12 @@ class _SignUpState extends State<SignUp> {
                                       border: InputBorder.none,
                                       prefixIcon: Icon(
                                         FontAwesomeIcons.userPlus,
-                                        color: Color(0xfffFE4A49),
+                                        color: Color(primary),
                                         size: 18,
                                       ),
                                       hintText: "Last Name",
                                       hintStyle: TextStyle(
-                                        color: Color(0xfff001730),
+                                        color: Color(formHint),
                                       ),
                                     ),
                                     autofocus: false,
@@ -167,7 +169,7 @@ class _SignUpState extends State<SignUp> {
                                       hintText: "Email Address",
                                       prefixIcon: Icon(
                                         Icons.mail,
-                                        color: Color(0xfffFE4A49),
+                                        color: Color(primary),
                                       ),
                                       contentPadding: const EdgeInsets.only(
                                           left: 30.0,
@@ -175,9 +177,9 @@ class _SignUpState extends State<SignUp> {
                                           top: 18.0,
                                           right: 30.0),
                                       filled: true,
-                                      fillColor: Color(0xffffaf4ff),
+                                      fillColor: Color(form1),
                                       hintStyle: TextStyle(
-                                        color: Color(0xfff001730),
+                                        color: Color(formHint),
                                       ),
 //                                    focusedBorder: OutlineInputBorder(
 //                                      borderSide:
@@ -197,7 +199,7 @@ class _SignUpState extends State<SignUp> {
                                     obscureText: true,
                                     decoration: InputDecoration(
                                       filled: true,
-                                      fillColor: Color(0xffffaf4ff),
+                                      fillColor: Color(form1),
                                       contentPadding: const EdgeInsets.only(
                                           left: 30.0,
                                           bottom: 18.0,
@@ -206,11 +208,11 @@ class _SignUpState extends State<SignUp> {
                                       border: InputBorder.none,
                                       prefixIcon: Icon(
                                         Icons.lock,
-                                        color: Color(0xfffFE4A49),
+                                        color: Color(primary),
                                       ),
                                       hintText: "Password",
                                       hintStyle: TextStyle(
-                                        color: Color(0xfff001730),
+                                        color: Color(formHint),
                                       ),
                                     ),
                                   ),
@@ -231,8 +233,8 @@ class _SignUpState extends State<SignUp> {
                                       border: InputBorder.none,
                                       hintText: "Confirm Password",
                                       prefixIcon: Icon(
-                                        Icons.mail,
-                                        color: Color(0xfffFE4A49),
+                                        Icons.lock,
+                                        color: Color(primary),
                                       ),
                                       contentPadding: const EdgeInsets.only(
                                           left: 30.0,
@@ -240,9 +242,9 @@ class _SignUpState extends State<SignUp> {
                                           top: 18.0,
                                           right: 30.0),
                                       filled: true,
-                                      fillColor: Color(0xffffaf4ff),
+                                      fillColor: Color(form1),
                                       hintStyle: TextStyle(
-                                        color: Color(0xfff001730),
+                                        color: Color(formHint),
                                       ),
 //                                    focusedBorder: OutlineInputBorder(
 //                                      borderSide:
@@ -261,7 +263,7 @@ class _SignUpState extends State<SignUp> {
                                 Text(
                                   'Select your Gender',
                                   style: TextStyle(
-                                    color: Color(0xfff001730),
+                                    color: Color(secondary),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -313,7 +315,7 @@ class _SignUpState extends State<SignUp> {
                             height: 50,
                             margin: EdgeInsets.symmetric(horizontal: 60),
                             child: FlatButton(
-                              color: Color(0xfff003854),
+                              color: Color(secondary),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 60.0, vertical: 10.0),
                               shape: RoundedRectangleBorder(
@@ -352,7 +354,7 @@ class _SignUpState extends State<SignUp> {
                             child: Text(
                               "Back",
                               style: TextStyle(
-                                  color: Color(0xfff001730),
+                                  color: Color(secondary),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18),
                             ),
@@ -424,7 +426,7 @@ class _NextPageState extends State<NextPage> {
                           "We need to verify you",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              color: Color(0xffFE4A49),
+                              color: Color(primary),
                               fontWeight: FontWeight.bold,
                               fontSize: 35,
                               fontFamily: 'Pacifico'),
@@ -459,7 +461,7 @@ class _NextPageState extends State<NextPage> {
                                     hintText: "Contact Number",
                                     prefixIcon: Icon(
                                       Icons.phone,
-                                      color: Color(0xfffFE4A49),
+                                      color: Color(primary),
                                     ),
                                     contentPadding: const EdgeInsets.only(
                                         left: 30.0,
@@ -467,9 +469,9 @@ class _NextPageState extends State<NextPage> {
                                         top: 18.0,
                                         right: 30.0),
                                     filled: true,
-                                    fillColor: Color(0xffffaf4ff),
+                                    fillColor: Color(form1),
                                     hintStyle: TextStyle(
-                                      color: Color(0xfff001730),
+                                      color: Color(formHint),
                                     ),
                                   ),
                                 ),
@@ -480,7 +482,7 @@ class _NextPageState extends State<NextPage> {
                                 child: TextField(
                                   decoration: InputDecoration(
                                     filled: true,
-                                    fillColor: Color(0xffffaf4ff),
+                                    fillColor: Color(form1),
                                     contentPadding: const EdgeInsets.only(
                                         left: 30.0,
                                         bottom: 18.0,
@@ -489,11 +491,11 @@ class _NextPageState extends State<NextPage> {
                                     border: InputBorder.none,
                                     prefixIcon: Icon(
                                       Icons.lock,
-                                      color: Color(0xfffFE4A49),
+                                      color: Color(primary),
                                     ),
                                     hintText: "Enter OTP",
                                     hintStyle: TextStyle(
-                                      color: Color(0xfff001730),
+                                      color: Color(formHint),
                                     ),
                                   ),
                                 ),
@@ -517,7 +519,7 @@ class _NextPageState extends State<NextPage> {
                             child: Text(
                               "Resend OTP",
                               style: TextStyle(
-                                  color: Color(0xfff001730),
+                                  color: Color(secondary),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15),
                             ),
@@ -533,12 +535,18 @@ class _NextPageState extends State<NextPage> {
                             height: 50,
                             margin: EdgeInsets.symmetric(horizontal: 60),
                             child: FlatButton(
-                              color: Color(0xfffFE4A49),
+                              color: Color(secondary),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 60.0, vertical: 10.0),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50.0)),
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ProfileSetup()),
+                                );
+                              },
                               child: Center(
                                 child: Text(
                                   "Verify",
@@ -565,7 +573,7 @@ class _NextPageState extends State<NextPage> {
                             child: Text(
                               "Back",
                               style: TextStyle(
-                                  color: Color(0xfff001730),
+                                  color: Color(secondary),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18),
                             ),
@@ -583,7 +591,7 @@ class _NextPageState extends State<NextPage> {
                             Text(
                               'By continuing you agree to our',
                               style: TextStyle(
-                                color: Color(0xfff003854),
+                                color: Color(text3),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                               ),
@@ -598,7 +606,7 @@ class _NextPageState extends State<NextPage> {
                           children: <Widget>[
                             FlatButton(
                               padding: EdgeInsets.all(0),
-                              textColor: Colors.red,
+                              textColor: Color(primary),
                               child: Text(
                                 'Terms and Conditions ',
                                 style: TextStyle(
@@ -618,14 +626,14 @@ class _NextPageState extends State<NextPage> {
                             Text(
                               "and",
                               style: TextStyle(
-                                color: Color(0xfff003854),
+                                color: Color(text3),
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             FlatButton(
                               padding: EdgeInsets.all(0),
-                              textColor: Colors.red,
+                              textColor: Color(primary),
                               child: Text(
                                 ' Privacy Policy',
                                 style: TextStyle(

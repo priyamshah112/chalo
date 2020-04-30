@@ -1,7 +1,10 @@
+import 'package:chaloapp/forgot.dart';
+import 'package:chaloapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chaloapp/signup.dart';
+import 'package:chaloapp/home.dart';
 
 class WelcomeScreen extends StatefulWidget {
   @override
@@ -521,7 +524,8 @@ class _HomePageState extends State<HomePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (BuildContext context) => SignUp()),
+                                  builder: (BuildContext context) =>
+                                      ForgotPage()),
                             );
                           },
                           child: Text(
@@ -548,7 +552,14 @@ class _HomePageState extends State<HomePage> {
                                 horizontal: 60.0, vertical: 10.0),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50.0)),
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        MainHome()),
+                              );
+                            },
                             child: Center(
                               child: Text(
                                 "Login",
