@@ -74,32 +74,35 @@ class _MainHomeState extends State<MainHome> {
                 boxShadow: [
                   BoxShadow(
                       color: Colors.grey,
-                      offset: Offset(1.0, 5.0),
+                      offset: Offset(1.0, 1.0),
                       blurRadius: 10,
-                      spreadRadius: 3)
+                      spreadRadius: 2)
                 ],
               ),
               child: TextField(
                 cursorColor: Colors.black,
                 decoration: InputDecoration(
                   icon: Container(
-                    margin: EdgeInsets.only(left: 20, bottom: 5, top: 5),
-                    width: 44,
+                    margin: EdgeInsets.only(left: 15, bottom: 5, top: 7),
+                    width: 40,
                     height: 50,
-                    child: CircleAvatar(
-                      child: ClipOval(
-                        child: Image.asset(
-                          'images/bgcover.jpg',
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.cover,
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: CircleAvatar(
+                        child: ClipOval(
+                          child: Image.asset(
+                            'images/bgcover.jpg',
+                            height: 50,
+                            width: 50,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   hintText: "Search Users",
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.only(left: 15.0, top: 6.0),
+                  contentPadding: EdgeInsets.only(left: 11.0, top: 5.0),
                 ),
               ),
             ),

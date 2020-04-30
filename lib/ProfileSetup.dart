@@ -16,29 +16,29 @@ List<List<String>> activityList = [
   ['images/Activities/BirdWatching.png', 'Bird Watching'],
   ['images/Activities/Canoeing.png', 'Caneoing'],
   ['images/Activities/Hiking.png', 'Hiking'],
-  ['images/Activities/Beach BBQ.png', 'Beach BBQ'],
+  ['images/Activities/BeachBBQ.png', 'Beach BBQ'],
   ['images/Activities/Camping.png', 'Camping'],
   ['images/Activities/Cycling.png', 'Cycling'],
-  ['images/Activities/Dog Walking.png', 'Dog Walking'],
+  ['images/Activities/DogWalking.png', 'Dog Walking'],
   ['images/Activities/Fishing.png', 'Fishing'],
   ['images/Activities/Gardening.png', 'Gardening'],
   ['images/Activities/Gym.png', 'Gym'],
-  ['images/Activities/Mountain Biking.png', 'Mountain Biking'],
+  ['images/Activities/MountainBiking.png', 'Mountain Biking'],
   ['images/Activities/Picnic.png', 'Picnic'],
   ['images/Activities/Kayaking.png', 'Kayaking'],
   ['images/Activities/Museum.png', 'Museum'],
   ['images/Activities/Beach.png', 'Beach'],
-  ['images/Activities/Bird Watching.png', 'Bird Watching'],
+  ['images/Activities/BirdWatching.png', 'Bird Watching'],
   ['images/Activities/Canoeing.png', 'Caneoing'],
   ['images/Activities/Hiking.png', 'Hiking'],
-  ['images/Activities/Beach BBQ.png', 'Beach BBQ'],
+  ['images/Activities/BeachBBQ.png', 'Beach BBQ'],
   ['images/Activities/Camping.png', 'Camping'],
   ['images/Activities/Cycling.png', 'Cycling'],
-  ['images/Activities/Dog Walking.png', 'Dog Walking'],
+  ['images/Activities/DogWalking.png', 'Dog Walking'],
   ['images/Activities/Fishing.png', 'Fishing'],
   ['images/Activities/Gardening.png', 'Gardening'],
   ['images/Activities/Gym.png', 'Gym'],
-  ['images/Activities/Mountain Biking.png', 'Mountain Biking'],
+  ['images/Activities/MountainBiking.png', 'Mountain Biking'],
   ['images/Activities/Picnic.png', 'Picnic'],
   ['images/Activities/Kayaking.png', 'Kayaking'],
   ['images/Activities/Museum.png', 'Museum'],
@@ -195,7 +195,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                     height: 10,
                   ),
                   Container(
-                    height: 130,
+                    height: 102,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       children: <Widget>[
@@ -239,12 +239,17 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                 setState(() {});
                               },
                               child: Container(
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Color(primary),
+                                    ),
+                                    borderRadius: BorderRadius.circular(6)),
                                 width: 110,
                                 child: ListTile(
                                   title: Image.asset(
                                     activityList[i][0],
-                                    width: 80,
-                                    height: 80,
+                                    width: 60,
+                                    height: 60,
                                   ),
                                   subtitle: Container(
                                     padding: EdgeInsets.only(top: 7),
@@ -280,7 +285,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                     height: 10,
                   ),
                   Container(
-                    height: 130,
+                    height: 102,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       children: <Widget>[
@@ -288,12 +293,17 @@ class _ProfileSetupState extends State<ProfileSetup> {
                           Padding(
                             padding: EdgeInsets.all(2.0),
                             child: Container(
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Color(primary),
+                                  ),
+                                  borderRadius: BorderRadius.circular(6)),
                               width: 110,
                               child: ListTile(
                                 title: Image.asset(
                                   selectedActivityList[i][0],
-                                  width: 80,
-                                  height: 80,
+                                  width: 60,
+                                  height: 60,
                                 ),
                                 subtitle: Container(
                                   padding: EdgeInsets.only(top: 7),
@@ -335,7 +345,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                         },
                         child: Center(
                           child: Text(
-                            "Submit",
+                            "Finish",
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
@@ -396,8 +406,8 @@ class _AllActivityState extends State<AllActivity> {
           child: GridView.count(
             primary: false,
             padding: const EdgeInsets.all(10),
-            crossAxisSpacing: 1,
-            mainAxisSpacing: 1,
+            crossAxisSpacing: 3,
+            mainAxisSpacing: 3,
             crossAxisCount: 3,
             children: <Widget>[
               for (int i = 0; i < activityList.length; i++)
@@ -434,17 +444,22 @@ class _AllActivityState extends State<AllActivity> {
                       setState(() {});
                     },
                     child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color(primary),
+                        ),
+                      ),
                       child: Padding(
-                        padding: EdgeInsets.only(top: 10, bottom: 10),
+                        padding: EdgeInsets.only(top: 10),
                         child: Column(
                           children: <Widget>[
                             Image.asset(
                               activityList[i][0],
-                              width: 80,
-                              height: 80,
+                              width: 60,
+                              height: 60,
                             ),
                             SizedBox(
-                              height: 6,
+                              height: 10,
                             ),
                             Text(
                               activityList[i][1],
