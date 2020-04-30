@@ -195,7 +195,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                     height: 10,
                   ),
                   Container(
-                    height: 102,
+                    height: 107,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       children: <Widget>[
@@ -285,7 +285,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                     height: 10,
                   ),
                   Container(
-                    height: 102,
+                    height: 107,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       children: <Widget>[
@@ -448,6 +448,7 @@ class _AllActivityState extends State<AllActivity> {
                         border: Border.all(
                           color: Color(primary),
                         ),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       child: Padding(
                         padding: EdgeInsets.only(top: 10),
