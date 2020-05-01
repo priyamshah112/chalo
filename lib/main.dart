@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'data/data.dart';
 import 'package:chaloapp/login.dart';
 
-void main() => runApp(MaterialApp(
-      theme: ThemeData(primaryColor: Colors.teal, accentColor: Colors.teal),
-      debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
-    ));
+void main() => runApp(
+      MaterialApp(
+        theme: ThemeData(primaryColor: Colors.teal, accentColor: Colors.teal),
+        debugShowCheckedModeBanner: false,
+        home: SplashScreen(),
+      ),
+    );
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -21,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Timer(
       Duration(seconds: 3),
-      () => Navigator.push(
+      () => Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => OnBoarding()),
       ),
@@ -167,7 +169,7 @@ class _HomeState extends State<Home> {
               height: Platform.isIOS ? 70 : 60,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => WelcomeScreen()),
                   );

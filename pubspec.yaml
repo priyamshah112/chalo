@@ -14,7 +14,7 @@ description: A new Flutter application.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.2.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -25,6 +25,7 @@ dependencies:
   font_awesome_flutter: ^8.2.0
   gender_selection: "^0.0.8"
   datetime_picker_formfield: ^1.0.0
+  flutter_map:
 #  flutter_rounded_date_picker: 1.0.0
 #  flutter_localizations:
 
@@ -41,11 +42,10 @@ dev_dependencies:
 
 
 flutter:
-
-
   uses-material-design: true
   assets:
     - images/
+    - images/activities/
 
   fonts:
     - family: Pacifico
