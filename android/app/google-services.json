@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "591673871843",
+    "firebase_url": "https://chalo-a910a.firebaseio.com",
+    "project_id": "chalo-a910a",
+    "storage_bucket": "chalo-a910a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:591673871843:android:c6ac5f6a3ec3b387d224d6",
+        "android_client_info": {
+          "package_name": "com.example.chaloapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "591673871843-9anbtlpgidhl37t6rcps32n02cd67mob.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz9fvvLqZH3xTxuQ9lIZabfGTe_Br6i3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "591673871843-9anbtlpgidhl37t6rcps32n02cd67mob.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

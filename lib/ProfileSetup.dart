@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:chaloapp/home.dart';
 import 'package:flutter/material.dart';
 import 'data/data.dart';
 import 'package:chaloapp/login.dart';
@@ -340,7 +341,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => ProfileSetup()),
+                                builder: (context) => MainHome()),
                           );
                         },
                         child: Center(

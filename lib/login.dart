@@ -1,5 +1,7 @@
 import 'package:chaloapp/forgot.dart';
 import 'package:chaloapp/main.dart';
+import 'package:chaloapp/widgets/DailogBox.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -283,11 +285,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _formKey = GlobalKey<FormState>();
+  String email, password;
+  bool _autovalidate = false;
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return Form(
       key: _formKey,
+      autovalidate: _autovalidate,
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
@@ -449,14 +454,10 @@ class _HomePageState extends State<HomePage> {
                               Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
-//                                decoration: BoxDecoration(
-//                                  border: Border(
-//                                    bottom: BorderSide(
-//                                      color: Colors.grey[200],
-//                                    ),
-//                                  ),
-//                                ),
-                                child: TextField(
+                                child: TextFormField(
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: _validateEmail,
+                                  onSaved: (value) => email = value,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Email Address",
@@ -474,21 +475,20 @@ class _HomePageState extends State<HomePage> {
                                     hintStyle: TextStyle(
                                       color: Color(0xfff001730),
                                     ),
-//                                    focusedBorder: OutlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.white),
-//                                    ),
-//                                    enabledBorder: UnderlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.indigo),
-//                                    ),
                                   ),
                                 ),
                               ),
                               Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
-                                child: TextField(
+                                child: TextFormField(
+                                  validator: (value) {
+                                    if (value.length < 6)
+                                      return "Minimum 6 characters";
+                                    else
+                                      return null;
+                                  },
+                                  onSaved: (value) => password = value,
                                   decoration: InputDecoration(
                                     filled: true,
                                     fillColor: Color(0xffffaf4ff),
@@ -552,13 +552,58 @@ class _HomePageState extends State<HomePage> {
                                 horizontal: 60.0, vertical: 10.0),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50.0)),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        MainHome()),
-                              );
+                            onPressed: () async {
+                              if (_formKey.currentState.validate()) {
+                                _formKey.currentState.save();
+                                showDialog(
+                                    context: context,
+                                    builder: ((ctx) =>
+                                        Center(child: CircularProgressIndicator())));
+                                try {
+                                  AuthResult result = await FirebaseAuth
+                                      .instance
+                                      .signInWithEmailAndPassword(
+                                          email: email, password: password);
+                                  FirebaseUser user = result.user;
+                                  Navigator.pop(context);
+                                  showDialog(
+                                      context: context,
+                                      builder: ((ctx) => DialogBox(
+                                          icon: Icons.verified_user,
+                                          title: "Login Successful",
+                                          description: "",
+                                          buttonText1: "",
+                                          button1Func: () {})));
+                                  Map args = {
+                                    'user': user.displayName,
+                                    'uid': user.email
+                                  };
+                                  await Future.delayed(Duration(seconds: 2));
+                                  Navigator.pop(context);
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              MainHome(args: args)));
+                                } catch (e) {
+                                  print(e.toString());
+                                  Navigator.pop(context);
+                                  showDialog(
+                                      context: context,
+                                      builder: (ctx) => DialogBox(
+                                            title: "Login Failed :(",
+                                            description:
+                                                "Unregistered Email or Password",
+                                            buttonText1: "OK",
+                                            button1Func: () =>
+                                                Navigator.pop(context),
+                                          ));
+                                }
+                              } else {
+                                setState(() {
+                                  _autovalidate = true;
+                                });
+                              }
                             },
                             child: Center(
                               child: Text(
@@ -601,4 +646,14 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+String _validateEmail(String value) {
+  Pattern pattern =
+      r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+  RegExp regex = new RegExp(pattern);
+  if (!regex.hasMatch(value))
+    return 'Enter Valid Email';
+  else
+    return null;
 }
