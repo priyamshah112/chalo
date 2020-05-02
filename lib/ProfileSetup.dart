@@ -1,13 +1,19 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:chaloapp/home.dart';
+import 'package:chaloapp/widgets/DailogBox.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'data/User.dart';
 import 'data/data.dart';
 import 'package:chaloapp/login.dart';
 import 'package:chaloapp/global_colors.dart';
 import 'package:chaloapp/data/activity.dart';
 
 class ProfileSetup extends StatefulWidget {
+  final User user;
+  ProfileSetup({this.user});
   @override
   _ProfileSetupState createState() => _ProfileSetupState();
 }
@@ -337,12 +343,41 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             horizontal: 60.0, vertical: 10.0),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50.0)),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MainHome()),
-                          );
+                        onPressed: () async {
+                          try {
+                            showDialog(
+                                context: context,
+                                builder: ((ctx) => Center(
+                                    child: CircularProgressIndicator())));
+                            AuthResult result = await FirebaseAuth.instance
+                                .createUserWithEmailAndPassword(
+                                    email: widget.user.email,
+                                    password: widget.user.password);
+                            widget.user.setUid(result.user.uid);
+                            Navigator.pop(context);
+                            showDialog(
+                                context: context,
+                                builder: ((ctx) => DialogBox(
+                                    title: "Done !",
+                                    description:
+                                        "You've Successfully Signed Up \n You can now login with your email and password",
+                                    buttonText1: "Ok",
+                                    button1Func: () {
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: ((ctx) => HomePage())));
+                                    })));
+                          } catch (signUpError) {
+                            Navigator.pop(context);
+                            if (signUpError.code ==
+                                'ERROR_EMAIL_ALREADY_IN_USE')
+                              print("user alreaddy exists");
+                          }
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(builder: (context) => MainHome()),
+                          // );
                         },
                         child: Center(
                           child: Text(
