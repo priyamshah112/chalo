@@ -28,7 +28,7 @@ class _MainHomeState extends State<MainHome> {
               child: Icon(Icons.person, color: Colors.black),
               onPressed: () {
                 Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text('user: ${widget.args['uid']}'),
+                  content: Text('user: ${widget.args['email']}'),
                   duration: Duration(seconds: 2),
                 ));
               })),

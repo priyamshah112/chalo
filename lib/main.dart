@@ -35,6 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: Colors.teal,
         body: SafeArea(
@@ -97,10 +98,9 @@ class _HomeState extends State<Home> {
   PageController pageController = new PageController(initialPage: 0);
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     slide = getSlide();
     print('inside onboarding');
+    super.initState();
   }
 
   Widget pageDot(bool isCurrent) {

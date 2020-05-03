@@ -1,5 +1,8 @@
 import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/login.dart';
+import 'package:chaloapp/services/DatabaseService.dart';
+import 'package:chaloapp/widgets/DailogBox.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -11,6 +14,7 @@ import 'package:chaloapp/ProfileSetup.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
 import 'forgot.dart';
+import 'services/AuthService.dart';
 // import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 //import 'package:flutter_localizations/flutter_localizations.dart';
 //import 'package:flutter_rounded_date_picker/rounded_picker.dart';
@@ -375,53 +379,40 @@ class _SignUpState extends State<SignUp> {
                                   horizontal: 60.0, vertical: 10.0),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50.0)),
-                              onPressed: () {
+                              onPressed: () async {
                                 if (_formKey.currentState.validate()) {
                                   _formKey.currentState.save();
                                   if (gender == null) {
-                                    showDialog(
-                                        context: context,
-                                        builder: ((ctx) => AlertDialog(
-                                              title: Row(
-                                                children: <Widget>[
-                                                  Icon(
-                                                    Icons.error,
-                                                    color: Color(primary),
-                                                  ),
-                                                  SizedBox(width: 10),
-                                                  Text("Error",
-                                                      style: TextStyle(
-                                                          color:
-                                                              Color(primary))),
-                                                ],
-                                              ),
-                                              elevation: 5.0,
-                                              content: Text(
-                                                  "Please Select a Gender"),
-                                              actions: <Widget>[
-                                                FlatButton(
-                                                  child: Text("OK",
-                                                      style: TextStyle(
-                                                          color:
-                                                              Color(primary))),
-                                                  onPressed: () =>
-                                                      Navigator.pop(context),
-                                                )
-                                              ],
-                                            )));
+                                    _validateGender(context);
                                   } else {
-                                    print(user.fname);
-                                    print(user.lname);
-                                    print(user.birthDate);
-                                    print(user.email);
-                                    print(user.password);
-                                    print(user.gender);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              NextPage(user: user)),
-                                    );
+                                    showDialogBox().show_Dialog(
+                                        child: Center(
+                                            child: CircularProgressIndicator()),
+                                        context: context);
+                                    AuthService _auth = AuthService(
+                                        auth: FirebaseAuth.instance);
+                                    Map result = await _auth.createUser(
+                                        user.email, user.password);
+                                    if (result['success']) {
+                                      user.setUid(result['uid']);
+                                      await DataService().createUser(user);
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                NextPage(user: user)),
+                                      );
+                                    } else {
+                                      Navigator.pop(context);
+                                      showDialogBox().show_Dialog(
+                                          context: context,
+                                          child: DialogBox(
+                                              title: "Error :(",
+                                              description: result['error'],
+                                              buttonText1: "Ok",
+                                              button1Func: () =>
+                                                  Navigator.pop(context)));
+                                    }
                                   }
                                 } else {
                                   setState(() {
@@ -475,6 +466,31 @@ class _SignUpState extends State<SignUp> {
       ),
     );
   }
+}
+
+void _validateGender(BuildContext context) {
+  showDialog(
+      context: context,
+      builder: ((ctx) => AlertDialog(
+            title: Row(
+              children: <Widget>[
+                Icon(
+                  Icons.error,
+                  color: Color(primary),
+                ),
+                SizedBox(width: 10),
+                Text("Error", style: TextStyle(color: Color(primary))),
+              ],
+            ),
+            elevation: 5.0,
+            content: Text("Please Select a Gender"),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("OK", style: TextStyle(color: Color(primary))),
+                onPressed: () => Navigator.pop(context),
+              )
+            ],
+          )));
 }
 
 class NextPage extends StatefulWidget {
@@ -645,14 +661,20 @@ class _NextPageState extends State<NextPage> {
                                   horizontal: 60.0, vertical: 10.0),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50.0)),
-                              onPressed: () {
+                              onPressed: () async {
                                 if (_formKey.currentState.validate()) {
                                   _formKey.currentState.save();
-                                  print(widget.user.phone);
+                                  // showDialogBox().show_Dialog(
+                                  //     child: CircularProgressIndicator(),
+                                  //     context: context);
+                                  // FirebaseUser _user;
+                                  // await DataService()
+                                  //     .verifyUser(_user, widget.user.phone);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => ProfileSetup(user: widget.user)),
+                                        builder: (context) =>
+                                            ProfileSetup(user: widget.user)),
                                   );
                                 } else {
                                   setState(() {
@@ -676,11 +698,8 @@ class _NextPageState extends State<NextPage> {
                         Center(
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.push(
+                              Navigator.pop(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        SignUp()),
                               );
                             },
                             child: Text(

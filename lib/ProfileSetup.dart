@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:chaloapp/home.dart';
+import 'package:chaloapp/services/AuthService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,41 +20,48 @@ class ProfileSetup extends StatefulWidget {
   _ProfileSetupState createState() => _ProfileSetupState();
 }
 
-List<List<String>> activityList = [
-  ['images/Activities/Beach.png', 'Beach'],
-  ['images/Activities/BirdWatching.png', 'Bird Watching'],
-  ['images/Activities/Canoeing.png', 'Caneoing'],
-  ['images/Activities/Hiking.png', 'Hiking'],
-  ['images/Activities/BeachBBQ.png', 'Beach BBQ'],
-  ['images/Activities/Camping.png', 'Camping'],
-  ['images/Activities/Cycling.png', 'Cycling'],
-  ['images/Activities/DogWalking.png', 'Dog Walking'],
-  ['images/Activities/Fishing.png', 'Fishing'],
-  ['images/Activities/Gardening.png', 'Gardening'],
-  ['images/Activities/Gym.png', 'Gym'],
-  ['images/Activities/MountainBiking.png', 'Mountain Biking'],
-  ['images/Activities/Picnic.png', 'Picnic'],
-  ['images/Activities/Kayaking.png', 'Kayaking'],
-  ['images/Activities/Museum.png', 'Museum'],
-  ['images/Activities/Beach.png', 'Beach'],
-  ['images/Activities/BirdWatching.png', 'Bird Watching'],
-  ['images/Activities/Canoeing.png', 'Caneoing'],
-  ['images/Activities/Hiking.png', 'Hiking'],
-  ['images/Activities/BeachBBQ.png', 'Beach BBQ'],
-  ['images/Activities/Camping.png', 'Camping'],
-  ['images/Activities/Cycling.png', 'Cycling'],
-  ['images/Activities/DogWalking.png', 'Dog Walking'],
-  ['images/Activities/Fishing.png', 'Fishing'],
-  ['images/Activities/Gardening.png', 'Gardening'],
-  ['images/Activities/Gym.png', 'Gym'],
-  ['images/Activities/MountainBiking.png', 'Mountain Biking'],
-  ['images/Activities/Picnic.png', 'Picnic'],
-  ['images/Activities/Kayaking.png', 'Kayaking'],
-  ['images/Activities/Museum.png', 'Museum'],
-];
-List<List<String>> selectedActivityList = [];
+List<List<String>> selectedActivityList;
+List<List<String>> activityList;
 
 class _ProfileSetupState extends State<ProfileSetup> {
+  @override
+  void initState() {
+    super.initState();
+    activityList = [
+      ['images/activities/Beach.png', 'Beach'],
+      ['images/activities/BirdWatching.png', 'Bird Watching'],
+      ['images/activities/Canoeing.png', 'Caneoing'],
+      ['images/activities/Hiking.png', 'Hiking'],
+      ['images/activities/BeachBBQ.png', 'Beach BBQ'],
+      ['images/activities/Camping.png', 'Camping'],
+      ['images/activities/Cycling.png', 'Cycling'],
+      ['images/activities/DogWalking.png', 'Dog Walking'],
+      ['images/activities/Fishing.png', 'Fishing'],
+      ['images/activities/Gardening.png', 'Gardening'],
+      ['images/activities/Gym.png', 'Gym'],
+      ['images/activities/MountainBiking.png', 'Mountain Biking'],
+      ['images/activities/Picnic.png', 'Picnic'],
+      ['images/activities/Kayaking.png', 'Kayaking'],
+      ['images/activities/Museum.png', 'Museum'],
+      ['images/activities/Beach.png', 'Beach'],
+      ['images/activities/BirdWatching.png', 'Bird Watching'],
+      ['images/activities/Canoeing.png', 'Caneoing'],
+      ['images/activities/Hiking.png', 'Hiking'],
+      ['images/activities/BeachBBQ.png', 'Beach BBQ'],
+      ['images/activities/Camping.png', 'Camping'],
+      ['images/activities/Cycling.png', 'Cycling'],
+      ['images/activities/DogWalking.png', 'Dog Walking'],
+      ['images/activities/Fishing.png', 'Fishing'],
+      ['images/activities/Gardening.png', 'Gardening'],
+      ['images/activities/Gym.png', 'Gym'],
+      ['images/activities/MountainBiking.png', 'Mountain Biking'],
+      ['images/activities/Picnic.png', 'Picnic'],
+      ['images/activities/Kayaking.png', 'Kayaking'],
+      ['images/activit/Museum.png', 'Museum'],
+    ];
+    selectedActivityList = [];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,7 +130,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                 highlightColor: Colors.transparent,
                                 onPressed: () {},
                                 child: Text(
-                                  "0 Followings",
+                                  "0 \n Following",
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
@@ -129,16 +139,14 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                   ),
                                 ),
                               ),
-                              SizedBox(
-                                width: 20,
-                              ),
                               FlatButton(
                                 padding: EdgeInsets.all(0),
                                 splashColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
                                 onPressed: () {},
                                 child: Text(
-                                  "0 Followers",
+                                  "0 \n Followers",
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
@@ -345,43 +353,44 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             borderRadius: BorderRadius.circular(50.0)),
                         onPressed: () async {
                           try {
-                            showDialog(
-                                context: context,
-                                builder: ((ctx) => Center(
-                                    child: CircularProgressIndicator())));
-                            AuthResult result = await FirebaseAuth.instance
-                                .createUserWithEmailAndPassword(
-                                    email: widget.user.email,
-                                    password: widget.user.password);
-                            widget.user.setUid(result.user.uid);
+                            showDialogBox().show_Dialog(
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                                context: context);
+                            AuthService _auth =
+                                AuthService(auth: FirebaseAuth.instance);
+                            await _auth.signIn(
+                                widget.user.email, widget.user.password);
                             Navigator.pop(context);
                             showDialog(
                                 context: context,
                                 builder: ((ctx) => DialogBox(
                                     title: "Done !",
                                     description:
-                                        "You've Successfully Signed Up \n You can now login with your email and password",
+                                        "You've Successfully Signed Up",
                                     buttonText1: "Ok",
                                     button1Func: () {
                                       Navigator.pop(context);
                                       Navigator.pop(context);
                                       Navigator.pop(context);
-                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: ((ctx) => HomePage())));
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: ((ctx) =>
+                                                  MainHome(args: {
+                                                    'email': widget.user.email
+                                                  }))));
                                     })));
-                          } catch (signUpError) {
+                          } catch (e) {
+                            print(e);
                             Navigator.pop(context);
-                            if (signUpError.code ==
-                                'ERROR_EMAIL_ALREADY_IN_USE')
-                              print("user alreaddy exists");
                           }
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(builder: (context) => MainHome()),
-                          // );
                         },
                         child: Center(
                           child: Text(
-                            "Finish",
+                            selectedActivityList.length == 0
+                                ? "Skip & Finish"
+                                : "Finish",
                             style: TextStyle(color: Colors.white),
                           ),
                         ),

@@ -109,7 +109,9 @@ class _DialogBoxState extends State<DialogBox> {
                     left: 15,
                     right: 15,
                     child: CircleAvatar(
-                      backgroundColor: widget.iconColor!=null ? widget.iconColor : Colors.teal,
+                      backgroundColor: widget.iconColor != null
+                          ? widget.iconColor
+                          : Colors.teal,
                       child: Icon(
                         widget.icon,
                         size: 60.0,
@@ -122,5 +124,11 @@ class _DialogBoxState extends State<DialogBox> {
         ),
       ),
     );
+  }
+}
+
+class showDialogBox {
+  void show_Dialog({Widget child, BuildContext context}) {
+    showDialog(context: context, builder: ((ctx) => child));
   }
 }

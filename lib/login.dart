@@ -1,5 +1,7 @@
+import 'package:chaloapp/ProfileSetup.dart';
 import 'package:chaloapp/forgot.dart';
 import 'package:chaloapp/main.dart';
+import 'package:chaloapp/services/AuthService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -36,11 +38,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         body: Stack(
           children: <Widget>[
             Container(
+              width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
 //            color: Color.fromRGBO(22, 160, 133, 4.0),
                 color: Colors.black,
                 image: DecorationImage(
-                  image: AssetImage('$myImage'),
+                  image: AssetImage(myImage),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
                       Colors.black.withOpacity(0.7), BlendMode.dstATop),
@@ -164,100 +167,103 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           height: 40.0,
                         ),
                         Container(
+                          width: MediaQuery.of(context).size.width,
                           child: Column(
                             children: <Widget>[
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Text(
-                                    'Already have an account?',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  FlatButton(
-                                    textColor: Colors.red,
+                                  FittedBox(
                                     child: Text(
-                                      'Sign in',
+                                      'Already have an account ?',
+                                      textAlign: TextAlign.end,
                                       style: TextStyle(
-                                        fontSize: 18,
+                                        color: Colors.white,
                                         fontWeight: FontWeight.bold,
+                                        fontSize: 16,
                                       ),
                                     ),
-                                    onPressed: () {
+                                  ),
+                                  SizedBox(width: 10),
+                                  GestureDetector(
+                                    onTap: () {
                                       Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                HomePage()),
-                                      );
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: ((ctx) => HomePage())));
                                     },
+                                    child: FittedBox(
+                                      child: Text(
+                                        'Sign in',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.red),
+                                      ),
+                                    ),
                                   )
                                 ],
-                                mainAxisAlignment: MainAxisAlignment.center,
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Text(
-                                    'By continuing you agree to our',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Text(
+                                      'By continuing you agree to our',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 5),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                    FlatButton(
-                                      textColor: Colors.red,
-                                      child: Text(
-                                        'Terms and Conditions',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        Navigator.push(
+                                    GestureDetector(
+                                      onTap: () => Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (BuildContext context) =>
-                                                  HomePage()),
-                                        );
-                                      },
+                                              builder: ((ctx) => HomePage()))),
+                                      child: FittedBox(
+                                        child: Text(
+                                          'Terms and Conditions',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.red),
+                                        ),
+                                      ),
                                     ),
                                     Text(
-                                      "and",
+                                      "  and  ",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    FlatButton(
-                                      textColor: Colors.red,
-                                      child: Text(
-                                        'Privacy Policy',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        Navigator.push(
+                                    GestureDetector(
+                                      onTap: () => Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (BuildContext context) =>
-                                                  HomePage()),
-                                        );
-                                      },
+                                              builder: ((ctx) => HomePage()))),
+                                      child: FittedBox(
+                                        child: Text(
+                                          'Privacy Policy',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -359,66 +365,81 @@ class _HomePageState extends State<HomePage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
-                          FlatButton(
-                            onPressed: () => {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        HomePage()),
-                              )
-                            },
-                            color: Colors.indigo,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 25.0, vertical: 10.0),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0)),
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  FontAwesomeIcons.facebook,
-                                  color: Colors.white,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10.0),
-                                ),
-                                Text(
-                                  "Facebook",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 15.0),
+                          Expanded(
+                            child: FlatButton(
+                              onPressed: () => {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          HomePage()),
                                 )
-                              ],
+                              },
+                              color: Colors.indigo,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 25.0, vertical: 10.0),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0)),
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(
+                                    FontAwesomeIcons.facebook,
+                                    color: Colors.white,
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 10.0),
+                                  ),
+                                  Expanded(
+                                    child: FittedBox(
+                                      child: Text(
+                                        "Facebook",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15.0),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
                           ),
-                          FlatButton(
-                            onPressed: () => {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        HomePage()),
-                              )
-                            },
-                            color: Colors.deepOrangeAccent,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 40.0, vertical: 10.0),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0)),
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  FontAwesomeIcons.google,
-                                  color: Colors.white,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10.0),
-                                ),
-                                Text(
-                                  "Google",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 15.0),
+                          SizedBox(width: 5.0),
+                          Expanded(
+                            child: FlatButton(
+                              onPressed: () => {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          HomePage()),
                                 )
-                              ],
+                              },
+                              color: Colors.deepOrangeAccent,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 25.0, vertical: 10.0),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0)),
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(
+                                    FontAwesomeIcons.google,
+                                    color: Colors.white,
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 10.0),
+                                  ),
+                                  Expanded(
+                                    child: FittedBox(
+                                      child: Text(
+                                        "Google",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15.0),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -557,48 +578,46 @@ class _HomePageState extends State<HomePage> {
                                 _formKey.currentState.save();
                                 showDialog(
                                     context: context,
-                                    builder: ((ctx) =>
-                                        Center(child: CircularProgressIndicator())));
-                                try {
-                                  AuthResult result = await FirebaseAuth
-                                      .instance
-                                      .signInWithEmailAndPassword(
-                                          email: email, password: password);
-                                  FirebaseUser user = result.user;
-                                  Navigator.pop(context);
-                                  showDialog(
-                                      context: context,
-                                      builder: ((ctx) => DialogBox(
-                                          icon: Icons.verified_user,
-                                          title: "Login Successful",
-                                          description: "",
-                                          buttonText1: "",
-                                          button1Func: () {})));
-                                  Map args = {
-                                    'user': user.displayName,
-                                    'uid': user.email
-                                  };
-                                  await Future.delayed(Duration(seconds: 2));
-                                  Navigator.pop(context);
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              MainHome(args: args)));
-                                } catch (e) {
-                                  print(e.toString());
-                                  Navigator.pop(context);
-                                  showDialog(
-                                      context: context,
-                                      builder: (ctx) => DialogBox(
-                                            title: "Login Failed :(",
-                                            description:
-                                                "Unregistered Email or Password",
-                                            buttonText1: "OK",
-                                            button1Func: () =>
-                                                Navigator.pop(context),
-                                          ));
-                                }
+                                    builder: ((ctx) => Center(
+                                        child: CircularProgressIndicator())));
+
+                                AuthService _auth =
+                                    AuthService(auth: FirebaseAuth.instance);
+                                await _auth
+                                    .signIn(email, password)
+                                    .then((isSuccess) async {
+                                  if (isSuccess) {
+                                    Navigator.pop(context);
+                                    showDialog(
+                                        context: context,
+                                        builder: ((ctx) => DialogBox(
+                                            icon: Icons.verified_user,
+                                            title: "Login Successful",
+                                            description: "",
+                                            buttonText1: "",
+                                            button1Func: () {})));
+                                    Map args = {'email': email};
+                                    await Future.delayed(Duration(seconds: 2));
+                                    Navigator.pop(context);
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                MainHome(args: args)));
+                                  } else {
+                                    Navigator.pop(context);
+                                    showDialog(
+                                        context: context,
+                                        builder: (ctx) => DialogBox(
+                                              title: "Login Failed :(",
+                                              description:
+                                                  "Unregistered Email or Password",
+                                              buttonText1: "OK",
+                                              button1Func: () =>
+                                                  Navigator.pop(context),
+                                            ));
+                                  }
+                                });
                               } else {
                                 setState(() {
                                   _autovalidate = true;
@@ -614,28 +633,29 @@ class _HomePageState extends State<HomePage> {
                           ),
                         )),
                     SizedBox(
-                      height: 30,
+                      height: 10,
                     ),
                     FadeAnimation(
                       2,
-                      Center(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) => SignUp()),
-                            );
-                          },
-                          child: Text(
-                            "Create Account",
-                            style: TextStyle(
-                                color: Color(0xfff001730),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15),
-                          ),
+                      FlatButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) => SignUp()),
+                          );
+                        },
+                        child: Text(
+                          "Create Account",
+                          style: TextStyle(
+                              color: Color(0xfff001730),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15),
                         ),
                       ),
+                    ),
+                    SizedBox(
+                      height: 30,
                     ),
                   ],
                 ),
