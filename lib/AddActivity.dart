@@ -126,7 +126,7 @@ class _AddActivityState extends State<AddActivity> {
                                   "Your Activities",
                                   style: TextStyle(
                                     fontSize: 15,
-                                    color: Color(secondary),
+                                    color: Color(primary),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -179,6 +179,17 @@ class _AddActivityState extends State<AddActivity> {
                                 SizedBox(
                                   height: 10,
                                 ),
+                                Text(
+                                  "Activity Location",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Color(primary),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
                                 Container(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 1.0, vertical: 10.0),
@@ -195,11 +206,29 @@ class _AddActivityState extends State<AddActivity> {
                                     //obscureText: true,
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      hintText: "First Name",
+                                      hintText: "Search for a place",
                                       prefixIcon: Icon(
-                                        FontAwesomeIcons.userPlus,
-                                        color: Color(primary),
-                                        size: 18,
+                                        Icons.location_on,
+                                      ),
+                                      suffixIcon: Material(
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(30.0),
+                                        ),
+                                        child: InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ViewActivity(),
+                                              ),
+                                            );
+                                          },
+                                          child: Icon(
+                                            Icons.location_on,
+                                            color: Color(primary),
+                                          ),
+                                        ),
                                       ),
                                       contentPadding: const EdgeInsets.only(
                                           left: 30.0,
