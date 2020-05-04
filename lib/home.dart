@@ -8,10 +8,15 @@ import 'package:latlong/latlong.dart';
 
 import 'login.dart';
 import 'widgets/DailogBox.dart';
+import 'package:chaloapp/broadcast.dart';
+import 'package:chaloapp/all_activities.dart';
+import 'package:chaloapp/chats.dart';
+import 'package:chaloapp/explore.dart';
 
 class MainHome extends StatefulWidget {
   final Map args;
   MainHome({this.args});
+
   @override
   _MainHomeState createState() => _MainHomeState();
 }
@@ -19,6 +24,91 @@ class MainHome extends StatefulWidget {
 class _MainHomeState extends State<MainHome> {
   int _currentIndex = 0;
 
+  final tabs = [
+    MainMap(args: args),
+    AllActivity(),
+    Broadcast(),
+    Explore(),
+    Chats()
+  ];
+
+  static get args => null;
+
+//  final List<Widget> screens = [
+//    MainHome(),
+//    AllActivity(),
+//    Broadcast(),
+//    Explore(),
+//    Chats()
+//  ];
+//  Widget currentScreen = MainHome();
+//  final PageStorageBucket bucket = PageStorageBucket();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: tabs[_currentIndex],
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.symmetric(vertical: 13),
+        color: Colors.white,
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          iconSize: 25,
+          backgroundColor: Colors.white,
+          unselectedItemColor: Color(secondary),
+          fixedColor: Color(primary),
+          elevation: 0.0,
+          currentIndex: _currentIndex,
+          onTap: (int index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: [
+            BottomNavigationBarItem(
+              title: Text(""),
+              icon: Icon(
+                FontAwesomeIcons.mapMarkerAlt,
+              ),
+            ),
+            BottomNavigationBarItem(
+              title: Text(''),
+              icon: Icon(
+                FontAwesomeIcons.list,
+              ),
+            ),
+            BottomNavigationBarItem(
+              title: Text(''),
+              icon: Icon(
+                Icons.wifi_tethering,
+              ),
+            ),
+            BottomNavigationBarItem(
+              title: Text(''),
+              icon: Icon(
+                Icons.dashboard,
+              ),
+            ),
+            BottomNavigationBarItem(
+              title: Text(''),
+              icon: Icon(
+                FontAwesomeIcons.commentDots,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MainMap extends StatefulWidget {
+  final Map args;
+  MainMap({this.args});
+  @override
+  _MainMapState createState() => _MainMapState();
+}
+
+class _MainMapState extends State<MainMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,33 +142,6 @@ class _MainHomeState extends State<MainHome> {
                       }),
                 ],
               ),
-
-//            appBar: AppBar(
-//              automaticallyImplyLeading: false,
-//              title: Text(
-//                "",
-//                style: TextStyle(
-//                  color: Color(primary),
-//                ),
-//              ),
-//              actions: <Widget>[
-//                CircleAvatar(
-//                  child: ClipOval(
-//                    child: Image.asset(
-//                      'images/bgcover.jpg',
-//                      height: 40,
-//                      width: 50,
-//                      fit: BoxFit.cover,
-//                    ),
-//                  ),
-//                ),
-//                SizedBox(
-//                  width: 20,
-//                ),
-//              ],
-//              elevation: 0.0,
-//              backgroundColor: Colors.transparent,
-//            ),
             ),
             Positioned(
               top: 60.0,
@@ -129,82 +192,6 @@ class _MainHomeState extends State<MainHome> {
           ],
         ),
       ),
-//      appBar: AppBar(
-//        automaticallyImplyLeading: false,
-//        title: Text(
-//          "",
-//          style: TextStyle(
-//            color: Color(primary),
-//          ),
-//        ),
-//        actions: <Widget>[
-//          CircleAvatar(
-//            child: ClipOval(
-//              child: Image.asset(
-//                'images/bgcover.jpg',
-//                height: 40,
-//                width: 50,
-//                fit: BoxFit.cover,
-//              ),
-//            ),
-//          ),
-//          SizedBox(
-//            width: 20,
-//          ),
-//        ],
-//        elevation: 0.0,
-//        backgroundColor: Colors.transparent,
-//      ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.symmetric(vertical: 13),
-        color: Colors.white,
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          iconSize: 25,
-          backgroundColor: Colors.white,
-          unselectedItemColor: Color(secondary),
-          fixedColor: Color(primary),
-          elevation: 0.0,
-          currentIndex: _currentIndex,
-          onTap: (int index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          items: [
-            BottomNavigationBarItem(
-              title: Text(""),
-              icon: Icon(
-                FontAwesomeIcons.mapMarkerAlt,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text(''),
-              icon: Icon(
-                FontAwesomeIcons.list,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text(''),
-              icon: Icon(
-                Icons.wifi_tethering,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text(''),
-              icon: Icon(
-                FontAwesomeIcons.commentDots,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text(''),
-              icon: Icon(
-                Icons.dashboard,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -221,12 +208,10 @@ class _MainHomeState extends State<MainHome> {
               await FirebaseAuth.instance.signOut();
               print("Signed out");
               Navigator.pop(context);
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            HomePage())); // To close the dialog
-              
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HomePage())); // To close the dialog
             }));
   }
 }
