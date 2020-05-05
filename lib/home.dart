@@ -8,6 +8,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
 import 'login.dart';
 import 'widgets/DailogBox.dart';
+import 'package:chaloapp/broadcast.dart';
+import 'package:chaloapp/all_activities.dart';
+import 'package:chaloapp/chats.dart';
+import 'package:chaloapp/explore.dart';
 
 class MainHome extends StatefulWidget {
   final String username;
@@ -18,8 +22,98 @@ class MainHome extends StatefulWidget {
 }
 
 class _MainHomeState extends State<MainHome> {
-  int _currentIndex = 0;
 
+  int _currentIndex = 0;
+  List tabs;
+
+  @override
+  void initState() {
+    tabs = [
+      MainMap(user: widget.username, type: widget.type),
+      AllActivity(),
+      Broadcast(),
+      Explore(),
+      Chats()
+    ];
+    super.initState();
+  }
+
+//  final List<Widget> screens = [
+//    MainHome(),
+//    AllActivity(),
+//    Broadcast(),
+//    Explore(),
+//    Chats()
+//  ];
+//  Widget currentScreen = MainHome();
+//  final PageStorageBucket bucket = PageStorageBucket();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: tabs[_currentIndex],
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.symmetric(vertical: 13),
+        color: Colors.white,
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          iconSize: 25,
+          backgroundColor: Colors.white,
+          unselectedItemColor: Color(secondary),
+          fixedColor: Color(primary),
+          elevation: 0.0,
+          currentIndex: _currentIndex,
+          onTap: (int index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: [
+            BottomNavigationBarItem(
+              title: Text(""),
+              icon: Icon(
+                FontAwesomeIcons.mapMarkerAlt,
+              ),
+            ),
+            BottomNavigationBarItem(
+              title: Text(''),
+              icon: Icon(
+                FontAwesomeIcons.list,
+              ),
+            ),
+            BottomNavigationBarItem(
+              title: Text(''),
+              icon: Icon(
+                Icons.wifi_tethering,
+              ),
+            ),
+            BottomNavigationBarItem(
+              title: Text(''),
+              icon: Icon(
+                Icons.dashboard,
+              ),
+            ),
+            BottomNavigationBarItem(
+              title: Text(''),
+              icon: Icon(
+                FontAwesomeIcons.commentDots,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MainMap extends StatefulWidget {
+  final String user;
+  final String type;
+  MainMap({this.user, this.type});
+  @override
+  _MainMapState createState() => _MainMapState();
+}
+
+class _MainMapState extends State<MainMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,8 +123,7 @@ class _MainHomeState extends State<MainHome> {
               child: Icon(Icons.person, color: Colors.black),
               onPressed: () {
                 Scaffold.of(context).showSnackBar(SnackBar(
-                  content:
-                      Text('user: ${widget.username}\n type: ${widget.type}'),
+                  content: Text('user: ${widget.user}\n type: ${widget.type}'),
                   duration: Duration(seconds: 2),
                 ));
               })),
@@ -54,33 +147,6 @@ class _MainHomeState extends State<MainHome> {
                       }),
                 ],
               ),
-
-//            appBar: AppBar(
-//              automaticallyImplyLeading: false,
-//              title: Text(
-//                "",
-//                style: TextStyle(
-//                  color: Color(primary),
-//                ),
-//              ),
-//              actions: <Widget>[
-//                CircleAvatar(
-//                  child: ClipOval(
-//                    child: Image.asset(
-//                      'images/bgcover.jpg',
-//                      height: 40,
-//                      width: 50,
-//                      fit: BoxFit.cover,
-//                    ),
-//                  ),
-//                ),
-//                SizedBox(
-//                  width: 20,
-//                ),
-//              ],
-//              elevation: 0.0,
-//              backgroundColor: Colors.transparent,
-//            ),
             ),
             Positioned(
               top: 60.0,
@@ -126,82 +192,6 @@ class _MainHomeState extends State<MainHome> {
                     contentPadding: EdgeInsets.only(left: 11.0, top: 5.0),
                   ),
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-//      appBar: AppBar(
-//        automaticallyImplyLeading: false,
-//        title: Text(
-//          "",
-//          style: TextStyle(
-//            color: Color(primary),
-//          ),
-//        ),
-//        actions: <Widget>[
-//          CircleAvatar(
-//            child: ClipOval(
-//              child: Image.asset(
-//                'images/bgcover.jpg',
-//                height: 40,
-//                width: 50,
-//                fit: BoxFit.cover,
-//              ),
-//            ),
-//          ),
-//          SizedBox(
-//            width: 20,
-//          ),
-//        ],
-//        elevation: 0.0,
-//        backgroundColor: Colors.transparent,
-//      ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.symmetric(vertical: 13),
-        color: Colors.white,
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          iconSize: 25,
-          backgroundColor: Colors.white,
-          unselectedItemColor: Color(secondary),
-          fixedColor: Color(primary),
-          elevation: 0.0,
-          currentIndex: _currentIndex,
-          onTap: (int index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          items: [
-            BottomNavigationBarItem(
-              title: Text(""),
-              icon: Icon(
-                FontAwesomeIcons.mapMarkerAlt,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text(''),
-              icon: Icon(
-                FontAwesomeIcons.list,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text(''),
-              icon: Icon(
-                Icons.wifi_tethering,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text(''),
-              icon: Icon(
-                FontAwesomeIcons.commentDots,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text(''),
-              icon: Icon(
-                Icons.dashboard,
               ),
             ),
           ],

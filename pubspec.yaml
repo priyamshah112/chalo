@@ -30,8 +30,9 @@ dependencies:
   steel_crypt: ^1.7.1+1
   flutter_map:
   firebase_auth: 
-  cloud_firestore: 
-  google_sign_in:
+  cloud_firestore:
+  flappy_search_bar: 1.4.1
+
 #  flutter_rounded_date_picker: 1.0.0
 #  flutter_localizations:
 # fluttertoast: ^4.0.1
