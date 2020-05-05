@@ -557,8 +557,8 @@ class _HomePageState extends State<HomePage> {
                                 _formKey.currentState.save();
                                 showDialog(
                                     context: context,
-                                    builder: ((ctx) =>
-                                        Center(child: CircularProgressIndicator())));
+                                    builder: ((ctx) => Center(
+                                        child: CircularProgressIndicator())));
                                 try {
                                   AuthResult result = await FirebaseAuth
                                       .instance
