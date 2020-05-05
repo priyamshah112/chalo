@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:chaloapp/forgot.dart';
+import 'package:chaloapp/home.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'data/data.dart';
 import 'package:chaloapp/login.dart';
@@ -23,18 +25,22 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  void checkUser() async {
+    await Future.delayed(Duration(seconds: 3));
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    user != null
+        ? Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => MainHome(username: user.email)))
+        : Navigator.pushReplacement(
+            context,
+            // MaterialPageRoute(builder: (context) => OnBoarding()),
+            MaterialPageRoute(builder: (context) => WelcomeScreen()));
+  }
+
   @override
   void initState() {
+    checkUser();
     super.initState();
-    Timer(
-      Duration(seconds: 3),
-      () => Navigator.pushReplacement(
-        context,
-        // MaterialPageRoute(builder: (context) => OnBoarding()),
-        MaterialPageRoute(builder: (context) => WelcomeScreen()),
-      ),
-    );
-    print('Splash Done ');
   }
 
   @override

@@ -7,6 +7,11 @@ class User {
   String gender;
   String phone;
   String uid;
+  List activities = [];
+
+  void setActivities(item) {
+    this.activities.add(item);
+  }
 
   void setUid(String uid) {
     this.uid = uid;

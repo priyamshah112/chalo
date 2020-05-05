@@ -1,3 +1,4 @@
+import 'package:chaloapp/services/Hashing.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../data/User.dart';
@@ -11,6 +12,7 @@ class DataService {
       'first_name': user.fname,
       'last_name': user.lname,
       'email': user.email,
+      'password': Hashing.encrypt(user.password),
       'dob': user.birthDate,
       'gender': user.gender,
       'mobile_no': null,
@@ -18,6 +20,7 @@ class DataService {
       'timestamp': Timestamp.now(),
       'verified': false
     });
+
   }
 
   Future verifyUser(FirebaseUser user, String phone) async {

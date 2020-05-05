@@ -253,7 +253,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                       onTap: () => Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: ((ctx) => ProfileSetup()))),
+                                              builder: ((ctx) =>
+                                                  ProfileSetup()))),
                                       child: FittedBox(
                                         child: Text(
                                           'Privacy Policy',
@@ -438,6 +439,10 @@ class _HomePageState extends State<HomePage> {
                                                         result['username'],
                                                     type: result['type'])));
                                   } else {
+                                    if (result['type'] == 'google') {
+                                      _auth.deleteUser();
+                                      _auth.signOut('google');
+                                    }
                                     Navigator.pop(context);
                                     showDialog(
                                         context: context,
@@ -652,7 +657,7 @@ class _HomePageState extends State<HomePage> {
                                         builder: (ctx) => DialogBox(
                                               title: "Login Failed :(",
                                               description:
-                                                  "Unregistered Email or Password",
+                                                  result['msg'],
                                               buttonText1: "OK",
                                               button1Func: () =>
                                                   Navigator.pop(context),

@@ -28,21 +28,21 @@ class _ProfileSetupState extends State<ProfileSetup> {
   void initState() {
     super.initState();
     activityList = [
-      ['images/activities/Beach.png', 'Beach', 'true'],
-      ['images/activities/BirdWatching.png', 'Bird Watching', 'true'],
-      ['images/activities/Canoeing.png', 'Caneoing', 'true'],
-      ['images/activities/Hiking.png', 'Hiking', 'true'],
-      ['images/activities/BeachBBQ.png', 'Beach BBQ', 'true'],
-      ['images/activities/Camping.png', 'Camping', 'true'],
-      ['images/activities/Cycling.png', 'Cycling', 'true'],
-      ['images/activities/DogWalking.png', 'Dog Walking', 'true'],
-      ['images/activities/Fishing.png', 'Fishing', 'true'],
-      ['images/activities/Gardening.png', 'Gardening', 'true'],
-      ['images/activities/Gym.png', 'Gym', 'true'],
-      ['images/activities/MountainBiking.png', 'Mountain Biking', 'true'],
-      ['images/activities/Picnic.png', 'Picnic', 'true'],
-      ['images/activities/Kayaking.png', 'Kayaking', 'true'],
-      ['images/activities/Museum.png', 'Museum', 'true'],
+      ['images/activities/Beach.png', 'Beach', 'false'],
+      ['images/activities/BirdWatching.png', 'Bird Watching', 'false'],
+      ['images/activities/Canoeing.png', 'Caneoing', 'false'],
+      ['images/activities/Hiking.png', 'Hiking', 'false'],
+      ['images/activities/BeachBBQ.png', 'Beach BBQ', 'false'],
+      ['images/activities/Camping.png', 'Camping', 'false'],
+      ['images/activities/Cycling.png', 'Cycling', 'false'],
+      ['images/activities/DogWalking.png', 'Dog Walking', 'false'],
+      ['images/activities/Fishing.png', 'Fishing', 'false'],
+      ['images/activities/Gardening.png', 'Gardening', 'false'],
+      ['images/activities/Gym.png', 'Gym', 'false'],
+      ['images/activities/MountainBiking.png', 'Mountain Biking', 'false'],
+      ['images/activities/Picnic.png', 'Picnic', 'false'],
+      ['images/activities/Kayaking.png', 'Kayaking', 'false'],
+      ['images/activities/Museum.png', 'Museum', 'false'],
     ];
     selectedActivityList = [];
   }
@@ -204,7 +204,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             padding: EdgeInsets.all(2.0),
                             child: InkWell(
                               onTap: () {
-                                activityList[i][2] = 'false';
+                                activityList[i][2] = 'true';
                                 for (int j = 0;
                                     j < selectedActivityList.length;
                                     j++) {
@@ -212,12 +212,12 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                           selectedActivityList[j][0] &&
                                       activityList[i][1] ==
                                           selectedActivityList[j][1]) {
-                                    activityList[i][2] = 'true';
+                                    activityList[i][2] = 'false';
                                     break;
                                   }
                                 }
                                 print(activityList[i][2]);
-                                if (activityList[i][2] == 'false')
+                                if (activityList[i][2] == 'true')
                                   setState(() {
                                     selectedActivityList.add([
                                       activityList[i][0],
@@ -247,7 +247,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                 width: 110,
                                 child: Stack(
                                   children: <Widget>[
-                                    activityList[i][2] == 'false'
+                                    activityList[i][2] == 'true'
                                         ? Container(color: Color(primary))
                                         : Text(''),
                                     ListTile(
@@ -451,16 +451,16 @@ class _AllActivityState extends State<AllActivity> {
                   padding: EdgeInsets.symmetric(horizontal: 2, vertical: 3),
                   child: InkWell(
                     onTap: () {
-                      activityList[i][2] = 'false';
+                      activityList[i][2] = 'true';
                       for (int j = 0; j < selectedActivityList.length; j++) {
                         if (activityList[i][0] == selectedActivityList[j][0] &&
                             activityList[i][1] == selectedActivityList[j][1]) {
-                          activityList[i][2] = 'true';
+                          activityList[i][2] = 'false';
                           break;
                         }
                       }
                       print(activityList[i][2]);
-                      if (activityList[i][2] == 'false')
+                      if (activityList[i][2] == 'true')
                         setState(() {
                           selectedActivityList.add([
                             activityList[i][0],
@@ -488,7 +488,7 @@ class _AllActivityState extends State<AllActivity> {
                       ),
                       child: Stack(
                         children: <Widget>[
-                          activityList[i][2] == 'false' ? Container(color: Color(primary)): Text(""),
+                          activityList[i][2] == 'true' ? Container(color: Color(primary)): Text(""),
                           Center(
                             child: Column(
                               children: <Widget>[
