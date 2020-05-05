@@ -386,33 +386,16 @@ class _SignUpState extends State<SignUp> {
                                     _validateGender(context);
                                   } else {
                                     showDialogBox().show_Dialog(
-                                        child: Center(
-                                            child: CircularProgressIndicator()),
-                                        context: context);
-                                    AuthService _auth = AuthService(
-                                        auth: FirebaseAuth.instance);
-                                    Map result = await _auth.createUser(
-                                        user.email, user.password);
-                                    if (result['success']) {
-                                      user.setUid(result['uid']);
-                                      await DataService().createUser(user);
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                NextPage(user: user)),
-                                      );
-                                    } else {
-                                      Navigator.pop(context);
-                                      showDialogBox().show_Dialog(
-                                          context: context,
-                                          child: DialogBox(
-                                              title: "Error :(",
-                                              description: result['error'],
-                                              buttonText1: "Ok",
-                                              button1Func: () =>
-                                                  Navigator.pop(context)));
-                                    }
+                                        context: context,
+                                        child: DialogBox(
+                                            title: "Are you Sure ?",
+                                            description:
+                                                "Make sure all your entered details are correct",
+                                            buttonText1: "Check again",
+                                            button1Func: () =>
+                                                Navigator.pop(context),
+                                            buttonText2: "Yes I'm Sure",
+                                            button2Func: _createUser));
                                   }
                                 } else {
                                   setState(() {
@@ -465,6 +448,42 @@ class _SignUpState extends State<SignUp> {
         ),
       ),
     );
+  }
+
+  void _createUser() async {
+    Navigator.pop(context);
+    showDialogBox().show_Dialog(
+        child: Center(child: CircularProgressIndicator()), context: context);
+    AuthService _auth = AuthService(auth: FirebaseAuth.instance);
+    Map result = await _auth.createUser(user.email, user.password, (user.fname+" "+user.lname));
+    if (result['success']) {
+      user.setUid(result['uid']);
+      await DataService().createUser(user);
+      Navigator.pop(context);
+      showDialogBox().show_Dialog(
+          context: context,
+          child: DialogBox(
+              title: "Done !",
+              description: "Check your Email for the verification Link",
+              buttonText1: "Ok",
+              button1Func: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => NextPage(user: user)),
+                );
+              }));
+    } else {
+      Navigator.pop(context);
+      showDialogBox().show_Dialog(
+          context: context,
+          child: DialogBox(
+              title: "Error :(",
+              description: result['error'],
+              buttonText1: "Ok",
+              button1Func: () => Navigator.pop(context)));
+    }
   }
 }
 

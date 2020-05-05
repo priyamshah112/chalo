@@ -1,17 +1,18 @@
 import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/services/AuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:toast/toast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
-
 import 'login.dart';
 import 'widgets/DailogBox.dart';
 
 class MainHome extends StatefulWidget {
-  final Map args;
-  MainHome({this.args});
+  final String username;
+  final String type;
+  MainHome({this.username, this.type});
   @override
   _MainHomeState createState() => _MainHomeState();
 }
@@ -28,7 +29,8 @@ class _MainHomeState extends State<MainHome> {
               child: Icon(Icons.person, color: Colors.black),
               onPressed: () {
                 Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text('user: ${widget.args['email']}'),
+                  content:
+                      Text('user: ${widget.username}\n type: ${widget.type}'),
                   duration: Duration(seconds: 2),
                 ));
               })),
@@ -218,15 +220,14 @@ class _MainHomeState extends State<MainHome> {
             button1Func: () => Navigator.pop(context, false),
             buttonText2: "Yes",
             button2Func: () async {
-              await FirebaseAuth.instance.signOut();
+              AuthService _auth = new AuthService(auth: FirebaseAuth.instance);
+              await _auth.signOut(widget.type);
               print("Signed out");
               Navigator.pop(context);
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            HomePage())); // To close the dialog
-              
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HomePage())); // To close the dialog
             }));
   }
 }

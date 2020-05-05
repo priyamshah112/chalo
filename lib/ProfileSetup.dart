@@ -28,36 +28,21 @@ class _ProfileSetupState extends State<ProfileSetup> {
   void initState() {
     super.initState();
     activityList = [
-      ['images/activities/Beach.png', 'Beach'],
-      ['images/activities/BirdWatching.png', 'Bird Watching'],
-      ['images/activities/Canoeing.png', 'Caneoing'],
-      ['images/activities/Hiking.png', 'Hiking'],
-      ['images/activities/BeachBBQ.png', 'Beach BBQ'],
-      ['images/activities/Camping.png', 'Camping'],
-      ['images/activities/Cycling.png', 'Cycling'],
-      ['images/activities/DogWalking.png', 'Dog Walking'],
-      ['images/activities/Fishing.png', 'Fishing'],
-      ['images/activities/Gardening.png', 'Gardening'],
-      ['images/activities/Gym.png', 'Gym'],
-      ['images/activities/MountainBiking.png', 'Mountain Biking'],
-      ['images/activities/Picnic.png', 'Picnic'],
-      ['images/activities/Kayaking.png', 'Kayaking'],
-      ['images/activities/Museum.png', 'Museum'],
-      ['images/activities/Beach.png', 'Beach'],
-      ['images/activities/BirdWatching.png', 'Bird Watching'],
-      ['images/activities/Canoeing.png', 'Caneoing'],
-      ['images/activities/Hiking.png', 'Hiking'],
-      ['images/activities/BeachBBQ.png', 'Beach BBQ'],
-      ['images/activities/Camping.png', 'Camping'],
-      ['images/activities/Cycling.png', 'Cycling'],
-      ['images/activities/DogWalking.png', 'Dog Walking'],
-      ['images/activities/Fishing.png', 'Fishing'],
-      ['images/activities/Gardening.png', 'Gardening'],
-      ['images/activities/Gym.png', 'Gym'],
-      ['images/activities/MountainBiking.png', 'Mountain Biking'],
-      ['images/activities/Picnic.png', 'Picnic'],
-      ['images/activities/Kayaking.png', 'Kayaking'],
-      ['images/activit/Museum.png', 'Museum'],
+      ['images/activities/Beach.png', 'Beach', 'true'],
+      ['images/activities/BirdWatching.png', 'Bird Watching', 'true'],
+      ['images/activities/Canoeing.png', 'Caneoing', 'true'],
+      ['images/activities/Hiking.png', 'Hiking', 'true'],
+      ['images/activities/BeachBBQ.png', 'Beach BBQ', 'true'],
+      ['images/activities/Camping.png', 'Camping', 'true'],
+      ['images/activities/Cycling.png', 'Cycling', 'true'],
+      ['images/activities/DogWalking.png', 'Dog Walking', 'true'],
+      ['images/activities/Fishing.png', 'Fishing', 'true'],
+      ['images/activities/Gardening.png', 'Gardening', 'true'],
+      ['images/activities/Gym.png', 'Gym', 'true'],
+      ['images/activities/MountainBiking.png', 'Mountain Biking', 'true'],
+      ['images/activities/Picnic.png', 'Picnic', 'true'],
+      ['images/activities/Kayaking.png', 'Kayaking', 'true'],
+      ['images/activities/Museum.png', 'Museum', 'true'],
     ];
     selectedActivityList = [];
   }
@@ -219,7 +204,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             padding: EdgeInsets.all(2.0),
                             child: InkWell(
                               onTap: () {
-                                bool contains = false;
+                                activityList[i][2] = 'false';
                                 for (int j = 0;
                                     j < selectedActivityList.length;
                                     j++) {
@@ -227,12 +212,12 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                           selectedActivityList[j][0] &&
                                       activityList[i][1] ==
                                           selectedActivityList[j][1]) {
-                                    contains = true;
+                                    activityList[i][2] = 'true';
                                     break;
                                   }
                                 }
-                                print(contains);
-                                if (!contains)
+                                print(activityList[i][2]);
+                                if (activityList[i][2] == 'false')
                                   setState(() {
                                     selectedActivityList.add([
                                       activityList[i][0],
@@ -260,24 +245,31 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                     ),
                                     borderRadius: BorderRadius.circular(6)),
                                 width: 110,
-                                child: ListTile(
-                                  title: Image.asset(
-                                    activityList[i][0],
-                                    width: 60,
-                                    height: 60,
-                                  ),
-                                  subtitle: Container(
-                                    padding: EdgeInsets.only(top: 7),
-                                    child: Text(
-                                      activityList[i][1],
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(secondary),
+                                child: Stack(
+                                  children: <Widget>[
+                                    activityList[i][2] == 'false'
+                                        ? Container(color: Color(primary))
+                                        : Text(''),
+                                    ListTile(
+                                      title: Image.asset(
+                                        activityList[i][0],
+                                        width: 60,
+                                        height: 60,
+                                      ),
+                                      subtitle: Container(
+                                        padding: EdgeInsets.only(top: 7),
+                                        child: Text(
+                                          activityList[i][1],
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(secondary),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -359,7 +351,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                 context: context);
                             AuthService _auth =
                                 AuthService(auth: FirebaseAuth.instance);
-                            await _auth.signIn(
+                            var result = await _auth.signIn(
                                 widget.user.email, widget.user.password);
                             Navigator.pop(context);
                             showDialog(
@@ -376,10 +368,9 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                       Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                              builder: ((ctx) =>
-                                                  MainHome(args: {
-                                                    'email': widget.user.email
-                                                  }))));
+                                              builder: ((ctx) => MainHome(
+                                                  username: result['username'],
+                                                  type: result['type']))));
                                     })));
                           } catch (e) {
                             print(e);
@@ -460,16 +451,16 @@ class _AllActivityState extends State<AllActivity> {
                   padding: EdgeInsets.symmetric(horizontal: 2, vertical: 3),
                   child: InkWell(
                     onTap: () {
-                      bool contains = false;
+                      activityList[i][2] = 'false';
                       for (int j = 0; j < selectedActivityList.length; j++) {
                         if (activityList[i][0] == selectedActivityList[j][0] &&
                             activityList[i][1] == selectedActivityList[j][1]) {
-                          contains = true;
+                          activityList[i][2] = 'true';
                           break;
                         }
                       }
-                      print(contains);
-                      if (!contains)
+                      print(activityList[i][2]);
+                      if (activityList[i][2] == 'false')
                         setState(() {
                           selectedActivityList.add([
                             activityList[i][0],
@@ -495,29 +486,36 @@ class _AllActivityState extends State<AllActivity> {
                         ),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 10),
-                        child: Column(
-                          children: <Widget>[
-                            Image.asset(
-                              activityList[i][0],
-                              width: 60,
-                              height: 60,
+                      child: Stack(
+                        children: <Widget>[
+                          activityList[i][2] == 'false' ? Container(color: Color(primary)): Text(""),
+                          Center(
+                            child: Column(
+                              children: <Widget>[
+                                SizedBox(height: 10),
+                                Image.asset(
+                                  activityList[i][0],
+                                  width: 60,
+                                  height: 60,
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                FittedBox(
+                                  child: Text(
+                                    activityList[i][1],
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(secondary),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text(
-                              activityList[i][1],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(secondary),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

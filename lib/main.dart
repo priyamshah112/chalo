@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:chaloapp/forgot.dart';
 import 'package:flutter/material.dart';
 import 'data/data.dart';
 import 'package:chaloapp/login.dart';
@@ -8,6 +9,10 @@ void main() => runApp(
       MaterialApp(
         theme: ThemeData(primaryColor: Colors.teal, accentColor: Colors.teal),
         debugShowCheckedModeBanner: false,
+        // routes: {
+        //   '/': (context) => SplashScreen(),
+        //   'forgot': (context) => ForgotPage(),
+        // },
         home: SplashScreen(),
       ),
     );

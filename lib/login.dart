@@ -17,7 +17,7 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   var myImage;
-
+  TextEditingController _emailController = new TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -253,7 +253,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                       onTap: () => Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: ((ctx) => HomePage()))),
+                                              builder: ((ctx) => ProfileSetup()))),
                                       child: FittedBox(
                                         child: Text(
                                           'Privacy Policy',
@@ -293,6 +293,7 @@ class _HomePageState extends State<HomePage> {
   final _formKey = GlobalKey<FormState>();
   String email, password;
   bool _autovalidate = false;
+  TextEditingController _emailController = new TextEditingController();
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -406,13 +407,50 @@ class _HomePageState extends State<HomePage> {
                           SizedBox(width: 5.0),
                           Expanded(
                             child: FlatButton(
-                              onPressed: () => {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          HomePage()),
-                                )
+                              onPressed: () async {
+                                showDialog(
+                                    context: context,
+                                    builder: ((ctx) => Center(
+                                        child: CircularProgressIndicator())));
+                                AuthService _auth = new AuthService(
+                                    auth: FirebaseAuth.instance);
+                                await _auth
+                                    .googleSignIn(email, password)
+                                    .then((result) async {
+                                  if (result['success']) {
+                                    Navigator.pop(context);
+                                    showDialog(
+                                        context: context,
+                                        builder: ((ctx) => DialogBox(
+                                            icon: Icons.verified_user,
+                                            title: "Login Successful",
+                                            description: "",
+                                            buttonText1: "",
+                                            button1Func: () {})));
+                                    await Future.delayed(Duration(seconds: 2));
+                                    Navigator.pop(context);
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                MainHome(
+                                                    username:
+                                                        result['username'],
+                                                    type: result['type'])));
+                                  } else {
+                                    Navigator.pop(context);
+                                    showDialog(
+                                        context: context,
+                                        builder: (ctx) => DialogBox(
+                                              title: "Login Failed :(",
+                                              description:
+                                                  "Unregistered Email or Password",
+                                              buttonText1: "OK",
+                                              button1Func: () =>
+                                                  Navigator.pop(context),
+                                            ));
+                                  }
+                                });
                               },
                               color: Colors.deepOrangeAccent,
                               padding: EdgeInsets.symmetric(
@@ -476,6 +514,7 @@ class _HomePageState extends State<HomePage> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
                                 child: TextFormField(
+                                  controller: _emailController,
                                   keyboardType: TextInputType.emailAddress,
                                   validator: _validateEmail,
                                   onSaved: (value) => email = value,
@@ -546,7 +585,7 @@ class _HomePageState extends State<HomePage> {
                               context,
                               MaterialPageRoute(
                                   builder: (BuildContext context) =>
-                                      ForgotPage()),
+                                      ForgotPage(email: _emailController.text)),
                             );
                           },
                           child: Text(
@@ -585,8 +624,8 @@ class _HomePageState extends State<HomePage> {
                                     AuthService(auth: FirebaseAuth.instance);
                                 await _auth
                                     .signIn(email, password)
-                                    .then((isSuccess) async {
-                                  if (isSuccess) {
+                                    .then((result) async {
+                                  if (result['success']) {
                                     Navigator.pop(context);
                                     showDialog(
                                         context: context,
@@ -596,14 +635,16 @@ class _HomePageState extends State<HomePage> {
                                             description: "",
                                             buttonText1: "",
                                             button1Func: () {})));
-                                    Map args = {'email': email};
                                     await Future.delayed(Duration(seconds: 2));
                                     Navigator.pop(context);
                                     Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
                                             builder: (BuildContext context) =>
-                                                MainHome(args: args)));
+                                                MainHome(
+                                                    username:
+                                                        result['username'],
+                                                    type: result['type'])));
                                   } else {
                                     Navigator.pop(context);
                                     showDialog(

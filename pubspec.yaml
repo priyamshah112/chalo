@@ -30,6 +30,7 @@ dependencies:
   flutter_map:
   firebase_auth: 
   cloud_firestore: 
+  google_sign_in:
 #  flutter_rounded_date_picker: 1.0.0
 #  flutter_localizations:
 # fluttertoast: ^4.0.1
