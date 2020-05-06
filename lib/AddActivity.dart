@@ -567,62 +567,102 @@ class RadioGroupWidget extends State {
         Padding(
           padding: const EdgeInsets.all(0.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Radio(
-                value: 1,
-                activeColor: Color(primary),
-                groupValue: id,
-                onChanged: (val) {
-                  setState(() {
-                    id = 1;
-                    print(id);
-                  });
-                },
+              Stack(
+                children: <Widget>[
+                  Radio(
+                    value: 1,
+                    activeColor: Color(primary),
+                    groupValue: id,
+                    onChanged: (val) {
+                      setState(() {
+                        id = 1;
+                        print(id);
+                      });
+                    },
+                  ),
+                  Positioned(
+                    top: 13,
+                    left: 33.0,
+                    child: Icon(
+                      FontAwesomeIcons.male,
+                      size: 20,
+                    ),
+                  ),
+                ],
               ),
-              Icon(
-                FontAwesomeIcons.male,
-                size: 20,
+              Stack(
+                children: <Widget>[
+                  SizedBox(width: 60.0),
+                  Radio(
+                    value: 2,
+                    activeColor: Color(primary),
+                    groupValue: id,
+                    onChanged: (val) {
+                      setState(() {
+                        id = 2;
+                        print(id);
+                      });
+                    },
+                  ),
+                  Positioned(
+                    top: 13,
+                    left: 33.0,
+                    child: Icon(
+                      FontAwesomeIcons.male,
+                      size: 20,
+                    ),
+                  ),
+                  Positioned(
+                    top: 13,
+                    left: 43.0,
+                    child: Icon(
+                      FontAwesomeIcons.male,
+                      size: 20,
+                    ),
+                  ),
+                ],
               ),
-              Radio(
-                value: 2,
-                activeColor: Color(primary),
-                groupValue: id,
-                onChanged: (val) {
-                  setState(() {
-                    id = 2;
-                  });
-                },
-              ),
-              Icon(
-                FontAwesomeIcons.male,
-                size: 20,
-              ),
-              Icon(
-                FontAwesomeIcons.male,
-                size: 20,
-              ),
-              Radio(
-                value: 3,
-                activeColor: Color(primary),
-                groupValue: id,
-                onChanged: (val) {
-                  setState(() {
-                    id = 3;
-                  });
-                },
-              ),
-              Icon(
-                FontAwesomeIcons.male,
-                size: 20,
-              ),
-              Icon(
-                FontAwesomeIcons.male,
-                size: 20,
-              ),
-              Icon(
-                FontAwesomeIcons.male,
-                size: 20,
+              Stack(
+                children: <Widget>[
+                  SizedBox(width: 70.0),
+                  Radio(
+                    value: 3,
+                    activeColor: Color(primary),
+                    groupValue: id,
+                    onChanged: (val) {
+                      setState(() {
+                        id = 3;
+                        print(id);
+                      });
+                    },
+                  ),
+                  Positioned(
+                    top: 13,
+                    left: 33.0,
+                    child: Icon(
+                      FontAwesomeIcons.male,
+                      size: 20,
+                    ),
+                  ),
+                  Positioned(
+                    top: 13,
+                    left: 43.0,
+                    child: Icon(
+                      FontAwesomeIcons.male,
+                      size: 20,
+                    ),
+                  ),
+                  Positioned(
+                    top: 13,
+                    left: 53.0,
+                    child: Icon(
+                      FontAwesomeIcons.male,
+                      size: 20,
+                    ),
+                  )
+                ],
               ),
               Spacer(),
               Container(

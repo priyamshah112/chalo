@@ -1,52 +1,52 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:chaloapp/home.dart';
+import 'package:chaloapp/services/AuthService.dart';
+import 'package:chaloapp/widgets/DailogBox.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'data/User.dart';
 import 'data/data.dart';
 import 'package:chaloapp/login.dart';
 import 'package:chaloapp/global_colors.dart';
 import 'package:chaloapp/data/activity.dart';
 
 class ProfileSetup extends StatefulWidget {
+  final User user;
+  ProfileSetup({this.user});
   @override
   _ProfileSetupState createState() => _ProfileSetupState();
 }
 
-List<List<String>> activityList = [
-  ['images/Activities/Beach.png', 'Beach'],
-  ['images/Activities/BirdWatching.png', 'Bird Watching'],
-  ['images/Activities/Canoeing.png', 'Caneoing'],
-  ['images/Activities/Hiking.png', 'Hiking'],
-  ['images/Activities/BeachBBQ.png', 'Beach BBQ'],
-  ['images/Activities/Camping.png', 'Camping'],
-  ['images/Activities/Cycling.png', 'Cycling'],
-  ['images/Activities/DogWalking.png', 'Dog Walking'],
-  ['images/Activities/Fishing.png', 'Fishing'],
-  ['images/Activities/Gardening.png', 'Gardening'],
-  ['images/Activities/Gym.png', 'Gym'],
-  ['images/Activities/MountainBiking.png', 'Mountain Biking'],
-  ['images/Activities/Picnic.png', 'Picnic'],
-  ['images/Activities/Kayaking.png', 'Kayaking'],
-  ['images/Activities/Museum.png', 'Museum'],
-  ['images/Activities/Beach.png', 'Beach'],
-  ['images/Activities/BirdWatching.png', 'Bird Watching'],
-  ['images/Activities/Canoeing.png', 'Caneoing'],
-  ['images/Activities/Hiking.png', 'Hiking'],
-  ['images/Activities/BeachBBQ.png', 'Beach BBQ'],
-  ['images/Activities/Camping.png', 'Camping'],
-  ['images/Activities/Cycling.png', 'Cycling'],
-  ['images/Activities/DogWalking.png', 'Dog Walking'],
-  ['images/Activities/Fishing.png', 'Fishing'],
-  ['images/Activities/Gardening.png', 'Gardening'],
-  ['images/Activities/Gym.png', 'Gym'],
-  ['images/Activities/MountainBiking.png', 'Mountain Biking'],
-  ['images/Activities/Picnic.png', 'Picnic'],
-  ['images/Activities/Kayaking.png', 'Kayaking'],
-  ['images/Activities/Museum.png', 'Museum'],
-];
-List<List<String>> selectedActivityList = [];
+List<List<String>> selectedActivityList;
+List<List<String>> activityList;
 
 class _ProfileSetupState extends State<ProfileSetup> {
+  @override
+  void initState() {
+    super.initState();
+    activityList = [
+      ['images/activities/Beach.png', 'Beach', 'false'],
+      ['images/activities/BirdWatching.png', 'Bird Watching', 'false'],
+      ['images/activities/Canoeing.png', 'Caneoing', 'false'],
+      ['images/activities/Hiking.png', 'Hiking', 'false'],
+      ['images/activities/BeachBBQ.png', 'Beach BBQ', 'false'],
+      ['images/activities/Camping.png', 'Camping', 'false'],
+      ['images/activities/Cycling.png', 'Cycling', 'false'],
+      ['images/activities/DogWalking.png', 'Dog Walking', 'false'],
+      ['images/activities/Fishing.png', 'Fishing', 'false'],
+      ['images/activities/Gardening.png', 'Gardening', 'false'],
+      ['images/activities/Gym.png', 'Gym', 'false'],
+      ['images/activities/MountainBiking.png', 'Mountain Biking', 'false'],
+      ['images/activities/Picnic.png', 'Picnic', 'false'],
+      ['images/activities/Kayaking.png', 'Kayaking', 'false'],
+      ['images/activities/Museum.png', 'Museum', 'false'],
+    ];
+    selectedActivityList = [];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,7 +115,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                 highlightColor: Colors.transparent,
                                 onPressed: () {},
                                 child: Text(
-                                  "0 Followings",
+                                  "0 \n Following",
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
@@ -123,16 +124,14 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                   ),
                                 ),
                               ),
-                              SizedBox(
-                                width: 20,
-                              ),
                               FlatButton(
                                 padding: EdgeInsets.all(0),
                                 splashColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
                                 onPressed: () {},
                                 child: Text(
-                                  "0 Followers",
+                                  "0 \n Followers",
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
@@ -205,7 +204,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             padding: EdgeInsets.all(2.0),
                             child: InkWell(
                               onTap: () {
-                                bool contains = false;
+                                activityList[i][2] = 'true';
                                 for (int j = 0;
                                     j < selectedActivityList.length;
                                     j++) {
@@ -213,12 +212,12 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                           selectedActivityList[j][0] &&
                                       activityList[i][1] ==
                                           selectedActivityList[j][1]) {
-                                    contains = true;
+                                    activityList[i][2] = 'false';
                                     break;
                                   }
                                 }
-                                print(contains);
-                                if (!contains)
+                                print(activityList[i][2]);
+                                if (activityList[i][2] == 'true')
                                   setState(() {
                                     selectedActivityList.add([
                                       activityList[i][0],
@@ -246,24 +245,31 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                     ),
                                     borderRadius: BorderRadius.circular(6)),
                                 width: 110,
-                                child: ListTile(
-                                  title: Image.asset(
-                                    activityList[i][0],
-                                    width: 60,
-                                    height: 60,
-                                  ),
-                                  subtitle: Container(
-                                    padding: EdgeInsets.only(top: 7),
-                                    child: Text(
-                                      activityList[i][1],
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(secondary),
+                                child: Stack(
+                                  children: <Widget>[
+                                    activityList[i][2] == 'true'
+                                        ? Container(color: Color(primary))
+                                        : Text(''),
+                                    ListTile(
+                                      title: Image.asset(
+                                        activityList[i][0],
+                                        width: 60,
+                                        height: 60,
+                                      ),
+                                      subtitle: Container(
+                                        padding: EdgeInsets.only(top: 7),
+                                        child: Text(
+                                          activityList[i][1],
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(secondary),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -337,16 +343,45 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             horizontal: 60.0, vertical: 10.0),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50.0)),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MainHome()),
-                          );
+                        onPressed: () async {
+                          try {
+                            showDialogBox().show_Dialog(
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                                context: context);
+                            AuthService _auth =
+                                AuthService(auth: FirebaseAuth.instance);
+                            var result = await _auth.signIn(
+                                widget.user.email, widget.user.password);
+                            Navigator.pop(context);
+                            showDialog(
+                                context: context,
+                                builder: ((ctx) => DialogBox(
+                                    title: "Done !",
+                                    description:
+                                        "You've Successfully Signed Up",
+                                    buttonText1: "Ok",
+                                    button1Func: () {
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: ((ctx) => MainHome(
+                                                  username: result['username'],
+                                                  type: result['type']))));
+                                    })));
+                          } catch (e) {
+                            print(e);
+                            Navigator.pop(context);
+                          }
                         },
                         child: Center(
                           child: Text(
-                            "Finish",
+                            selectedActivityList.length == 0
+                                ? "Skip & Finish"
+                                : "Finish",
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
@@ -416,16 +451,16 @@ class _AllActivityState extends State<AllActivity> {
                   padding: EdgeInsets.symmetric(horizontal: 2, vertical: 3),
                   child: InkWell(
                     onTap: () {
-                      bool contains = false;
+                      activityList[i][2] = 'true';
                       for (int j = 0; j < selectedActivityList.length; j++) {
                         if (activityList[i][0] == selectedActivityList[j][0] &&
                             activityList[i][1] == selectedActivityList[j][1]) {
-                          contains = true;
+                          activityList[i][2] = 'false';
                           break;
                         }
                       }
-                      print(contains);
-                      if (!contains)
+                      print(activityList[i][2]);
+                      if (activityList[i][2] == 'true')
                         setState(() {
                           selectedActivityList.add([
                             activityList[i][0],
@@ -451,29 +486,36 @@ class _AllActivityState extends State<AllActivity> {
                         ),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 10),
-                        child: Column(
-                          children: <Widget>[
-                            Image.asset(
-                              activityList[i][0],
-                              width: 60,
-                              height: 60,
+                      child: Stack(
+                        children: <Widget>[
+                          activityList[i][2] == 'true' ? Container(color: Color(primary)): Text(""),
+                          Center(
+                            child: Column(
+                              children: <Widget>[
+                                SizedBox(height: 10),
+                                Image.asset(
+                                  activityList[i][0],
+                                  width: 60,
+                                  height: 60,
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                FittedBox(
+                                  child: Text(
+                                    activityList[i][1],
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(secondary),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text(
-                              activityList[i][1],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(secondary),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

@@ -1,20 +1,35 @@
 import 'package:chaloapp/login.dart';
+import 'package:chaloapp/services/AuthService.dart';
+import 'package:chaloapp/widgets/DailogBox.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:chaloapp/global_colors.dart';
 
 class ForgotPage extends StatefulWidget {
+  final String email;
+  ForgotPage({this.email});
   @override
   _ForgotPageState createState() => _ForgotPageState();
 }
 
 class _ForgotPageState extends State<ForgotPage> {
   final _formKey = GlobalKey<FormState>();
+  bool _autovalidate = false;
+  TextEditingController _emailController = new TextEditingController();
+
+  @override
+  void initState() {
+    _emailController.text = widget.email;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return Form(
       key: _formKey,
+      autovalidate: _autovalidate,
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
@@ -50,14 +65,16 @@ class _ForgotPageState extends State<ForgotPage> {
                     children: <Widget>[
                       FadeAnimation(
                         1.5,
-                        Text(
-                          "Forgot Password",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Color(color1),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 35,
-                              fontFamily: 'Pacifico'),
+                        FittedBox(
+                          child: Text(
+                            "Forgot Password ?",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Color(color1),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 35,
+                                fontFamily: 'Pacifico'),
+                          ),
                         ),
                       ),
                       SizedBox(
@@ -74,7 +91,7 @@ class _ForgotPageState extends State<ForgotPage> {
                             children: <Widget>[
                               Container(
                                 child: Text(
-                                  "Please Enter your registered Email address. we will send you instructions to reset your password.",
+                                  "Please enter your registered Email address. we will send you instructions to reset your password.",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Color(secondary),
@@ -89,7 +106,9 @@ class _ForgotPageState extends State<ForgotPage> {
                               Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
-                                child: TextField(
+                                child: TextFormField(
+                                  controller: _emailController,
+                                  validator: _validateEmail,
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     filled: true,
@@ -129,13 +148,55 @@ class _ForgotPageState extends State<ForgotPage> {
                                   horizontal: 60.0, vertical: 10.0),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50.0)),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          HomePage()),
-                                );
+                              onPressed: () async {
+                                if (_formKey.currentState.validate()) {
+                                  showDialogBox().show_Dialog(
+                                      context: context,
+                                      child: Center(
+                                          child: CircularProgressIndicator()));
+                                  AuthService _auth = new AuthService(
+                                      auth: FirebaseAuth.instance);
+                                  await _auth
+                                      .resetPassword(_emailController.text)
+                                      .then((result) {
+                                    if (result['success']) {
+                                      Navigator.pop(context);
+                                      showDialogBox().show_Dialog(
+                                          context: context,
+                                          child: DialogBox(
+                                              title: "Password reset",
+                                              description:
+                                                  "We have sent an email to your regirestered email address regarding the instruction to reset your password",
+                                              buttonText1: "Ok",
+                                              button1Func: () {
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                                Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (BuildContext
+                                                              context) =>
+                                                          HomePage()),
+                                                );
+                                              }));
+                                    } else {
+                                      Navigator.pop(context);
+                                      showDialogBox().show_Dialog(
+                                          context: context,
+                                          child: DialogBox(
+                                              title: "User not Found !",
+                                              description: result['msg'],
+                                              buttonText1: "Ok",
+                                              button1Func: () {
+                                                Navigator.pop(context);
+                                              }));
+                                    }
+                                  });
+                                } else {
+                                  setState(() {
+                                    _autovalidate = true;
+                                  });
+                                }
                               },
                               child: Center(
                                 child: Text(
@@ -153,12 +214,7 @@ class _ForgotPageState extends State<ForgotPage> {
                         Center(
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        HomePage()),
-                              );
+                              Navigator.pop(context);
                             },
                             child: Text(
                               "Back",
@@ -184,4 +240,14 @@ class _ForgotPageState extends State<ForgotPage> {
       ),
     );
   }
+}
+
+String _validateEmail(String value) {
+  Pattern pattern =
+      r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+  RegExp regex = new RegExp(pattern);
+  if (!regex.hasMatch(value))
+    return 'Enter Valid Email';
+  else
+    return null;
 }

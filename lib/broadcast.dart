@@ -5,7 +5,6 @@
 import 'package:chaloapp/global_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import 'AddActivity.dart';
 import 'Animation/FadeAnimation.dart';
 //import 'package:chaloapp/Animation/FadeAnimation.dart';
@@ -50,13 +49,15 @@ class _BroadcastState extends State<Broadcast> {
                     SizedBox(
                       height: 20.0,
                     ),
-                    Text(
-                      'Broadcast Activity',
-                      style: TextStyle(
-                        color: Color(primary),
-                        fontSize: 45.0,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Pacifico',
+                    FittedBox(
+                      child: Text(
+                        'Broadcast Activity',
+                        style: TextStyle(
+                          color: Color(primary),
+                          fontSize: 45.0,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Pacifico',
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -234,12 +235,22 @@ class _BroadcastState extends State<Broadcast> {
                                   height: 5,
                                 ),
                                 //loop start
-                                Text(
-                                  "Responded",
-                                  style: TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                Row(
+                                  children: <Widget>[
+                                    Text(
+                                      "Responded",
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    IconButton(
+                                      icon: Icon(Icons.share),
+                                      color: Colors.green,
+                                      onPressed: () {},
+                                    ),
+                                  ],
                                 ),
                                 SizedBox(
                                   height: 10,
@@ -264,15 +275,19 @@ class _BroadcastState extends State<Broadcast> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
-                                        Text(
-                                          "Abdul Quadir wants to join",
-                                          style: TextStyle(
-                                            color: Color(secondary),
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
+                                        FittedBox(
+                                          child: Text(
+                                            "Abdul Quadir wants to join",
+                                            style: TextStyle(
+                                              color: Color(secondary),
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                         Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
                                           children: <Widget>[
                                             Icon(
                                               FontAwesomeIcons.trophy,
@@ -287,14 +302,13 @@ class _BroadcastState extends State<Broadcast> {
                                         ),
                                       ],
                                     ),
-                                    Spacer(),
-                                    Container(
-                                      child: IconButton(
-                                        icon: Icon(Icons.share),
-                                        color: Colors.green,
-                                        onPressed: () {},
-                                      ),
-                                    ),
+                                    // Container(
+                                    //   child: IconButton(
+                                    //     icon: Icon(Icons.share),
+                                    //     color: Colors.green,
+                                    //     onPressed: () {},
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                                 SizedBox(
@@ -485,12 +499,22 @@ class _BroadcastState extends State<Broadcast> {
                                   height: 5,
                                 ),
                                 //loop start
-                                Text(
-                                  "Responded",
-                                  style: TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                Row(
+                                  children: <Widget>[
+                                    Text(
+                                      "Responded",
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    IconButton(
+                                      icon: Icon(Icons.share),
+                                      color: Colors.green,
+                                      onPressed: () {},
+                                    ),
+                                  ],
                                 ),
                                 SizedBox(
                                   height: 10,
@@ -498,15 +522,12 @@ class _BroadcastState extends State<Broadcast> {
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
-                                    Container(
-                                      width: 55.0,
-                                      height: 55.0,
-                                      child: CircleAvatar(
-                                        foregroundColor: Color(primary),
-                                        backgroundColor: Color(secondary),
-                                        backgroundImage:
-                                            AssetImage('images/bgcover.jpg'),
-                                      ),
+                                    CircleAvatar(
+                                      radius: 27.5,
+                                      foregroundColor: Color(primary),
+                                      backgroundColor: Color(primary),
+                                      backgroundImage:
+                                          AssetImage('images/bgcover.jpg'),
                                     ),
                                     SizedBox(
                                       width: 10.0,
@@ -515,12 +536,14 @@ class _BroadcastState extends State<Broadcast> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
-                                        Text(
-                                          "Abdul Quadir request to change",
-                                          style: TextStyle(
-                                            color: Color(secondary),
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
+                                        FittedBox(
+                                          child: Text(
+                                            "Abdul Quadir request to change",
+                                            style: TextStyle(
+                                              color: Color(secondary),
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                         Row(
@@ -537,14 +560,6 @@ class _BroadcastState extends State<Broadcast> {
                                           ],
                                         ),
                                       ],
-                                    ),
-                                    Spacer(),
-                                    Container(
-                                      child: IconButton(
-                                        icon: Icon(Icons.share),
-                                        color: Colors.green,
-                                        onPressed: () {},
-                                      ),
                                     ),
                                   ],
                                 ),
