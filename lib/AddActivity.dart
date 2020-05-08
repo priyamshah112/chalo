@@ -624,7 +624,6 @@ class RadioGroupWidget extends State {
                 FontAwesomeIcons.male,
                 size: 20,
               ),
-              Spacer(),
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(
