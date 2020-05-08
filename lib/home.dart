@@ -1,11 +1,11 @@
 import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/services/AuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:toast/toast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
-
 import 'login.dart';
 import 'widgets/DailogBox.dart';
 import 'package:chaloapp/broadcast.dart';
@@ -14,25 +14,29 @@ import 'package:chaloapp/chats.dart';
 import 'package:chaloapp/explore.dart';
 
 class MainHome extends StatefulWidget {
-  final Map args;
-  MainHome({this.args});
-
+  final String username;
+  final String type;
+  MainHome({this.username, this.type});
   @override
   _MainHomeState createState() => _MainHomeState();
 }
 
 class _MainHomeState extends State<MainHome> {
+
   int _currentIndex = 0;
+  List tabs;
 
-  final tabs = [
-    MainMap(args: args),
-    AllActivity(),
-    Broadcast(),
-    Explore(),
-    Chats()
-  ];
-
-  static get args => null;
+  @override
+  void initState() {
+    tabs = [
+      MainMap(user: widget.username, type: widget.type),
+      AllActivity(),
+      Broadcast(),
+      Explore(),
+      Chats()
+    ];
+    super.initState();
+  }
 
 //  final List<Widget> screens = [
 //    MainHome(),
@@ -102,8 +106,9 @@ class _MainHomeState extends State<MainHome> {
 }
 
 class MainMap extends StatefulWidget {
-  final Map args;
-  MainMap({this.args});
+  final String user;
+  final String type;
+  MainMap({this.user, this.type});
   @override
   _MainMapState createState() => _MainMapState();
 }
@@ -118,7 +123,7 @@ class _MainMapState extends State<MainMap> {
               child: Icon(Icons.person, color: Colors.black),
               onPressed: () {
                 Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text('user: ${widget.args['uid']}'),
+                  content: Text('user: ${widget.user}\n type: ${widget.type}'),
                   duration: Duration(seconds: 2),
                 ));
               })),
@@ -205,7 +210,8 @@ class _MainMapState extends State<MainMap> {
             button1Func: () => Navigator.pop(context, false),
             buttonText2: "Yes",
             button2Func: () async {
-              await FirebaseAuth.instance.signOut();
+              AuthService _auth = new AuthService(auth: FirebaseAuth.instance);
+              await _auth.signOut(widget.type);
               print("Signed out");
               Navigator.pop(context);
               Navigator.pushReplacement(

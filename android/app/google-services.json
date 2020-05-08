@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "591673871843-5j6jt18oc4mtm036bemgillhblv4t4cj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chaloapp",
+            "certificate_hash": "973589a7fbe0a51e10cf369804bbd251b36eaef5"
+          }
+        },
+        {
           "client_id": "591673871843-9anbtlpgidhl37t6rcps32n02cd67mob.apps.googleusercontent.com",
           "client_type": 3
         }

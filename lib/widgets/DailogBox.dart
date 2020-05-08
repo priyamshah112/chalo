@@ -32,7 +32,7 @@ class _DialogBoxState extends State<DialogBox> {
               padding: const EdgeInsets.all(20.0),
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.8,
-                padding: EdgeInsets.only(top: 60.0),
+                padding: EdgeInsets.only(top: widget.icon == null ? 30.0 : 60),
                 margin: EdgeInsets.only(top: widget.icon == null ? 0.0 : 60),
                 decoration: new BoxDecoration(
                   color: Colors.white,
@@ -55,7 +55,7 @@ class _DialogBoxState extends State<DialogBox> {
                               SizedBox(height: 16.0),
                               Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 3.0),
+                                      horizontal: 5.0),
                                   child: Text(
                                     widget.description,
                                     textAlign: TextAlign.center,
@@ -109,7 +109,9 @@ class _DialogBoxState extends State<DialogBox> {
                     left: 15,
                     right: 15,
                     child: CircleAvatar(
-                      backgroundColor: widget.iconColor!=null ? widget.iconColor : Colors.teal,
+                      backgroundColor: widget.iconColor != null
+                          ? widget.iconColor
+                          : Colors.teal,
                       child: Icon(
                         widget.icon,
                         size: 60.0,
@@ -122,5 +124,11 @@ class _DialogBoxState extends State<DialogBox> {
         ),
       ),
     );
+  }
+}
+
+class showDialogBox {
+  void show_Dialog({Widget child, BuildContext context}) {
+    showDialog(context: context, builder: ((ctx) => child));
   }
 }
