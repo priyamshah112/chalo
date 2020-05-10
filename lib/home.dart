@@ -22,7 +22,6 @@ class MainHome extends StatefulWidget {
 }
 
 class _MainHomeState extends State<MainHome> {
-
   int _currentIndex = 0;
   List tabs;
 
@@ -69,31 +68,31 @@ class _MainHomeState extends State<MainHome> {
           },
           items: [
             BottomNavigationBarItem(
-              title: Text(""),
+              title: Text("Map"),
               icon: Icon(
                 FontAwesomeIcons.mapMarkerAlt,
               ),
             ),
             BottomNavigationBarItem(
-              title: Text(''),
+              title: Text("Activities"),
               icon: Icon(
                 FontAwesomeIcons.list,
               ),
             ),
             BottomNavigationBarItem(
-              title: Text(''),
+              title: Text("Broadcast"),
               icon: Icon(
                 Icons.wifi_tethering,
               ),
             ),
             BottomNavigationBarItem(
-              title: Text(''),
+              title: Text("Explore"),
               icon: Icon(
                 Icons.dashboard,
               ),
             ),
             BottomNavigationBarItem(
-              title: Text(''),
+              title: Text("chats"),
               icon: Icon(
                 FontAwesomeIcons.commentDots,
               ),
