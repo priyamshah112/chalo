@@ -243,7 +243,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                   children: <Widget>[
                                     Container(
                                       width: MediaQuery.of(context).size.width *
-                                          0.5,
+                                          0.55,
                                       child: Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
