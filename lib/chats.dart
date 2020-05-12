@@ -2,6 +2,7 @@
 //import 'package:chaloapp/main.dart';
 //import 'package:chaloapp/widgets/DailogBox.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
+import 'package:chaloapp/Chat_item_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -115,6 +116,14 @@ class _ChatsState extends State<Chats> {
                                     ),
                                     borderRadius: BorderRadius.circular(6)),
                                 child: ListTile(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                ChatItemPage()),
+                                      );
+                                    },
                                     title: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,

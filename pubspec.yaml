@@ -32,7 +32,10 @@ dependencies:
   firebase_auth: 
   cloud_firestore:
   google_sign_in:
-  flappy_search_bar: 1.4.1
+  firebase_messaging: ^6.0.13
+  firebase_storage: ^3.1.5
+  flutter_spinkit: "^4.1.2"
+
 
 #  flutter_rounded_date_picker: 1.0.0
 #  flutter_localizations:
