@@ -1,3 +1,4 @@
+import 'package:chaloapp/data/Send_menu_items.dart';
 import 'package:chaloapp/data/chat_item_model.dart';
 import 'package:chaloapp/data/chat_model.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,73 @@ class _ChatItemPageState extends State<ChatItemPage> {
   String pairId = "2";
   String pairId1 = "3";
   List<ChatItemModel> ChatItem = ChatItemModel.list;
+  List<SendMenuItems> menuItems = SendMenuItems.list;
+
+  void showModal() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+//            height: MediaQuery.of(context).size.height / 2,
+            color: Color(0xff737373),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  )),
+              child: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Center(
+                    child: Container(
+                      height: 4,
+                      width: 50,
+                      color: Colors.grey.shade200,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  ListView.builder(
+                    itemCount: 5,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return Container(
+                        padding: EdgeInsets.only(
+                          top: 10,
+                          bottom: 10,
+                        ),
+                        child: ListTile(
+                          leading: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              color: menuItems[index].colors.shade50,
+                            ),
+                            height: 40,
+                            width: 40,
+                            child: Icon(
+                              menuItems[index].icon,
+                              size: 20,
+                              color: menuItems[index].colors.shade400,
+                            ),
+                          ),
+                          title: Text(menuItems[index].text),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,46 +236,48 @@ class _ChatItemPageState extends State<ChatItemPage> {
             ChatItem[index + 1 > maxItem ? maxItem : index + 1].senderId) ||
         index == maxItem;
   }
-}
 
-Widget _buildInput() {
-  return Container(
-    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-    margin: EdgeInsets.symmetric(horizontal: 10),
-    decoration: BoxDecoration(
-      color: Color(form1),
-      borderRadius: BorderRadius.all(
-        Radius.circular(10),
+  Widget _buildInput() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      margin: EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: Color(form1),
+        borderRadius: BorderRadius.all(
+          Radius.circular(10),
+        ),
       ),
-    ),
-    child: Row(
-      children: <Widget>[
-        Expanded(
-          child: TextField(
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: "Type something...",
-              hintStyle: TextStyle(
-                color: Color(formHint),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: TextField(
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: "Type something...",
+                hintStyle: TextStyle(
+                  color: Color(formHint),
+                ),
               ),
             ),
           ),
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.attach_file,
-            color: Color(primary),
+          IconButton(
+            icon: Icon(
+              Icons.add,
+              color: Color(primary),
+            ),
+            onPressed: () {
+              showModal();
+            },
           ),
-          onPressed: null,
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.send,
-            color: Color(primary),
+          IconButton(
+            icon: Icon(
+              Icons.send,
+              color: Color(primary),
+            ),
+            onPressed: null,
           ),
-          onPressed: null,
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
