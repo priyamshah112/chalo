@@ -12,6 +12,7 @@ import 'Animation/FadeAnimation.dart';
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 //import 'package:chaloapp/signup.dart';
 //import 'package:chaloapp/home.dart';
+import 'data/activity.dart';
 
 class Broadcast extends StatefulWidget {
   @override
