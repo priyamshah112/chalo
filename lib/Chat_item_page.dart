@@ -102,6 +102,7 @@ class _ChatItemPageState extends State<ChatItemPage> {
         ),
         actions: <Widget>[
           IconButton(
+            onPressed: () {},
             icon: Icon(
               Icons.menu,
               color: Colors.white,

@@ -1,3 +1,4 @@
+import 'package:chaloapp/ProfileSetup.dart';
 import 'package:chaloapp/global_colors.dart';
 import 'package:chaloapp/services/AuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -30,7 +31,6 @@ class _MainHomeState extends State<MainHome> {
       MainMap(user: widget.username, type: widget.type),
       AllActivity(),
       Broadcast(),
-      Explore(),
       Chats()
     ];
     super.initState();
@@ -172,7 +172,14 @@ class _MainMapState extends State<MainMap> {
                       width: 40,
                       height: 50,
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    ProfileSetup()),
+                          );
+                        },
                         child: CircleAvatar(
                           child: ClipOval(
                             child: Image.asset(
