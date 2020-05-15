@@ -1,5 +1,15 @@
-var primary = 0xffFE4A49;
+//var primary = 0xffFE4A49;
+var primary = 0xff55A89E;
 var secondary = 0xfff001730;
+var background1 = 0xfffF1F0F3;
+
+//font
+
+var heading = "Playfair-regular";
+var headingBold = "Playfair-black";
+
+var bodyText = "Karla-regular";
+
 var color1 = 0xfff4494AE;
 
 var text1 = 0xfff001730;

@@ -64,3 +64,22 @@ flutter:
     - family: Pacifico
       fonts:
         - asset: fonts/Pacifico-Regular.ttf
+    - family: Karla-regular
+      fonts:
+        - asset: fonts/Karla-Regular.ttf
+    - family: Karla-bold
+      fonts:
+        - asset: fonts/Karla-Blod.ttf
+    - family: Karla-bi
+      fonts:
+        - asset: fonts/Karla-BoldItalic.ttf
+    - family: Karla-italic
+      fonts:
+        - asset: fonts/Karla-Italic.ttf
+    - family: Playfair-black
+      fonts:
+        - asset: fonts/PlayfairDisplay-Black.ttf
+    - family: Playfair-regular
+      fonts:
+        - asset: fonts/PlayfairDisplay-Regular.ttf
+

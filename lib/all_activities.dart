@@ -116,7 +116,7 @@ class _AllActivityState extends State<AllActivity> {
           ),
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.white70,
       body: Stack(
         overflow: Overflow.visible,
         children: [
