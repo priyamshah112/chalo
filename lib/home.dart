@@ -1,5 +1,6 @@
 import 'package:chaloapp/ProfileSetup.dart';
 import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/profile_page.dart';
 import 'package:chaloapp/services/AuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ class _MainHomeState extends State<MainHome> {
       MainMap(user: widget.username, type: widget.type),
       AllActivity(),
       Broadcast(),
+      ProfilePage(),
       Chats()
     ];
     super.initState();

@@ -310,7 +310,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                   child: Stack(
                                     children: <Widget>[
                                       activityList[i][2] == 'true'
-                                          ? Container(color: Color(primary))
+                                          ? Container(
+                                              color: Colors.redAccent.shade100)
                                           : Text(''),
                                       ListTile(
                                         title: Image.asset(
@@ -594,7 +595,7 @@ class _allActivityState extends State<allActivity> {
                       child: Stack(
                         children: <Widget>[
                           activityList[i][2] == 'true'
-                              ? Container(color: Color(primary))
+                              ? Container(color: Colors.redAccent.shade100)
                               : Text(""),
                           Center(
                             child: Column(
