@@ -62,6 +62,11 @@ class _ProfilePageState extends State<ProfilePage> {
       });
     }
 
+    List<Widget> Postimages = new List<Widget>();
+    Postimages.add(Image.asset('images/bgcover.jpg', height: 35));
+    Postimages.add(Image.asset('images/bgcover.jpg', height: 35));
+    Postimages.add(Image.asset('images/bgcover.jpg', height: 35));
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -996,7 +1001,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ],
                               ),
                               SizedBox(
-                                height: 5,
+                                height: 10,
                               ),
                             ],
                           ),
@@ -1004,247 +1009,135 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     //Post Tab
-                    SingleChildScrollView(
-                      child: Container(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
+                    ListView(
+                      children: <Widget>[
+                        Container(
+                          child: Wrap(
                             children: <Widget>[
-                              SizedBox(
-                                height: 20.0,
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/1.png"),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  Text(
-                                    "Activity Preferences",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/2.jpeg"),
+                                    fit: BoxFit.cover,
                                   ),
-                                  SizedBox(
-                                    height: 10,
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/3.png"),
+                                    fit: BoxFit.cover,
                                   ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Text(
-                                        "Select Activities",
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: Color(secondary),
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      allActivity()));
-                                        },
-                                        child: Text(
-                                          "View all",
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            color: Color(primary),
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/4.png"),
+                                    fit: BoxFit.cover,
                                   ),
-                                  SizedBox(
-                                    height: 10,
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/5.png"),
+                                    fit: BoxFit.cover,
                                   ),
-                                  Container(
-                                    height: 107,
-                                    child: ListView(
-                                      scrollDirection: Axis.horizontal,
-                                      children: <Widget>[
-                                        for (int i = 0;
-                                            i < activityList.length;
-                                            i++)
-                                          Padding(
-                                            padding: EdgeInsets.all(2.0),
-                                            child: InkWell(
-                                              onTap: () {
-                                                activityList[i][2] = 'true';
-                                                for (int j = 0;
-                                                    j <
-                                                        selectedActivityList
-                                                            .length;
-                                                    j++) {
-                                                  if (activityList[i][0] ==
-                                                          selectedActivityList[
-                                                              j][0] &&
-                                                      activityList[i][1] ==
-                                                          selectedActivityList[
-                                                              j][1]) {
-                                                    activityList[i][2] =
-                                                        'false';
-                                                    break;
-                                                  }
-                                                }
-                                                print(activityList[i][2]);
-                                                if (activityList[i][2] ==
-                                                    'true')
-                                                  setState(() {
-                                                    selectedActivityList.add([
-                                                      activityList[i][0],
-                                                      activityList[i][1],
-                                                    ]);
-                                                  });
-                                                else
-                                                  for (int j = 0;
-                                                      j <
-                                                          selectedActivityList
-                                                              .length;
-                                                      j++) {
-                                                    if (activityList[i][0] ==
-                                                            selectedActivityList[
-                                                                j][0] &&
-                                                        activityList[i][1] ==
-                                                            selectedActivityList[
-                                                                j][1]) {
-                                                      selectedActivityList
-                                                          .removeAt(j);
-                                                      break;
-                                                    }
-                                                  }
-                                                setState(() {});
-                                              },
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                      color: Color(primary),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            6)),
-                                                width: 110,
-                                                child: Stack(
-                                                  children: <Widget>[
-                                                    activityList[i][2] == 'true'
-                                                        ? Container(
-                                                            color: Colors
-                                                                .redAccent
-                                                                .shade100)
-                                                        : Text(''),
-                                                    ListTile(
-                                                      title: Image.asset(
-                                                        activityList[i][0],
-                                                        width: 60,
-                                                        height: 60,
-                                                      ),
-                                                      subtitle: Container(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                top: 7),
-                                                        child: Text(
-                                                          activityList[i][1],
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color: Color(
-                                                                secondary),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/6.png"),
+                                    fit: BoxFit.cover,
                                   ),
-                                  Container(
-                                    margin: EdgeInsets.symmetric(vertical: 10),
-                                    child: Text(
-                                      selectedActivityList.length != 0
-                                          ? "Your Activities"
-                                          : "",
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Color(secondary),
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/7.png"),
+                                    fit: BoxFit.cover,
                                   ),
-                                  selectedActivityList.length != 0
-                                      ? Container(
-                                          margin: EdgeInsets.only(bottom: 20),
-                                          height: 107,
-                                          child: ListView(
-                                            scrollDirection: Axis.horizontal,
-                                            children: <Widget>[
-                                              for (int i = 0;
-                                                  i <
-                                                      selectedActivityList
-                                                          .length;
-                                                  i++)
-                                                Padding(
-                                                  padding: EdgeInsets.all(2.0),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                          color: Color(primary),
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(6)),
-                                                    width: 110,
-                                                    child: ListTile(
-                                                      title: Image.asset(
-                                                        selectedActivityList[i]
-                                                            [0],
-                                                        width: 60,
-                                                        height: 60,
-                                                      ),
-                                                      subtitle: Container(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                top: 7),
-                                                        child: Text(
-                                                          selectedActivityList[
-                                                              i][1],
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color: Color(
-                                                                secondary),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        )
-                                      : Container(),
-                                ],
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/8.png"),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/9.png"),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/10.jpg"),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/11.jpg"),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("images/post/12.jpg"),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),

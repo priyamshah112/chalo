@@ -5,10 +5,9 @@ var background1 = 0xfffF1F0F3;
 
 //font
 
-var heading = "Playfair-regular";
-var headingBold = "Playfair-black";
+var heading = "PlayfairDisplay";
 
-var bodyText = "Karla-regular";
+var bodyText = "Karla";
 
 var color1 = 0xfff4494AE;
 
