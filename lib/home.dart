@@ -1,9 +1,10 @@
+import 'package:chaloapp/ProfileSetup.dart';
 import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/profile_page.dart';
 import 'package:chaloapp/services/AuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:toast/toast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
 import 'login.dart';
@@ -22,7 +23,6 @@ class MainHome extends StatefulWidget {
 }
 
 class _MainHomeState extends State<MainHome> {
-
   int _currentIndex = 0;
   List tabs;
 
@@ -32,7 +32,7 @@ class _MainHomeState extends State<MainHome> {
       MainMap(user: widget.username, type: widget.type),
       AllActivity(),
       Broadcast(),
-      Explore(),
+      ProfilePage(),
       Chats()
     ];
     super.initState();
@@ -69,31 +69,31 @@ class _MainHomeState extends State<MainHome> {
           },
           items: [
             BottomNavigationBarItem(
-              title: Text(""),
+              title: Text("Map"),
               icon: Icon(
                 FontAwesomeIcons.mapMarkerAlt,
               ),
             ),
             BottomNavigationBarItem(
-              title: Text(''),
+              title: Text("Activities"),
               icon: Icon(
                 FontAwesomeIcons.list,
               ),
             ),
             BottomNavigationBarItem(
-              title: Text(''),
+              title: Text("Broadcast"),
               icon: Icon(
                 Icons.wifi_tethering,
               ),
             ),
             BottomNavigationBarItem(
-              title: Text(''),
+              title: Text("Explore"),
               icon: Icon(
                 Icons.dashboard,
               ),
             ),
             BottomNavigationBarItem(
-              title: Text(''),
+              title: Text("chats"),
               icon: Icon(
                 FontAwesomeIcons.commentDots,
               ),
@@ -174,7 +174,14 @@ class _MainMapState extends State<MainMap> {
                       width: 40,
                       height: 50,
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    ProfileSetup()),
+                          );
+                        },
                         child: CircleAvatar(
                           child: ClipOval(
                             child: Image.asset(

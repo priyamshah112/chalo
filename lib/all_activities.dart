@@ -2,6 +2,7 @@
 //import 'package:chaloapp/main.dart';
 //import 'package:chaloapp/widgets/DailogBox.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -16,7 +17,89 @@ class AllActivity extends StatefulWidget {
   _AllActivityState createState() => _AllActivityState();
 }
 
+//_value1.isNotEmpty ? _value1 : null
 class _AllActivityState extends State<AllActivity> {
+  List<List<String>> AllactivityListItems = [
+    ['images/activities/Beach.png', 'Beach'],
+    ['images/activities/BirdWatching.png', 'Bird Watching'],
+    ['images/activities/Canoeing.png', 'Caneoing'],
+    ['images/activities/Hiking.png', 'Hiking'],
+    ['images/activities/BeachBBQ.png', 'Beach BBQ'],
+    ['images/activities/Camping.png', 'Camping'],
+    ['images/activities/Cycling.png', 'Cycling'],
+    ['images/activities/DogWalking.png', 'Dog Walking'],
+    ['images/activities/Fishing.png', 'Fishing'],
+    ['images/activities/Gardening.png', 'Gardening'],
+    ['images/activities/Gym.png', 'Gym'],
+    ['images/activities/MountainBiking.png', 'Mountain Biking'],
+    ['images/activities/Picnic.png', 'Picnic'],
+    ['images/activities/Kayaking.png', 'Kayaking'],
+    ['images/activities/Museum.png', 'Museum'],
+    ['images/activities/Beach.png', 'Beach'],
+    ['images/activities/BirdWatching.png', 'Bird Watching'],
+    ['images/activities/Canoeing.png', 'Caneoing'],
+    ['images/activities/Hiking.png', 'Hiking'],
+    ['images/activities/BeachBBQ.png', 'Beach BBQ'],
+    ['images/activities/Camping.png', 'Camping'],
+    ['images/activities/Cycling.png', 'Cycling'],
+    ['images/activities/DogWalking.png', 'Dog Walking'],
+    ['images/activities/Fishing.png', 'Fishing'],
+    ['images/activities/Gardening.png', 'Gardening'],
+    ['images/activities/Gym.png', 'Gym'],
+    ['images/activities/MountainBiking.png', 'Mountain Biking'],
+    ['images/activities/Picnic.png', 'Picnic'],
+    ['images/activities/Kayaking.png', 'Kayaking'],
+    ['images/activities/Museum.png', 'Museum'],
+  ];
+  String _value = "All Activity";
+  DropdownButton FilterByActivity() => DropdownButton<String>(
+        items: [
+          for (int i = 0; i < AllactivityListItems.length; i++)
+            DropdownMenuItem(
+              value: AllactivityListItems[i][1],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    AllactivityListItems[i][1],
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Color(secondary),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Image.asset(
+                    AllactivityListItems[i][0],
+                    width: 30,
+                    height: 30,
+                  ),
+                ],
+              ),
+            ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _value = value;
+            print(_value);
+          });
+        },
+        icon: Icon(Icons.arrow_downward),
+        iconSize: 20.0,
+        iconEnabledColor: Color(primary),
+        underline: Container(),
+        hint: Text(
+          _value,
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
+        elevation: 0,
+        isExpanded: true,
+      );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +116,7 @@ class _AllActivityState extends State<AllActivity> {
           ),
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.white70,
       body: Stack(
         overflow: Overflow.visible,
         children: [
@@ -52,6 +135,30 @@ class _AllActivityState extends State<AllActivity> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       Text(
+                        "Sort By Activity",
+                        style: TextStyle(
+                            color: Color(primary),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+//                        decoration: ShapeDecoration(
+//                          shape: RoundedRectangleBorder(
+//                            side: BorderSide(
+//                                width: 1.0, style: BorderStyle.solid),
+//                            borderRadius:
+//                                BorderRadius.all(Radius.circular(5.0)),
+//                          ),
+//                        ),
+                        child: FilterByActivity(),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
                         "All Broadcasted Activities",
                         style: TextStyle(
                             color: Color(primary),
@@ -68,11 +175,11 @@ class _AllActivityState extends State<AllActivity> {
                           width: MediaQuery.of(context).size.width,
                           padding: EdgeInsets.symmetric(
                               vertical: 20, horizontal: 20),
-//                          decoration: BoxDecoration(
-//                              border: Border.all(
-//                                color: Color(primary),
-//                              ),
-//                              borderRadius: BorderRadius.circular(6)),
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Color(primary),
+                              ),
+                              borderRadius: BorderRadius.circular(6)),
                           child: Column(
                             children: <Widget>[
                               Row(

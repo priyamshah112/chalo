@@ -2,6 +2,7 @@
 //import 'package:chaloapp/main.dart';
 //import 'package:chaloapp/widgets/DailogBox.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
+import 'package:chaloapp/Activity_Detail.dart';
 import 'package:chaloapp/global_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,6 +12,7 @@ import 'Animation/FadeAnimation.dart';
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 //import 'package:chaloapp/signup.dart';
 //import 'package:chaloapp/home.dart';
+import 'data/activity.dart';
 
 class Broadcast extends StatefulWidget {
   @override
@@ -49,17 +51,24 @@ class _BroadcastState extends State<Broadcast> {
                     SizedBox(
                       height: 20.0,
                     ),
-                    FittedBox(
-                      child: Text(
-                        'Broadcast Activity',
-                        style: TextStyle(
-                          color: Color(primary),
-                          fontSize: 45.0,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Pacifico',
-                        ),
-                      ),
-                    ),
+//                    Stack(
+//                      children: <Widget>[
+//                        Container(
+//                          height: 100,
+//                          width: MediaQuery.of(context).size.width,
+//                          decoration: BoxDecoration(
+//                            color: Colors.black,
+//                            image: DecorationImage(
+//                              image: AssetImage("images/loginbg.png"),
+//                              fit: BoxFit.cover,
+//                              colorFilter: ColorFilter.mode(
+//                                  Colors.black.withOpacity(0.7),
+//                                  BlendMode.dstATop),
+//                            ),
+//                          ),
+//                        ),
+//                      ],
+//                    ),
                     SizedBox(
                       height: 12.0,
                     ),
@@ -408,13 +417,23 @@ class _BroadcastState extends State<Broadcast> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
-                                    Text(
-                                      "Activity Name",
-                                      style: TextStyle(
-                                        color: Color(primary),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
+                                    GestureDetector(
+                                      child: Text(
+                                        "Activity Name",
+                                        style: TextStyle(
+                                          color: Color(primary),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
                                       ),
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (BuildContext context) =>
+                                                  ActivityDetails()),
+                                        );
+                                      },
                                     ),
                                     Text(
                                       "10, May",
