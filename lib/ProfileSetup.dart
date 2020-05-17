@@ -14,8 +14,9 @@ import 'package:chaloapp/global_colors.dart';
 import 'package:chaloapp/data/activity.dart';
 
 class ProfileSetup extends StatefulWidget {
-  final User user;
-  ProfileSetup({this.user});
+  final String email, password;
+  final AuthCredential creds;
+  ProfileSetup({this.email, this.password, this.creds});
   @override
   _ProfileSetupState createState() => _ProfileSetupState();
 }
@@ -349,10 +350,13 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                 child:
                                     Center(child: CircularProgressIndicator()),
                                 context: context);
-                            AuthService _auth =
+                            var _auth =
                                 AuthService(auth: FirebaseAuth.instance);
-                            var result = await _auth.signIn(
-                                widget.user.email, widget.user.password);
+                            widget.creds != null
+                                ? FirebaseAuth.instance
+                                    .signInWithCredential(widget.creds)
+                                : _auth
+                                    .signIn(widget.email, widget.password);
                             Navigator.pop(context);
                             showDialog(
                                 context: context,
@@ -363,14 +367,10 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                     buttonText1: "Ok",
                                     button1Func: () {
                                       Navigator.pop(context);
-                                      Navigator.pop(context);
-                                      Navigator.pop(context);
                                       Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                              builder: ((ctx) => MainHome(
-                                                  username: result['username'],
-                                                  type: result['type']))));
+                                              builder: ((ctx) => MainHome())));
                                     })));
                           } catch (e) {
                             print(e);
@@ -488,7 +488,9 @@ class _AllActivityState extends State<AllActivity> {
                       ),
                       child: Stack(
                         children: <Widget>[
-                          activityList[i][2] == 'true' ? Container(color: Color(primary)): Text(""),
+                          activityList[i][2] == 'true'
+                              ? Container(color: Color(primary))
+                              : Text(""),
                           Center(
                             child: Column(
                               children: <Widget>[

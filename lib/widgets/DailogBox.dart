@@ -77,20 +77,24 @@ class _DialogBoxState extends State<DialogBox> {
                                       ? MainAxisAlignment.spaceEvenly
                                       : MainAxisAlignment.center,
                                   children: <Widget>[
-                                    FlatButton(
-                                      onPressed: widget.button1Func,
-                                      child: Text(
-                                        widget.buttonText1,
-                                        style: TextStyle(color: Colors.red),
+                                    Expanded(
+                                      child: FlatButton(
+                                        onPressed: widget.button1Func,
+                                        child: Text(
+                                          widget.buttonText1,
+                                          style: TextStyle(color: Colors.red),
+                                        ),
                                       ),
                                     ),
                                     widget.buttonText2 != null
-                                        ? FlatButton(
-                                            onPressed: widget.button2Func,
-                                            child: Text(
-                                              widget.buttonText2,
-                                              style: TextStyle(
-                                                  color: Colors.green),
+                                        ? Expanded(
+                                            child: FlatButton(
+                                              onPressed: widget.button2Func,
+                                              child: Text(
+                                                widget.buttonText2,
+                                                style: TextStyle(
+                                                    color: Colors.green),
+                                              ),
                                             ),
                                           )
                                         : Text("")
@@ -129,6 +133,7 @@ class _DialogBoxState extends State<DialogBox> {
 
 class showDialogBox {
   void show_Dialog({Widget child, BuildContext context}) {
-    showDialog(context: context, builder: ((ctx) => child));
+    showDialog(
+        context: context, builder: ((ctx) => child), barrierDismissible: false);
   }
 }

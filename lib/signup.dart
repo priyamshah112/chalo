@@ -1,8 +1,9 @@
 import 'package:chaloapp/data/User.dart';
+import 'package:chaloapp/home.dart';
 import 'package:chaloapp/login.dart';
 import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:chaloapp/widgets/date_time.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -13,7 +14,7 @@ import 'package:gender_selection/gender_selection.dart';
 import 'package:chaloapp/ProfileSetup.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
-import 'forgot.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'services/AuthService.dart';
 // import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 //import 'package:flutter_localizations/flutter_localizations.dart';
@@ -30,16 +31,7 @@ class _SignUpState extends State<SignUp> {
   DateTime picked;
   bool checkPassword = false;
   bool _autovalidate = false;
-
-  Future<DateTime> _presentDatePicker(
-      BuildContext contex, DateTime date) async {
-    picked = await showDatePicker(
-        context: context,
-        firstDate: DateTime(1900),
-        initialDate: picked == null ? DateTime.now() : picked,
-        lastDate: DateTime.now());
-    return picked;
-  }
+  bool _viewPassword = false;
 
   @override
   void initState() {
@@ -181,7 +173,11 @@ class _SignUpState extends State<SignUp> {
                                       horizontal: 1.0, vertical: 10.0),
                                   child: DateTimeField(
                                     format: DateFormat('d/MM/y'),
-                                    onShowPicker: _presentDatePicker,
+                                    onShowPicker: (context, _) =>
+                                        DateTimePicker().presentDatePicker(
+                                            context,
+                                            DateTime(1900),
+                                            DateTime.now()),
                                     validator: (value) {
                                       String date = DateTime.now()
                                           .toString()
@@ -261,7 +257,7 @@ class _SignUpState extends State<SignUp> {
                                       password = value;
                                       return null;
                                     },
-                                    obscureText: true,
+                                    obscureText: !_viewPassword,
                                     keyboardType: TextInputType.text,
                                     decoration: InputDecoration(
                                       filled: true,
@@ -276,6 +272,18 @@ class _SignUpState extends State<SignUp> {
                                         Icons.lock,
                                         color: Color(primary),
                                       ),
+                                      suffixIcon: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _viewPassword = !_viewPassword;
+                                            });
+                                          },
+                                          child: Icon(
+                                            !_viewPassword
+                                                ? Icons.visibility
+                                                : Icons.visibility_off,
+                                            color: Color(primary),
+                                          )),
                                       hintText: "Password",
                                       hintStyle: TextStyle(
                                         color: Color(formHint),
@@ -330,10 +338,9 @@ class _SignUpState extends State<SignUp> {
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 1.0, vertical: 10.0),
                                   child: GenderSelection(
-                                    femaleImage: NetworkImage(
-                                        "https://cdn1.iconfinder.com/data/icons/website-internet/48/website_-_female_user-512.png"),
-                                    maleImage: NetworkImage(
-                                        "https://icon-library.net/images/avatar-icon/avatar-icon-4.jpg"),
+                                    femaleImage:
+                                        AssetImage("images/Female.jpg"),
+                                    maleImage: AssetImage("images/Male.jpg"),
                                     selectedGenderTextStyle: TextStyle(
                                         color: Colors.amber,
                                         fontSize: 19,
@@ -455,7 +462,8 @@ class _SignUpState extends State<SignUp> {
     showDialogBox().show_Dialog(
         child: Center(child: CircularProgressIndicator()), context: context);
     AuthService _auth = AuthService(auth: FirebaseAuth.instance);
-    Map result = await _auth.createUser(user.email, user.password, (user.fname+" "+user.lname));
+    Map result = await _auth.createUser(
+        user.email, user.password, (user.fname + " " + user.lname));
     if (result['success']) {
       user.setUid(result['uid']);
       await DataService().createUser(user);
@@ -471,7 +479,10 @@ class _SignUpState extends State<SignUp> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (BuildContext context) => NextPage(user: user)),
+                      builder: (BuildContext context) => PhoneVerification(
+                            email: user.email,
+                            password: user.password,
+                          )),
                 );
               }));
     } else {
@@ -512,16 +523,24 @@ void _validateGender(BuildContext context) {
           )));
 }
 
-class NextPage extends StatefulWidget {
-  final User user;
-  const NextPage({Key key, this.user}) : super(key: key);
+class PhoneVerification extends StatefulWidget {
+  final AuthCredential creds;
+  final String email, password;
+  const PhoneVerification({Key key, this.creds, this.email, this.password})
+      : super(key: key);
   @override
-  _NextPageState createState() => _NextPageState();
+  _PhoneVerificationState createState() => _PhoneVerificationState();
 }
 
-class _NextPageState extends State<NextPage> {
+class _PhoneVerificationState extends State<PhoneVerification> {
   final _formKey = GlobalKey<FormState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _autovalidate = false;
+  bool _codeSent = false;
+  bool _verified = false;
+  String _verificaionId;
+  String _phone;
+  String _smsCode;
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -529,6 +548,7 @@ class _NextPageState extends State<NextPage> {
       autovalidate: _autovalidate,
       key: _formKey,
       child: Scaffold(
+        key: _scaffoldKey,
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Column(
@@ -562,14 +582,16 @@ class _NextPageState extends State<NextPage> {
                     children: <Widget>[
                       FadeAnimation(
                         1.5,
-                        Text(
-                          "We need to verify you",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Color(primary),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 35,
-                              fontFamily: 'Pacifico'),
+                        FittedBox(
+                          child: Text(
+                            "We need to verify you",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Color(primary),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 35,
+                                fontFamily: 'Pacifico'),
+                          ),
                         ),
                       ),
                       SizedBox(
@@ -593,12 +615,11 @@ class _NextPageState extends State<NextPage> {
                                       return "Enter 10-digit Phone No";
                                     return null;
                                   },
-                                  onSaved: (value) =>
-                                      widget.user.setPhone(value),
+                                  onSaved: (value) => _phone = value,
                                   keyboardType: TextInputType.phone,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: "Contact Number",
+                                    hintText: "Phone Number",
                                     prefixIcon: Icon(
                                       Icons.phone,
                                       color: Color(primary),
@@ -617,55 +638,65 @@ class _NextPageState extends State<NextPage> {
                                 ),
                               ),
                               Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 1.0, vertical: 10.0),
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Color(form1),
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 30.0,
-                                        bottom: 18.0,
-                                        top: 18.0,
-                                        right: 30.0),
-                                    border: InputBorder.none,
-                                    prefixIcon: Icon(
-                                      Icons.lock,
-                                      color: Color(primary),
-                                    ),
-                                    hintText: "Enter OTP",
-                                    hintStyle: TextStyle(
-                                      color: Color(formHint),
-                                    ),
-                                  ),
-                                ),
-                              )
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 1.0, vertical: 10.0),
+                                  child: _codeSent
+                                      ? TextFormField(
+                                          validator: (value) {
+                                            if (value.isEmpty && _codeSent)
+                                              return "Please Enter OTP";
+                                            else
+                                              return null;
+                                          },
+                                          onSaved: (value) => _smsCode = value,
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                            filled: true,
+                                            fillColor: Color(form1),
+                                            contentPadding:
+                                                const EdgeInsets.only(
+                                                    left: 30.0,
+                                                    bottom: 18.0,
+                                                    top: 18.0,
+                                                    right: 30.0),
+                                            border: InputBorder.none,
+                                            prefixIcon: Icon(
+                                              Icons.lock,
+                                              color: Color(primary),
+                                            ),
+                                            hintText: "Enter 6-digit OTP",
+                                            hintStyle: TextStyle(
+                                              color: Color(formHint),
+                                            ),
+                                          ),
+                                        )
+                                      : SizedBox(height: 0.0))
                             ],
                           ),
                         ),
                       ),
-                      FadeAnimation(
-                        2,
-                        Center(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        SignUp()),
-                              );
-                            },
-                            child: Text(
-                              "Resend OTP",
-                              style: TextStyle(
-                                  color: Color(secondary),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // FadeAnimation(
+                      //   2,
+                      //   Center(
+                      //     child: GestureDetector(
+                      //       onTap: () {
+                      //         Navigator.push(
+                      //           context,
+                      //           MaterialPageRoute(
+                      //               builder: (BuildContext context) =>
+                      //                   SignUp()),
+                      //         );
+                      //       },
+                      //       child: Text(
+                      //         "Resend OTP",
+                      //         style: TextStyle(
+                      //             color: Color(secondary),
+                      //             fontWeight: FontWeight.bold,
+                      //             fontSize: 15),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       SizedBox(
                         height: 20,
                       ),
@@ -673,7 +704,7 @@ class _NextPageState extends State<NextPage> {
                           1.9,
                           Container(
                             height: 50,
-                            margin: EdgeInsets.symmetric(horizontal: 60),
+                            margin: EdgeInsets.symmetric(horizontal: 10),
                             child: FlatButton(
                               color: Color(secondary),
                               padding: EdgeInsets.symmetric(
@@ -683,29 +714,40 @@ class _NextPageState extends State<NextPage> {
                               onPressed: () async {
                                 if (_formKey.currentState.validate()) {
                                   _formKey.currentState.save();
-                                  // showDialogBox().show_Dialog(
-                                  //     child: CircularProgressIndicator(),
-                                  //     context: context);
-                                  // FirebaseUser _user;
-                                  // await DataService()
-                                  //     .verifyUser(_user, widget.user.phone);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            ProfileSetup(user: widget.user)),
-                                  );
+                                  showDialogBox().show_Dialog(
+                                      child: Center(
+                                          child: CircularProgressIndicator()),
+                                      context: context);
+                                  AuthService _auth =
+                                      AuthService(auth: FirebaseAuth.instance);
+                                  bool result = await _auth.verifyPhone(_phone);
+                                  if (result) {
+                                    // FocusScope.of(context).unfocus();
+                                    _codeSent
+                                        ? await signInwithOTP(_verificaionId,
+                                            _smsCode, _phone, widget.email)
+                                        : await verifyOTP(widget.email, _phone);
+                                  } else {
+                                    Navigator.pop(context);
+                                    showDialogBox().show_Dialog(
+                                        context: context,
+                                        child: DialogBox(
+                                            title: "Error :(",
+                                            description:
+                                                "This Phone number is already registered and verified \nTry again with another phone number ",
+                                            buttonText1: "OK",
+                                            button1Func: () =>
+                                                Navigator.pop(context)));
+                                  }
                                 } else {
                                   setState(() {
                                     _autovalidate = true;
                                   });
                                 }
                               },
-                              child: Center(
-                                child: Text(
-                                  "Verify",
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                              child: Text(
+                                _codeSent ? "Verify" : "Send OTP",
+                                style: TextStyle(color: Colors.white),
                               ),
                             ),
                           )),
@@ -716,10 +758,21 @@ class _NextPageState extends State<NextPage> {
                         2,
                         Center(
                           child: GestureDetector(
-                            onTap: () {
-                              Navigator.pop(
-                                context,
-                              );
+                            onTap: () async {
+                              var user =
+                                  await FirebaseAuth.instance.currentUser();
+                              if (user != null) {
+                                AuthService _auth =
+                                    AuthService(auth: FirebaseAuth.instance);
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                await _auth.signOut(prefs.getString('type'));
+                              }
+                              // Navigator.pop(context);
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HomePage()));
                             },
                             child: Text(
                               "Back",
@@ -807,12 +860,58 @@ class _NextPageState extends State<NextPage> {
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> verifyOTP(String email, String phone) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    phone = "+91" + phone;
+    await auth.verifyPhoneNumber(
+        phoneNumber: phone,
+        timeout: Duration(seconds: 60),
+        verificationCompleted: (AuthCredential creds) async {
+          FirebaseUser user = (await auth.signInWithCredential(creds)).user;
+          DataService().verifyUser(email, phone);
+          AuthService(auth: FirebaseAuth.instance).deleteUser(user);
+          showSuccess(context, email, widget.password, widget.creds);
+        },
+        verificationFailed: (AuthException e) {
+          print(e.code + "\n" + e.message);
+          showFail(context);
+        },
+        codeSent: (verID, [int forceResend]) async {
+          print('code sent');
+          setState(() {
+            _verificaionId = verID;
+            _codeSent = true;
+          });
+          Navigator.pop(context);
+          _scaffoldKey.currentState.showSnackBar(new SnackBar(
+            content: Text('Verification Code Sent'),
+            duration: Duration(seconds: 2),
+          ));
+        },
+        codeAutoRetrievalTimeout: (verID) => {});
+  }
+
+  Future<void> signInwithOTP(verID, smsCode, phone, email) async {
+    AuthCredential creds = PhoneAuthProvider.getCredential(
+        verificationId: verID, smsCode: smsCode);
+    try {
+      FirebaseUser user =
+          (await FirebaseAuth.instance.signInWithCredential(creds)).user;
+      DataService().verifyUser(email, phone);
+      AuthService(auth: FirebaseAuth.instance).deleteUser(user);
+      showSuccess(context, email, widget.password, widget.creds);
+    } catch (e) {
+      print(e.toString());
+      showFail(context);
+    }
   }
 }
 
@@ -824,4 +923,39 @@ String _validateEmail(String value) {
     return 'Enter Valid Email';
   else
     return null;
+}
+
+void showSuccess(BuildContext context, String email, String password,
+    AuthCredential creds) async {
+  Navigator.pop(context);
+  showDialogBox().show_Dialog(
+      child: DialogBox(
+          title: "Verification",
+          description: "Phone Verification Successful",
+          icon: Icons.check,
+          iconColor: Colors.teal,
+          buttonText1: "",
+          button1Func: () {}),
+      context: context);
+  await Future.delayed(Duration(seconds: 2));
+
+  Navigator.pop(context);
+  Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+          builder: (contex) =>
+              ProfileSetup(email: email, password: password, creds: creds)));
+}
+
+void showFail(BuildContext context) {
+  Navigator.pop(context);
+  showDialogBox().show_Dialog(
+      child: DialogBox(
+          title: "Verification",
+          description: "Phone Verification Failed",
+          icon: Icons.clear,
+          iconColor: Colors.red,
+          buttonText1: "OK",
+          button1Func: () => Navigator.pop(context)),
+      context: context);
 }

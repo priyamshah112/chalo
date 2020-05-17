@@ -26,6 +26,7 @@ dependencies:
   font_awesome_flutter: ^8.2.0
   gender_selection: "^0.0.8"
   datetime_picker_formfield: ^1.0.0
+  shared_preferences: ^0.5.7+2
   toast: ^0.1.5
   steel_crypt: ^1.7.1+1
   flutter_map:

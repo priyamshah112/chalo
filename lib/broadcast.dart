@@ -3,6 +3,7 @@
 //import 'package:chaloapp/widgets/DailogBox.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'AddActivity.dart';
@@ -67,13 +68,15 @@ class _BroadcastState extends State<Broadcast> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         FlatButton(
-                          onPressed: () => {
-                            Navigator.push(
+                          onPressed: () async {
+                            Map<String, dynamic> result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (BuildContext context) =>
                                       AddActivity()),
-                            )
+                            );
+                            if (result != null)
+                              DataService().createPlan(result);
                           },
                           color: Colors.teal,
                           padding: EdgeInsets.symmetric(

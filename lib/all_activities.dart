@@ -2,6 +2,7 @@
 //import 'package:chaloapp/main.dart';
 //import 'package:chaloapp/widgets/DailogBox.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -68,11 +69,6 @@ class _AllActivityState extends State<AllActivity> {
                           width: MediaQuery.of(context).size.width,
                           padding: EdgeInsets.symmetric(
                               vertical: 20, horizontal: 20),
-//                          decoration: BoxDecoration(
-//                              border: Border.all(
-//                                color: Color(primary),
-//                              ),
-//                              borderRadius: BorderRadius.circular(6)),
                           child: Column(
                             children: <Widget>[
                               Row(
@@ -239,6 +235,7 @@ class _AllActivityState extends State<AllActivity> {
                       ),
                     ],
                   ),
+                  Activities()
                 ],
               ),
             ),
@@ -246,5 +243,35 @@ class _AllActivityState extends State<AllActivity> {
         ],
       ),
     );
+  }
+}
+
+class Activities extends StatefulWidget {
+  @override
+  _ActivitiesState createState() => _ActivitiesState();
+}
+
+class _ActivitiesState extends State<Activities> {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: Firestore.instance.collection('plan').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return CircularProgressIndicator();
+          int count = snapshot.data.documents.length;
+          var docs = snapshot.data.documents;
+          return Container(
+            height: 200.0,
+            child: ListView.builder(
+                itemCount: count,
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Text(docs[index]['activity_name'])),
+                  );
+                }),
+          );
+        });
   }
 }
