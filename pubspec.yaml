@@ -36,6 +36,8 @@ dependencies:
   firebase_storage: ^3.1.5
   flutter_spinkit: "^4.1.2"
   image_picker: ^0.6.6+1
+  like_button: ^0.2.0
+
 
 
 #  flutter_rounded_date_picker: 1.0.0

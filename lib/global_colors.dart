@@ -24,3 +24,40 @@ var bg4 = 0xfffC9DEEE;
 var form1 = 0xffffaf4ff; // field background
 
 var formHint = 0xfff001730;
+
+//Appbar action
+//Text(
+//"Done",
+//style: TextStyle(
+//color: Colors.white,
+//fontSize: 17,
+//fontFamily: bodyText,
+//fontWeight: FontWeight.bold,
+//),
+//),
+
+//Appbar heading
+
+//Center(
+//child: Text(
+//"All Activities",
+//style: TextStyle(
+//color: Colors.white,
+//fontFamily: bodyText,
+//fontWeight: FontWeight.bold,
+//),
+//),
+//),
+//elevation: 1.0,
+//backgroundColor: Color(primary),
+
+//Appbar leading
+//InkWell(
+//onTap: () {
+//Navigator.pop(context);
+//},
+//child: Icon(
+//Icons.arrow_back,
+//color: Colors.white,
+//),
+//),

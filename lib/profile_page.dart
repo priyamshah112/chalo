@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:chaloapp/edit_profile_page.dart';
 import 'package:chaloapp/home.dart';
+import 'package:chaloapp/post_details.dart';
 import 'package:chaloapp/services/AuthService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,6 +27,9 @@ class ProfilePage extends StatefulWidget {
 
 List<List<String>> selectedActivityList;
 List<List<String>> activityList;
+List<List<String>> postList;
+final String username = "Abdul Quadir Ansari";
+final String userDp = "images/bgcover.jpg";
 
 class _ProfilePageState extends State<ProfilePage> {
   @override
@@ -48,6 +53,21 @@ class _ProfilePageState extends State<ProfilePage> {
       ['images/activities/Museum.png', 'Museum', 'false'],
     ];
     selectedActivityList = [];
+
+    postList = [
+      ['images/post/1.png', "Beach BBQ", 'Caption 1', "30 min ago"],
+      ['images/post/2.jpeg', "Camping", 'Caption 2', "2 day ago"],
+      ['images/post/3.png', "Cycling", 'Caption 3', '2 PM'],
+      ['images/post/4.png', "Fishing", 'Caption 4', '2 PM'],
+      ['images/post/5.png', "Hiking", 'Caption 5', '2 PM'],
+      ['images/post/6.png', "Long Drive", 'Caption 6', '2 PM'],
+      ['images/post/7.png', "Museum", 'Caption 7', '2 PM'],
+      ['images/post/8.png', "Cricket", 'Caption 8', '2 PM'],
+      ['images/post/9.png', "Running", 'Caption 9', '2 PM'],
+      ['images/post/10.jpg', "Skiing", 'Caption 10', '2 PM'],
+      ['images/post/11.jpg', "Walking", 'Caption 11', '2 PM'],
+      ['images/post/12.jpg', "City Tour", 'Caption 12', '2 PM'],
+    ];
   }
 
   File _image;
@@ -62,11 +82,6 @@ class _ProfilePageState extends State<ProfilePage> {
       });
     }
 
-    List<Widget> Postimages = new List<Widget>();
-    Postimages.add(Image.asset('images/bgcover.jpg', height: 35));
-    Postimages.add(Image.asset('images/bgcover.jpg', height: 35));
-    Postimages.add(Image.asset('images/bgcover.jpg', height: 35));
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -76,6 +91,8 @@ class _ProfilePageState extends State<ProfilePage> {
             "My Profile",
             style: TextStyle(
               color: Colors.white,
+              fontFamily: bodyText,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -126,19 +143,29 @@ class _ProfilePageState extends State<ProfilePage> {
                                             MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
                                           Text(
-                                            "Abdul Quadir",
+                                            "Abdul Quadir Ansari",
                                             style: TextStyle(
-                                              color: Color(secondary),
+                                              color: Color(primary),
                                               fontSize: 18,
+                                              fontFamily: heading,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                           IconButton(
                                             icon: Icon(
                                               Icons.edit,
+                                              size: 18,
                                             ),
                                             color: Color(primary),
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        EditProfile()),
+                                              );
+                                            },
                                           ),
                                         ],
                                       ),
@@ -151,15 +178,29 @@ class _ProfilePageState extends State<ProfilePage> {
                                               Icon(
                                                 FontAwesomeIcons.trophy,
                                                 color: Colors.amberAccent,
-                                                size: 15,
+                                                size: 12,
                                               ),
                                               SizedBox(
                                                 width: 5,
                                               ),
-                                              Text(" 0 activities Done"),
+                                              Text(
+                                                " 0 activities Done",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontFamily: bodyText,
+                                                  color: Color(secondary),
+                                                ),
+                                              ),
                                             ],
                                           ),
-                                          Text("Male, 22"),
+                                          Text(
+                                            "Male, 22",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
                                         ],
                                       ),
                                       SizedBox(
@@ -177,6 +218,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 "Job Title",
                                                 style: TextStyle(
                                                   fontSize: 11,
+                                                  fontFamily: bodyText,
                                                   color: Color(primary),
                                                 ),
                                               ),
@@ -184,6 +226,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 "Web Developer",
                                                 style: TextStyle(
                                                   fontSize: 11,
+                                                  fontFamily: bodyText,
                                                 ),
                                               ),
                                             ],
@@ -196,6 +239,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 "Language",
                                                 style: TextStyle(
                                                   fontSize: 11,
+                                                  fontFamily: bodyText,
                                                   color: Color(primary),
                                                 ),
                                               ),
@@ -203,6 +247,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 "English",
                                                 style: TextStyle(
                                                   fontSize: 11,
+                                                  fontFamily: bodyText,
                                                 ),
                                               ),
                                             ],
@@ -223,6 +268,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               child: Text(
                                                 "0 Followers",
                                                 style: TextStyle(
+                                                  fontFamily: bodyText,
                                                   color: Color(primary),
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 15,
@@ -230,8 +276,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               ),
                                             ),
                                             onTap: () {},
-                                            splashColor:
-                                                Colors.redAccent.shade50,
+                                            splashColor: Color(background1),
                                           ),
                                           InkWell(
                                             child: Padding(
@@ -241,14 +286,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 "0 Following",
                                                 style: TextStyle(
                                                   color: Color(primary),
+                                                  fontFamily: bodyText,
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 15,
                                                 ),
                                               ),
                                             ),
                                             onTap: () {},
-                                            splashColor:
-                                                Colors.redAccent.shade50,
+                                            splashColor: Color(background1),
                                           ),
                                         ],
                                       ),
@@ -278,6 +323,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   filled: true,
                                   fillColor: Color(form1),
                                   hintStyle: TextStyle(
+                                    fontFamily: bodyText,
                                     color: Color(formHint),
                                   ),
                                 ),
@@ -307,7 +353,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             height: 55.0,
                             child: CircleAvatar(
                               foregroundColor: Color(primary),
-                              backgroundColor: Color(secondary),
+                              backgroundColor: Color(background1),
                               backgroundImage: AssetImage('images/bgcover.jpg'),
                             ),
                           ),
@@ -332,24 +378,42 @@ class _ProfilePageState extends State<ProfilePage> {
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(5),
                         topRight: Radius.circular(5)),
-                    color: Colors.grey.shade200),
+                    color: Color(background1)),
                 tabs: [
                   Tab(
                     child: Align(
                       alignment: Alignment.center,
-                      child: Text("Activity"),
+                      child: Text(
+                        "Activity",
+                        style: TextStyle(
+                          fontFamily: heading,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   Tab(
                     child: Align(
                       alignment: Alignment.center,
-                      child: Text("About"),
+                      child: Text(
+                        "About",
+                        style: TextStyle(
+                          fontFamily: heading,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   Tab(
                     child: Align(
                       alignment: Alignment.center,
-                      child: Text("Post"),
+                      child: Text(
+                        "Post",
+                        style: TextStyle(
+                          fontFamily: heading,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -376,6 +440,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
+                                  fontFamily: heading,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -390,6 +455,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     "Select Activities",
                                     style: TextStyle(
                                       fontSize: 15,
+                                      fontFamily: heading,
                                       color: Color(secondary),
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -407,6 +473,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       style: TextStyle(
                                         fontSize: 15,
                                         color: Color(primary),
+                                        fontFamily: heading,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -481,8 +548,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                               children: <Widget>[
                                                 activityList[i][2] == 'true'
                                                     ? Container(
-                                                        color: Colors
-                                                            .redAccent.shade100)
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(6),
+                                                          color: Colors
+                                                              .green.shade100,
+                                                        ),
+                                                      )
                                                     : Text(''),
                                                 ListTile(
                                                   title: Image.asset(
@@ -501,6 +575,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                         fontSize: 13,
                                                         fontWeight:
                                                             FontWeight.bold,
+                                                        fontFamily: bodyText,
                                                         color: Color(secondary),
                                                       ),
                                                     ),
@@ -523,6 +598,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         style: TextStyle(
                                           fontSize: 15,
                                           color: Color(secondary),
+                                          fontFamily: heading,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -565,6 +641,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                           TextAlign.center,
                                                       style: TextStyle(
                                                         fontSize: 13,
+                                                        fontFamily: bodyText,
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         color: Color(secondary),
@@ -581,16 +658,21 @@ class _ProfilePageState extends State<ProfilePage> {
                               Text(
                                 "Invite Recieve Radius",
                                 style: TextStyle(
-                                    color: Color(primary),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
+                                  color: Color(primary),
+                                  fontFamily: heading,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                               Container(
                                 margin: EdgeInsets.symmetric(vertical: 10),
                                 decoration: ShapeDecoration(
                                   shape: RoundedRectangleBorder(
                                     side: BorderSide(
-                                        width: 1.0, style: BorderStyle.solid),
+                                      width: 1.0,
+                                      style: BorderStyle.solid,
+                                      color: Color(primary),
+                                    ),
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(5.0)),
                                   ),
@@ -625,6 +707,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
+                                  fontFamily: heading,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -635,7 +718,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 "Hello! I’m Abdul Quadir Ansari. Web Developer specializing in front end development. Experienced with all stages of the development cycle for dynamic web projects. Well-versed in numerous programming languages including JavaScript, SQL, and C. Strong background in project management and customer relations.also I am good at wordpress.",
                                 style: TextStyle(
                                   fontSize: 13,
-                                  fontFamily: "Karla-bold",
+                                  fontFamily: bodyText,
                                   color: Color(secondary),
                                 ),
                               ),
@@ -863,10 +946,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 height: 5,
                               ),
                               Text(
-                                "Social",
+                                "Social Information",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
+                                  fontFamily: heading,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -1014,126 +1098,35 @@ class _ProfilePageState extends State<ProfilePage> {
                         Container(
                           child: Wrap(
                             children: <Widget>[
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/1.png"),
-                                    fit: BoxFit.cover,
+                              for (int i = 0; i < postList.length; i++)
+                                Container(
+                                  height: MediaQuery.of(context).size.width / 3,
+                                  width: MediaQuery.of(context).size.width / 3,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(postList[i][0]),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              PostItem(
+                                            dp: userDp,
+                                            name: username,
+                                            img: postList[i][0],
+                                            activityName: postList[i][1],
+                                            caption: postList[i][2],
+                                            time: postList[i][3],
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
-                              ),
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/2.jpeg"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/3.png"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/4.png"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/5.png"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/6.png"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/7.png"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/8.png"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/9.png"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/10.jpg"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/11.jpg"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: MediaQuery.of(context).size.width / 3,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("images/post/12.jpg"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -1198,6 +1191,7 @@ class _ProfilePageState extends State<ProfilePage> {
           radius,
           style: TextStyle(
             color: Colors.black,
+            fontFamily: bodyText,
           ),
         ),
         elevation: 0,
@@ -1221,7 +1215,7 @@ class _allActivityState extends State<allActivity> {
           },
           child: Icon(
             Icons.arrow_back,
-            color: Color(secondary),
+            color: Colors.white,
           ),
         ),
         actions: <Widget>[
@@ -1231,18 +1225,27 @@ class _allActivityState extends State<allActivity> {
             },
             child: Text(
               "Done",
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontFamily: bodyText,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
-        title: Text(
-          "All Activities",
-          style: TextStyle(
-            color: Color(secondary),
+        title: Center(
+          child: Text(
+            "All Activities",
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: bodyText,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        elevation: 0.0,
-        backgroundColor: Colors.white,
+        elevation: 1.0,
+        backgroundColor: Color(primary),
       ),
       body: SafeArea(
         child: Container(
@@ -1296,7 +1299,12 @@ class _allActivityState extends State<allActivity> {
                       child: Stack(
                         children: <Widget>[
                           activityList[i][2] == 'true'
-                              ? Container(color: Colors.redAccent.shade100)
+                              ? Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                    color: Colors.green.shade100,
+                                  ),
+                                )
                               : Text(""),
                           Center(
                             child: Column(
@@ -1316,6 +1324,7 @@ class _allActivityState extends State<allActivity> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 14,
+                                      fontFamily: bodyText,
                                       fontWeight: FontWeight.bold,
                                       color: Color(secondary),
                                     ),
