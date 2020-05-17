@@ -7,11 +7,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'data/User.dart';
 import 'data/data.dart';
 import 'package:chaloapp/login.dart';
 import 'package:chaloapp/global_colors.dart';
 import 'package:chaloapp/data/activity.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
 
 class ProfileSetup extends StatefulWidget {
   final String email, password;
@@ -48,24 +51,35 @@ class _ProfileSetupState extends State<ProfileSetup> {
     selectedActivityList = [];
   }
 
+  File _image;
+
   @override
   Widget build(BuildContext context) {
+    Future getImage() async {
+      var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+      setState(() {
+        _image = image;
+        print("Image Path $_image");
+      });
+    }
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(
-          "Profile Setup",
-          style: TextStyle(
-            color: Color(secondary),
-          ),
-        ),
-        elevation: 0.0,
         backgroundColor: Colors.white,
-      ),
-      body: Stack(
-        overflow: Overflow.visible,
-        children: <Widget>[
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Center(
+            child: Text(
+              "Profile Setup",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+          elevation: 1.0,
+          backgroundColor: Color(primary),
+        ),
+        body: SingleChildScrollView(
+            child: Stack(overflow: Overflow.visible, children: <Widget>[
           Container(
             child: Padding(
               padding: EdgeInsets.symmetric(
@@ -76,81 +90,127 @@ class _ProfileSetupState extends State<ProfileSetup> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(
-                    height: 20,
+                    height: 40,
                   ),
-                  Row(
-                    children: <Widget>[
-                      Container(
-                        height: 110,
-                        width: 110,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: AssetImage('images/bgcover.jpg'),
-                            fit: BoxFit.cover,
+                  Card(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0)),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Color(primary),
                           ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 20,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
+                          borderRadius: BorderRadius.circular(6)),
+                      child: Column(
                         children: <Widget>[
-                          Text(
-                            "Abdul Quadir",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color(primary),
-                              fontSize: 22,
-                            ),
+                          SizedBox(
+                            height: 15.0,
                           ),
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              FlatButton(
-                                padding: EdgeInsets.all(0),
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onPressed: () {},
-                                child: Text(
-                                  "0 \n Following",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(secondary),
-                                  ),
+                              Text(
+                                "Abdul Quadir",
+                                style: TextStyle(
+                                  color: Color(secondary),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              FlatButton(
-                                padding: EdgeInsets.all(0),
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
+                              IconButton(
+                                icon: Icon(
+                                  Icons.edit,
+                                ),
+                                color: Color(primary),
                                 onPressed: () {},
-                                child: Text(
-                                  "0 \n Followers",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(secondary),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text("Male, 22"),
+                              Text("English"),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Divider(
+                            thickness: 1,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              InkWell(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 5, vertical: 5),
+                                  child: Text(
+                                    "0 Followers",
+                                    style: TextStyle(
+                                      color: Color(primary),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
                                   ),
                                 ),
+                                onTap: () {},
+                                splashColor: Colors.redAccent.shade50,
+                              ),
+                              InkWell(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 5, vertical: 5),
+                                  child: Text(
+                                    "0 Following",
+                                    style: TextStyle(
+                                      color: Color(primary),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                                onTap: () {},
+                                splashColor: Colors.redAccent.shade50,
                               ),
                             ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                   SizedBox(
                     height: 15,
                   ),
-                  Divider(
-                    thickness: 1,
+                  TextField(
+                    keyboardType: TextInputType.text,
+                    autofocus: false,
+                    //obscureText: true,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Search users",
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: Color(primary),
+                      ),
+                      contentPadding: const EdgeInsets.only(
+                          left: 30.0, bottom: 15.0, top: 15.0, right: 0.0),
+                      filled: true,
+                      fillColor: Color(form1),
+                      hintStyle: TextStyle(
+                        color: Color(formHint),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
                   ),
                   Text(
                     "Activity Preferences",
@@ -179,7 +239,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => AllActivity()));
+                                  builder: (context) => allActivity()));
                         },
                         child: Text(
                           "View all",
@@ -249,7 +309,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                 child: Stack(
                                   children: <Widget>[
                                     activityList[i][2] == 'true'
-                                        ? Container(color: Color(primary))
+                                        ? Container(
+                                            color: Colors.redAccent.shade100)
                                         : Text(''),
                                     ListTile(
                                       title: Image.asset(
@@ -278,59 +339,61 @@ class _ProfileSetupState extends State<ProfileSetup> {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "Your Activities",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Color(secondary),
-                      fontWeight: FontWeight.w600,
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    child: Text(
+                      selectedActivityList.length != 0 ? "Your Activities" : "",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color(secondary),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    height: 107,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: <Widget>[
-                        for (int i = 0; i < selectedActivityList.length; i++)
-                          Padding(
-                            padding: EdgeInsets.all(2.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Color(primary),
-                                  ),
-                                  borderRadius: BorderRadius.circular(6)),
-                              width: 110,
-                              child: ListTile(
-                                title: Image.asset(
-                                  selectedActivityList[i][0],
-                                  width: 60,
-                                  height: 60,
-                                ),
-                                subtitle: Container(
-                                  padding: EdgeInsets.only(top: 7),
-                                  child: Text(
-                                    selectedActivityList[i][1],
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(secondary),
+                  selectedActivityList.length != 0
+                      ? Container(
+                          margin: EdgeInsets.only(bottom: 20),
+                          height: 107,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: <Widget>[
+                              for (int i = 0;
+                                  i < selectedActivityList.length;
+                                  i++)
+                                Padding(
+                                  padding: EdgeInsets.all(2.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Color(primary),
+                                        ),
+                                        borderRadius: BorderRadius.circular(6)),
+                                    width: 110,
+                                    child: ListTile(
+                                      title: Image.asset(
+                                        selectedActivityList[i][0],
+                                        width: 60,
+                                        height: 60,
+                                      ),
+                                      subtitle: Container(
+                                        padding: EdgeInsets.only(top: 7),
+                                        child: Text(
+                                          selectedActivityList[i][1],
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(secondary),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
+                            ],
                           ),
-                      ],
-                    ),
-                  ),
+                        )
+                      : Container(),
                   SizedBox(
                     height: 30,
                   ),
@@ -355,8 +418,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             widget.creds != null
                                 ? FirebaseAuth.instance
                                     .signInWithCredential(widget.creds)
-                                : _auth
-                                    .signIn(widget.email, widget.password);
+                                : _auth.signIn(widget.email, widget.password);
                             Navigator.pop(context);
                             showDialog(
                                 context: context,
@@ -388,22 +450,54 @@ class _ProfileSetupState extends State<ProfileSetup> {
                       ),
                     ),
                   ),
+                  GestureDetector(
+                    onTap: () {
+                      getImage();
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 1.5,
+                          color: Color(primary),
+                        ),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      margin: EdgeInsets.only(top: 20),
+                      width: 55.0,
+                      height: 55.0,
+                      child: CircleAvatar(
+                        radius: 100,
+                        child: ClipOval(
+                          child: new SizedBox(
+                            width: 180.0,
+                            height: 180.0,
+                            child: (_image != null)
+                                ? Image.file(
+                                    _image,
+                                    fit: BoxFit.fill,
+                                  )
+                                : Icon(
+                                    Icons.person,
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-        ],
-      ),
-    );
+        ])));
   }
 }
 
-class AllActivity extends StatefulWidget {
+class allActivity extends StatefulWidget {
   @override
-  _AllActivityState createState() => _AllActivityState();
+  _allActivityState createState() => _allActivityState();
 }
 
-class _AllActivityState extends State<AllActivity> {
+class _allActivityState extends State<allActivity> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -489,7 +583,7 @@ class _AllActivityState extends State<AllActivity> {
                       child: Stack(
                         children: <Widget>[
                           activityList[i][2] == 'true'
-                              ? Container(color: Color(primary))
+                              ? Container(color: Colors.redAccent.shade100)
                               : Text(""),
                           Center(
                             child: Column(

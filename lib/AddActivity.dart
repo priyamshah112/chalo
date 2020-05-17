@@ -73,54 +73,12 @@ class _AddActivityState extends State<AddActivity> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text(
-                                "Activity Name",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
                               Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
-                                child: TextFormField(
-                                  validator: (value) {
-                                    if (value.isEmpty)
-                                      return "Please enter a name";
-                                    return null;
-                                  },
-                                  onSaved: (value) => activityName = value,
-                                  keyboardType: TextInputType.text,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Color(form1),
-                                    contentPadding: const EdgeInsets.only(
-                                      left: 30.0,
-                                      bottom: 18.0,
-                                      top: 18.0,
-                                    ),
-                                    border: InputBorder.none,
-                                    prefixIcon: Icon(
-                                      Icons.directions_run,
-                                      color: Color(primary),
-                                      size: 18,
-                                    ),
-                                    hintText: "Eg. Morning Walk",
-                                    hintStyle: TextStyle(
-                                      color: Color(formHint),
-                                    ),
-                                  ),
-                                  autofocus: false,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 1.0, vertical: 10.0),
-                                child: TextFormField(
+                                child: TextField(
                                   keyboardType: TextInputType.text,
                                   autofocus: false,
-                                  //obscureText: true,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Search for an Activities",
@@ -162,14 +120,6 @@ class _AddActivityState extends State<AddActivity> {
                                     hintStyle: TextStyle(
                                       color: Color(formHint),
                                     ),
-//                                    focusedBorder: OutlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.white),
-//                                    ),
-//                                    enabledBorder: UnderlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.indigo),
-//                                    ),
                                   ),
                                 ),
                               ),
@@ -370,8 +320,7 @@ class _AddActivityState extends State<AddActivity> {
                                     if (value == null)
                                       return 'Select Start Time';
                                     else {
-                                      value = DateTimeField.combine(
-                                          pickedDate,
+                                      value = DateTimeField.combine(pickedDate,
                                           TimeOfDay.fromDateTime(value));
                                       if (value.isBefore(pickedDate
                                           .add(Duration(minutes: 29))))
@@ -415,8 +364,7 @@ class _AddActivityState extends State<AddActivity> {
                                     if (value == null)
                                       return 'Select End Time';
                                     else {
-                                      value = DateTimeField.combine(
-                                          pickedDate,
+                                      value = DateTimeField.combine(pickedDate,
                                           TimeOfDay.fromDateTime(value));
                                       if (value.isBefore(
                                           startTime.add(Duration(minutes: 29))))
