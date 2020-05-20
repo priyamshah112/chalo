@@ -174,7 +174,7 @@ class _SignUpState extends State<SignUp> {
                                   child: DateTimeField(
                                     format: DateFormat('d/MM/y'),
                                     onShowPicker: (context, _) =>
-                                        DateTimePicker().presentDatePicker(
+                                        DateTimePicker.presentDatePicker(
                                             context,
                                             DateTime(1900),
                                             DateTime.now()),

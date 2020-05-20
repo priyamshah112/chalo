@@ -6,6 +6,7 @@ import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:chaloapp/widgets/date_time.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
@@ -22,13 +23,13 @@ class AddActivity extends StatefulWidget {
 
 class _AddActivityState extends State<AddActivity> {
   final _formKey = GlobalKey<FormState>();
-  String activityName, activity, note, type = 'Public';
-  DateTime pickedDate = DateTime.now();
+  String activityName, note, type = 'Public';
   DateTime startTime = DateTime.now().add(Duration(minutes: 29));
   DateTime endTime;
   int _peopleCount = 1;
   bool proposeTime = false;
   bool _autovalidate = false;
+  bool _dateSelected = true;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +74,43 @@ class _AddActivityState extends State<AddActivity> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
+                              Text(
+                                "Activity Title",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Color(primary),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 1.0, vertical: 10.0),
+                                child: TextFormField(
+                                  validator: (value) {
+                                    if (value.isEmpty)
+                                      return 'Please Enter a title';
+                                    else
+                                      return null;
+                                  },
+                                  onSaved: (value) => activityName = value,
+                                  keyboardType: TextInputType.text,
+                                  autofocus: false,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: "A name for your Activity",
+                                    prefixIcon: Icon(
+                                      Icons.directions_bike,
+                                    ),
+                                    contentPadding: const EdgeInsets.only(
+                                        left: 30.0, bottom: 18.0, top: 18.0),
+                                    filled: true,
+                                    fillColor: Color(form1),
+                                    hintStyle: TextStyle(
+                                      color: Color(formHint),
+                                    ),
+                                  ),
+                                ),
+                              ),
                               Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
@@ -190,17 +228,9 @@ class _AddActivityState extends State<AddActivity> {
                               Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
-//                                decoration: BoxDecoration(
-//                                  border: Border(
-//                                    bottom: BorderSide(
-//                                      color: Colors.grey[200],
-//                                    ),
-//                                  ),
-//                                ),
                                 child: TextField(
                                   keyboardType: TextInputType.text,
                                   autofocus: false,
-                                  //obscureText: true,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Search for a place",
@@ -243,19 +273,65 @@ class _AddActivityState extends State<AddActivity> {
                                     hintStyle: TextStyle(
                                       color: Color(formHint),
                                     ),
-//                                    focusedBorder: OutlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.white),
-//                                    ),
-//                                    enabledBorder: UnderlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.indigo),
-//                                    ),
                                   ),
                                 ),
                               ),
+                              // Text(
+                              //   "Date",
+                              //   style: TextStyle(
+                              //     fontSize: 15,
+                              //     color: Color(primary),
+                              //     fontWeight: FontWeight.w600,
+                              //   ),
+                              // ),
+                              // Container(
+                              //   padding: EdgeInsets.symmetric(
+                              //       horizontal: 1.0, vertical: 10.0),
+                              //   child: DateTimeField(
+                              //     format: DateFormat('d/MM/y'),
+                              //     onShowPicker: (context, _) => DateTimePicker()
+                              //         .presentDatePicker(
+                              //             context,
+                              //             DateTime.now(),
+                              //             DateTime.now()
+                              //                 .add(Duration(days: 60))),
+                              //     validator: (value) {
+                              //       if (value == null) return "Select Date";
+                              //       return null;
+                              //     },
+                              //     onSaved: (value) {
+                              //       if (value != null)
+                              //         pickedDate = value;
+                              //       else
+                              //         setState(() => _dateSelected = false);
+                              //     },
+                              //     keyboardType: TextInputType.datetime,
+                              //     decoration: InputDecoration(
+                              //       errorText:
+                              //           !_dateSelected ? "Select date" : null,
+                              //       filled: true,
+                              //       fillColor: Color(form1),
+                              //       contentPadding: const EdgeInsets.only(
+                              //           left: 30.0,
+                              //           bottom: 18.0,
+                              //           top: 18.0,
+                              //           right: 30.0),
+                              //       border: InputBorder.none,
+                              //       prefixIcon: Icon(
+                              //         FontAwesomeIcons.calendar,
+                              //         color: Color(primary),
+                              //         size: 18,
+                              //       ),
+                              //       hintText: "DD/MM/YYYY",
+                              //       hintStyle: TextStyle(
+                              //         color: Color(formHint),
+                              //       ),
+                              //     ),
+                              //     autofocus: false,
+                              //   ),
+                              // ),
                               Text(
-                                "Date",
+                                "Date & Time",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
@@ -266,72 +342,30 @@ class _AddActivityState extends State<AddActivity> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
                                 child: DateTimeField(
-                                  format: DateFormat('d/MM/y'),
-                                  onShowPicker: (context, _) => DateTimePicker()
-                                      .presentDatePicker(
+                                  onShowPicker: (context, time) =>
+                                      DateTimePicker.presentDateTimePicker(
                                           context,
                                           DateTime.now(),
                                           DateTime.now()
-                                              .add(Duration(days: 60))),
-                                  validator: (value) {
-                                    if (value == null) return "Select Date";
-                                    return null;
-                                  },
-                                  onSaved: (value) => pickedDate = value,
-                                  keyboardType: TextInputType.datetime,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Color(form1),
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 30.0,
-                                        bottom: 18.0,
-                                        top: 18.0,
-                                        right: 30.0),
-                                    border: InputBorder.none,
-                                    prefixIcon: Icon(
-                                      FontAwesomeIcons.calendar,
-                                      color: Color(primary),
-                                      size: 18,
-                                    ),
-                                    hintText: "DD/MM/YYYY",
-                                    hintStyle: TextStyle(
-                                      color: Color(formHint),
-                                    ),
-                                  ),
-                                  autofocus: false,
-                                ),
-                              ),
-                              Text(
-                                "Time",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 1.0, vertical: 10.0),
-                                child: DateTimeField(
-                                  onShowPicker:
-                                      DateTimePicker().presentTimePicker,
-                                  format: DateFormat("hh:mm a"),
+                                              .add(Duration(days: 60)),
+                                          DateTime.now()
+                                              .add(Duration(minutes: 30))),
+                                  format: DateFormat("EEE, d MMM yyyy hh:mm a"),
                                   validator: (value) {
                                     if (value == null)
                                       return 'Select Start Time';
                                     else {
-                                      value = DateTimeField.combine(pickedDate,
-                                          TimeOfDay.fromDateTime(value));
-                                      if (value.isBefore(pickedDate
+                                      if (value.isBefore(DateTime.now()
                                           .add(Duration(minutes: 29))))
                                         return 'Start time must be atleast 30 minutes later';
                                       else
                                         return null;
                                     }
                                   },
-                                  onSaved: (value) => startTime =
-                                      DateTimeField.combine(pickedDate,
-                                          TimeOfDay.fromDateTime(value)),
+                                  onSaved: (value) {
+                                    // print('start: ' + value.toString());
+                                    startTime = value;
+                                  },
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
@@ -341,10 +375,10 @@ class _AddActivityState extends State<AddActivity> {
                                       color: Color(primary),
                                     ),
                                     contentPadding: const EdgeInsets.only(
-                                        left: 30.0,
-                                        bottom: 18.0,
-                                        top: 18.0,
-                                        right: 30.0),
+                                      left: 30.0,
+                                      bottom: 18.0,
+                                      top: 18.0,
+                                    ),
                                     filled: true,
                                     fillColor: Color(form1),
                                     hintStyle: TextStyle(
@@ -357,25 +391,34 @@ class _AddActivityState extends State<AddActivity> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
                                 child: DateTimeField(
-                                  onShowPicker:
-                                      DateTimePicker().presentTimePicker,
-                                  format: DateFormat("hh:mm a"),
+                                  onShowPicker: (context, time) =>
+                                      DateTimePicker.presentDateTimePicker(
+                                          context,
+                                          DateTime.now(),
+                                          DateTime.now()
+                                              .add(Duration(days: 60)),
+                                          DateTime.now()
+                                              .add(Duration(minutes: 60))),
+                                  format: DateFormat("EEE, d MMM yyyy hh:mm a"),
                                   validator: (value) {
                                     if (value == null)
                                       return 'Select End Time';
                                     else {
-                                      value = DateTimeField.combine(pickedDate,
-                                          TimeOfDay.fromDateTime(value));
-                                      if (value.isBefore(
-                                          startTime.add(Duration(minutes: 29))))
+                                      bool condition = startTime != null
+                                          ? value.isBefore(startTime
+                                              .add(Duration(minutes: 29)))
+                                          : value.isBefore(DateTime.now()
+                                              .add(Duration(minutes: 59)));
+                                      if (condition)
                                         return 'Minimum time is 30 minutes';
                                       else
                                         return null;
                                     }
                                   },
-                                  onSaved: (value) => endTime =
-                                      DateTimeField.combine(pickedDate,
-                                          TimeOfDay.fromDateTime(value)),
+                                  onSaved: (value) {
+                                    // print('end: ' + value.toString());
+                                    endTime = value;
+                                  },
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
@@ -385,10 +428,7 @@ class _AddActivityState extends State<AddActivity> {
                                       color: Color(primary),
                                     ),
                                     contentPadding: const EdgeInsets.only(
-                                        left: 30.0,
-                                        bottom: 18.0,
-                                        top: 18.0,
-                                        right: 30.0),
+                                        left: 30.0, bottom: 18.0, top: 18.0),
                                     filled: true,
                                     fillColor: Color(form1),
                                     hintStyle: TextStyle(
@@ -466,7 +506,7 @@ class _AddActivityState extends State<AddActivity> {
                               Row(
                                 children: <Widget>[
                                   Text(
-                                    "Note",
+                                    "Description",
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: Color(primary),
@@ -536,18 +576,20 @@ class _AddActivityState extends State<AddActivity> {
                                 _formKey.currentState.save();
                                 if (_formKey.currentState.validate()) {
                                   _formKey.currentState.save();
-                                  String user = await UserData.getUser();
+                                  final user = await UserData.getUser();
                                   Map<String, dynamic> activityDetails = {
                                     'activity_name': activityName,
-                                    'activity_type': null,
-                                    'admin_id': user,
-                                    'participants_id': [user],
+                                    'activity_type': Firestore.instance
+                                        .collection('chalo_activity')
+                                        .document('1igNa5rFLAEv2tda0Mfa'),
+                                    'admin_id': user['email'],
+                                    'admin_name': user['name'],
+                                    'participants_id': [user['email']],
                                     'blocked_participant_id': [],
                                     'pending_participant_id': [],
                                     'broadcast_type': type.toLowerCase(),
-                                    'max_partcipant': _peopleCount,
+                                    'max_participant': _peopleCount,
                                     'participant_type': selectedGender,
-                                    'date': pickedDate,
                                     'activity_start':
                                         Timestamp.fromDate(startTime),
                                     'activity_end': Timestamp.fromDate(endTime),
@@ -562,18 +604,27 @@ class _AddActivityState extends State<AddActivity> {
                                     'timestamp': Timestamp.now(),
                                   };
                                   print(activityDetails);
+                                  showDialog(
+                                      context: context,
+                                      child: Center(
+                                          child: CircularProgressIndicator()));
+                                  await Future.delayed(Duration(seconds: 1));
+                                  Navigator.pop(context);
                                   showDialogBox().show_Dialog(
                                       context: context,
-                                      child: DialogBox(
-                                          title: "Success",
-                                          description:
-                                              "Activity successfully created",
-                                          buttonText1: "Ok",
-                                          button1Func: () {
-                                            Navigator.pop(context);
-                                            Navigator.pop(
-                                                context, activityDetails);
-                                          }));
+                                      child: FadeAnimation(
+                                        1,
+                                        DialogBox(
+                                            title: "Success",
+                                            description:
+                                                "Activity successfully created",
+                                            buttonText1: "Ok",
+                                            button1Func: () {
+                                              Navigator.pop(context);
+                                              Navigator.pop(
+                                                  context, activityDetails);
+                                            }),
+                                      ));
                                 } else
                                   setState(() => _autovalidate = true);
                               },

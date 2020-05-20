@@ -52,6 +52,7 @@ class AuthService {
 
   Future<Map> signIn(email, password) async {
     DocumentSnapshot doc;
+    print('Signing in...');
     try {
       await auth.signInWithEmailAndPassword(email: email, password: password);
       doc = await this.userCollection.document(email).get();

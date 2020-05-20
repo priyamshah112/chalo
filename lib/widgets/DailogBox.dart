@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:chaloapp/global_colors.dart';
 
 class DialogBox extends StatefulWidget {
   final String title, description, buttonText1, buttonText2;
@@ -82,7 +83,7 @@ class _DialogBoxState extends State<DialogBox> {
                                         onPressed: widget.button1Func,
                                         child: Text(
                                           widget.buttonText1,
-                                          style: TextStyle(color: Colors.red),
+                                          style: TextStyle(color: widget.buttonText2==null ? Color(primary):Colors.red),
                                         ),
                                       ),
                                     ),

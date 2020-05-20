@@ -22,29 +22,8 @@ class MainHome extends StatefulWidget {
 
 class _MainHomeState extends State<MainHome> {
   int _currentIndex = 0;
-  List tabs;
+  List tabs = [MainMap(), AllActivity(), Broadcast(), ProfilePage(), Chats()];
 
-  @override
-  void initState() {
-    tabs = [
-      MainMap(),
-      AllActivity(),
-      Broadcast(),
-      ProfilePage(),
-      Chats()
-    ];
-    super.initState();
-  }
-
-//  final List<Widget> screens = [
-//    MainHome(),
-//    AllActivity(),
-//    Broadcast(),
-//    Explore(),
-//    Chats()
-//  ];
-//  Widget currentScreen = MainHome();
-//  final PageStorageBucket bucket = PageStorageBucket();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,17 +88,17 @@ class MainMap extends StatefulWidget {
 }
 
 class _MainMapState extends State<MainMap> {
-  String user, type;
+  String user, email;
 
   void _getData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    user = prefs.getString('email');
-    type = prefs.getString('type');
+    user = prefs.getString('name');
+    email = prefs.getString('email');
   }
 
   @override
   void initState() {
-    user = type = "";
+    user = email = "";
     _getData();
     super.initState();
   }
@@ -133,7 +112,7 @@ class _MainMapState extends State<MainMap> {
               child: Icon(Icons.person, color: Colors.black),
               onPressed: () {
                 Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text('user: $user\n type: $type'),
+                  content: Text('user: $user\n email: $email'),
                   duration: Duration(seconds: 2),
                 ));
               })),
@@ -142,22 +121,7 @@ class _MainMapState extends State<MainMap> {
         child: Stack(
           fit: StackFit.expand,
           children: <Widget>[
-            Container(
-              child: FlutterMap(
-                options: new MapOptions(
-                    center: new LatLng(19.0760, 72.8777), minZoom: 10.0),
-                layers: [
-                  new TileLayerOptions(
-                      urlTemplate:
-                          "https://api.mapbox.com/styles/v1/abdulquadir123/ck9kbtkmm0ngc1ipif8vq6qbv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw",
-                      additionalOptions: {
-                        'accessToken':
-                            'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw',
-                        'id': 'mapbox.mapbox-streets-v8'
-                      }),
-                ],
-              ),
-            ),
+            Column(),
             Positioned(
               top: 60.0,
               right: 15.0,

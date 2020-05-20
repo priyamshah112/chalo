@@ -51,6 +51,8 @@ class User {
 class UserData {
   Future setData(Map userData, String type) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(
+        'name', userData['first_name'] + " " + userData['last_name']);
     prefs.setString('fname', userData['first_name']);
     prefs.setString('lname', userData['last_name']);
     prefs.setString('email', userData['email']);
@@ -62,6 +64,7 @@ class UserData {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('fname');
     prefs.remove('lname');
+    prefs.remove('name');
     prefs.remove('email');
     prefs.remove('type');
   }
@@ -76,8 +79,12 @@ class UserData {
     return prefs.getString('type');
   }
 
-  static Future<String> getUser() async {
+  static Future<Map> getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('email');
+    Map user = {
+      'email': prefs.getString('email'),
+      'name': prefs.getString('name')
+    };
+    return user;
   }
 }

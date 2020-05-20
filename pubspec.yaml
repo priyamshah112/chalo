@@ -31,10 +31,10 @@ dependencies:
   steel_crypt: ^1.7.1+1
   flutter_map:
   firebase_auth: 
-  cloud_firestore:
+  firebase_storage:
+  cloud_firestore: 
   google_sign_in:
-  firebase_messaging: ^6.0.13
-  firebase_storage: ^3.1.5
+  firebase_messaging: ^6.0.13 
   flutter_spinkit: "^4.1.2"
   image_picker: ^0.6.6+1
 
