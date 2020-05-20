@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:chaloapp/forgot.dart';
+import 'package:chaloapp/global_colors.dart';
 import 'package:chaloapp/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,8 @@ import 'package:chaloapp/login.dart';
 
 void main() => runApp(
       MaterialApp(
-        theme: ThemeData(primaryColor: Colors.teal, accentColor: Colors.teal),
+        theme: ThemeData(
+            primaryColor: Color(primary), accentColor: Color(primary)),
         debugShowCheckedModeBanner: false,
         // routes: {
         //   '/': (context) => SplashScreen(),
@@ -30,7 +32,9 @@ class _SplashScreenState extends State<SplashScreen> {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     user != null
         ? Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => MainHome(username: user.email)))
+            context,
+            MaterialPageRoute(
+                builder: (context) => MainHome(username: user.email)))
         : Navigator.pushReplacement(
             context,
             // MaterialPageRoute(builder: (context) => OnBoarding()),

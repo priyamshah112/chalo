@@ -866,6 +866,32 @@ class _ProfilePageState extends State<ProfilePage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
                                   Text(
+                                    "Birth Date",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontFamily: heading,
+                                      color: Color(primary),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    "24/04/2000",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontFamily: bodyText,
+                                      color: Color(secondary),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
                                     "Country",
                                     style: TextStyle(
                                       fontSize: 13,
