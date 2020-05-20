@@ -1,13 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
-import 'package:chaloapp/edit_profile_page.dart';
-import 'package:chaloapp/home.dart';
-import 'package:chaloapp/post_details.dart';
-import 'package:chaloapp/services/AuthService.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

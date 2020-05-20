@@ -32,7 +32,7 @@ class _MainHomeState extends State<MainHome> {
       MainMap(user: widget.username, type: widget.type),
       AllActivity(),
       Broadcast(),
-      ProfilePage(),
+      Explore(),
       Chats()
     ];
     super.initState();
@@ -179,7 +179,7 @@ class _MainMapState extends State<MainMap> {
                             context,
                             MaterialPageRoute(
                                 builder: (BuildContext context) =>
-                                    ProfileSetup()),
+                                    ProfilePage()),
                           );
                         },
                         child: CircleAvatar(
