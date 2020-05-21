@@ -52,24 +52,6 @@ class _BroadcastState extends State<Broadcast> {
                     SizedBox(
                       height: 20.0,
                     ),
-//                    Stack(
-//                      children: <Widget>[
-//                        Container(
-//                          height: 100,
-//                          width: MediaQuery.of(context).size.width,
-//                          decoration: BoxDecoration(
-//                            color: Colors.black,
-//                            image: DecorationImage(
-//                              image: AssetImage("images/loginbg.png"),
-//                              fit: BoxFit.cover,
-//                              colorFilter: ColorFilter.mode(
-//                                  Colors.black.withOpacity(0.7),
-//                                  BlendMode.dstATop),
-//                            ),
-//                          ),
-//                        ),
-//                      ],
-//                    ),
                     SizedBox(
                       height: 12.0,
                     ),
@@ -371,7 +353,7 @@ class _BroadcastState extends State<Broadcast> {
                                     OutlineButton.icon(
                                       onPressed: () {},
                                       icon: Icon(
-                                        FontAwesomeIcons.check,
+                                        FontAwesomeIcons.times,
                                         size: 15,
                                       ),
                                       label: Text(
@@ -643,7 +625,7 @@ class _BroadcastState extends State<Broadcast> {
                                     OutlineButton.icon(
                                       onPressed: () {},
                                       icon: Icon(
-                                        FontAwesomeIcons.check,
+                                        FontAwesomeIcons.times,
                                         size: 15,
                                       ),
                                       label: Text(

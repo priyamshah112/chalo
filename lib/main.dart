@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/forgot.dart';
+import 'package:chaloapp/global_colors.dart';
 import 'package:chaloapp/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,8 @@ import 'package:chaloapp/login.dart';
 
 void main() => runApp(
       MaterialApp(
-        theme: ThemeData(primaryColor: Colors.teal, accentColor: Colors.teal),
+        theme: ThemeData(
+            primaryColor: Color(primary), accentColor: Color(primary)),
         debugShowCheckedModeBanner: false,
         home: SplashScreen(),
       ),

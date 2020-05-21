@@ -153,7 +153,7 @@ class _MainMapState extends State<MainMap> {
                             context,
                             MaterialPageRoute(
                                 builder: (BuildContext context) =>
-                                    ProfileSetup()),
+                                    ProfilePage()),
                           );
                         },
                         child: CircleAvatar(
