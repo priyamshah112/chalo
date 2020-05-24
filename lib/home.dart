@@ -22,7 +22,19 @@ class MainHome extends StatefulWidget {
 
 class _MainHomeState extends State<MainHome> {
   int _currentIndex = 0;
-  List tabs = [MainMap(), AllActivity(), Broadcast(), ProfilePage(), Chats()];
+  List tabs = [
+    MainMap(),
+    AllActivity(onBack: _onWillPop),
+    Broadcast(),
+    ProfilePage(),
+    Chats()
+  ];
+
+  static Future<bool> _onWillPop(BuildContext context) async {
+    await Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => MainMap()));
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,19 +104,21 @@ class _MainMapState extends State<MainMap> {
 
   void _getData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    user = prefs.getString('name');
-    email = prefs.getString('email');
+    setState(() {
+      user = prefs.getString('name');
+      email = prefs.getString('email');
+    });
   }
 
   @override
   void initState() {
     user = email = "";
-    _getData();
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
+    _getData();
     return Scaffold(
       floatingActionButton: Builder(
           builder: (context) => FloatingActionButton(
@@ -121,7 +135,22 @@ class _MainMapState extends State<MainMap> {
         child: Stack(
           fit: StackFit.expand,
           children: <Widget>[
-            Column(),
+            Container(
+              child: FlutterMap(
+                options: new MapOptions(
+                    center: new LatLng(19.0760, 72.8777), minZoom: 10.0),
+                layers: [
+                  new TileLayerOptions(
+                      urlTemplate:
+                          "https://api.mapbox.com/styles/v1/abdulquadir123/ck9kbtkmm0ngc1ipif8vq6qbv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw",
+                      additionalOptions: {
+                        'accessToken':
+                            'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw',
+                        'id': 'mapbox.mapbox-streets-v8'
+                      }),
+                ],
+              ),
+            ),
             Positioned(
               top: 60.0,
               right: 15.0,

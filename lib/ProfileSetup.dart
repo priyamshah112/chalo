@@ -56,11 +56,15 @@ class _ProfileSetupState extends State<ProfileSetup> {
   @override
   Widget build(BuildContext context) {
     Future getImage() async {
-      var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-      setState(() {
-        _image = image;
-        print("Image Path $_image");
-      });
+      try {
+        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+        setState(() {
+          _image = image;
+          print("Image Path $_image");
+        });
+      } catch (e) {
+        print(e.toString());
+      }
     }
 
     return Scaffold(

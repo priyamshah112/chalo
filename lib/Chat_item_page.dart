@@ -3,9 +3,11 @@ import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/data/chat_item_model.dart';
 import 'package:chaloapp/data/chat_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
+import 'package:steel_crypt/PointyCastleN/src/ufixnum.dart';
 
 import 'global_colors.dart';
 
@@ -15,15 +17,45 @@ class ChatItemPage extends StatefulWidget {
 }
 
 class _ChatItemPageState extends State<ChatItemPage> {
-  ChatModel currentChat = ChatModel.list.elementAt(0);
-  String currentUser = "1";
-  String pairId = "2";
-  String pairId1 = "3";
-  List<ChatItemModel> ChatItem = ChatItemModel.list;
   bool isMe;
 
   @override
+  void initState() {
+    super.initState();
+    final fbm = FirebaseMessaging();
+    fbm.requestNotificationPermissions();
+    fbm.configure(
+      onMessage: (msg) {
+        print(msg);
+        return;
+      },
+      onLaunch: (msg) {
+        print(msg);
+        return;
+      },
+      onResume: (msg) {
+        print(msg);
+        return;
+      },
+    );
+    fbm.subscribeToTopic('chat');
+  }
+
+  int difference = 0;
+  bool displayDate(Timestamp time) {
+    DateTime changedDate =
+        DateTime.fromMillisecondsSinceEpoch(time.seconds * 1000);
+    int diff = DateTime.now().day - changedDate.day;
+    if (diff > difference) {
+      difference = diff;
+      return true;
+    } else
+      return false;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    difference = 0;
     return Scaffold(
         backgroundColor: Colors.white.withOpacity(0.9),
         appBar: AppBar(
@@ -47,7 +79,7 @@ class _ChatItemPageState extends State<ChatItemPage> {
           ],
           backgroundColor: Color(primary),
           centerTitle: true,
-          title: Center(child: Text("${currentChat.activityName}")),
+          title: Center(child: Text("Hiking")),
         ),
         body: FutureBuilder(
             future: UserData.getUser(),
@@ -66,12 +98,12 @@ class _ChatItemPageState extends State<ChatItemPage> {
                         !snapshot.hasData)
                       return Center(child: CircularProgressIndicator());
                     List<DocumentSnapshot> messages = snapshot.data.documents;
-                    int count = messages.length;
+                    int msgs = messages.length;
                     return Column(children: <Widget>[
                       Expanded(
                           child: ListView.builder(
                               reverse: true,
-                              itemCount: count,
+                              itemCount: msgs,
                               itemBuilder: (contex, index) {
                                 messages[index]['email'] == user.data['email']
                                     ? isMe = true
@@ -79,88 +111,21 @@ class _ChatItemPageState extends State<ChatItemPage> {
                                 return Padding(
                                   padding:
                                       const EdgeInsets.symmetric(horizontal: 6),
-                                  child: Row(
-                                    mainAxisAlignment: isMe
-                                        ? MainAxisAlignment.end
-                                        : MainAxisAlignment.start,
+                                  child: Column(
                                     children: <Widget>[
-                                      Container(
-                                        constraints: BoxConstraints(
-                                          maxWidth: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.7,
-                                        ),
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 6, horizontal: 12),
-                                        margin: EdgeInsets.symmetric(
-                                            vertical: 6, horizontal: 12),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(15),
-                                            bottomRight:
-                                                Radius.circular(isMe ? 0 : 15),
-                                            bottomLeft:
-                                                Radius.circular(!isMe ? 0 : 15),
-                                            topLeft: Radius.circular(15),
-                                          ),
-                                          color: isMe
-                                              ? Color(primary)
-                                              : Color(0xfffff3f1),
-                                        ),
-                                        child: Wrap(
-                                          direction: Axis.horizontal,
-                                          alignment: WrapAlignment.end,
-                                          crossAxisAlignment:
-                                              WrapCrossAlignment.end,
-                                          children: <Widget>[
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: <Widget>[
-                                                if (!isMe)
-                                                  Text(
-                                                    messages[index]['name'],
-                                                    style: TextStyle(
-                                                      color: isMe
-                                                          ? Color(secondary)
-                                                          : Color(primary),
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                Text(
-                                                  messages[index]['text'],
-                                                  style: TextStyle(
-                                                    color: isMe
-                                                        ? Colors.white
-                                                        : Color(secondary),
-                                                    fontSize: 20,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              DateFormat('hh:mm a').format(
-                                                  DateTime
-                                                      .fromMillisecondsSinceEpoch(
-                                                          messages[index]
-                                                                      ['time']
-                                                                  .seconds *
-                                                              1000)),
-                                              style: TextStyle(
-                                                color: isMe
-                                                    ? Colors.white
-                                                    : Color(secondary),
-                                                fontSize: 12,
-                                              ),
-                                              textAlign: TextAlign.end,
-                                            ),
-                                          ],
-                                        ),
+                                      if (index == msgs - 1)
+                                        MessageDate(
+                                            messages: messages, index: index),
+                                      ChatBubble(
+                                        isMe: isMe,
+                                        content: messages[index]['text'],
+                                        name: messages[index]['name'],
+                                        timestamp: messages[index]['time'],
                                       ),
+                                      if (displayDate(messages[index]['time']))
+                                        MessageDate(
+                                            messages: messages,
+                                            index: index - 1),
                                     ],
                                   ),
                                 );
@@ -172,17 +137,139 @@ class _ChatItemPageState extends State<ChatItemPage> {
             }));
   }
 
-  isFirstMessage(List<ChatItemModel> chatItem, int index) {
-    return (ChatItem[index].senderId !=
-            ChatItem[index - 1 < 0 ? 0 : index - 1].senderId) ||
-        index == 0;
-  }
+//   isFirstMessage(List<ChatItemModel> chatItem, int index) {
+//     return (ChatItem[index].senderId !=
+//             ChatItem[index - 1 < 0 ? 0 : index - 1].senderId) ||
+//         index == 0;
+//   }
 
-  isLastMessage(List<ChatItemModel> chatItem, int index) {
-    int maxItem = ChatItem.length - 1;
-    return (ChatItem[index].senderId !=
-            ChatItem[index + 1 > maxItem ? maxItem : index + 1].senderId) ||
-        index == maxItem;
+//   isLastMessage(List<ChatItemModel> chatItem, int index) {
+//     int maxItem = ChatItem.length - 1;
+//     return (ChatItem[index].senderId !=
+//             ChatItem[index + 1 > maxItem ? maxItem : index + 1].senderId) ||
+//         index == maxItem;
+//   }
+}
+
+class ChatBubble extends StatefulWidget {
+  const ChatBubble(
+      {Key key,
+      @required this.isMe,
+      @required this.content,
+      @required this.name,
+      @required this.timestamp})
+      : super(key: key);
+
+  final bool isMe;
+  final String content, name;
+  final Timestamp timestamp;
+
+  @override
+  _ChatBubbleState createState() => _ChatBubbleState();
+}
+
+class _ChatBubbleState extends State<ChatBubble> {
+  bool delete = false;
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment:
+          widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+      children: <Widget>[
+        GestureDetector(
+          onLongPress: () {
+            print('pressed');
+            setState(() => delete = !delete);
+          },
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
+            ),
+            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+            margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(15),
+                bottomRight: Radius.circular(widget.isMe ? 0 : 15),
+                bottomLeft: Radius.circular(!widget.isMe ? 0 : 15),
+                topLeft: Radius.circular(15),
+              ),
+              color: widget.isMe ? Color(primary) : Color(0xfffff3f1),
+            ),
+            child: Wrap(
+              direction: Axis.horizontal,
+              alignment: WrapAlignment.end,
+              crossAxisAlignment: WrapCrossAlignment.end,
+              children: <Widget>[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    if (!widget.isMe)
+                      Text(
+                        widget.name,
+                        style: TextStyle(
+                          color:
+                              widget.isMe ? Color(secondary) : Color(primary),
+                          fontSize: 16,
+                        ),
+                      ),
+                    Text(
+                      widget.content,
+                      style: TextStyle(
+                        color: widget.isMe ? Colors.white : Color(secondary),
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(width: 5),
+                Text(
+                  DateFormat('hh:mm a').format(
+                      DateTime.fromMillisecondsSinceEpoch(
+                          widget.timestamp.seconds * 1000)),
+                  style: TextStyle(
+                    color: widget.isMe ? Colors.white : Color(secondary),
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class MessageDate extends StatefulWidget {
+  MessageDate({Key key, @required this.messages, @required this.index})
+      : super(key: key);
+  final List<DocumentSnapshot> messages;
+  final int index;
+
+  @override
+  _MessageDateState createState() => _MessageDateState();
+}
+
+class _MessageDateState extends State<MessageDate> {
+  @override
+  Widget build(BuildContext context) {
+    return widget.index < widget.messages.length
+        ? Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Text(
+              DateFormat('MMM d, yyyy').format(
+                  DateTime.fromMillisecondsSinceEpoch(
+                      widget.messages[widget.index]['time'].seconds * 1000)),
+              style: TextStyle(
+                color: Color(secondary),
+                fontSize: 12,
+              ),
+            ),
+          )
+        : Container();
   }
 }
 
@@ -247,7 +334,6 @@ class _MessageInputState extends State<MessageInput> {
   void _send(BuildContext ctx) async {
     print('sending');
     final user = await UserData.getUser();
-    print(user);
     print(_controller.text);
     try {
       final doc = await Firestore.instance
@@ -261,7 +347,6 @@ class _MessageInputState extends State<MessageInput> {
         'time': Timestamp.fromDate(DateTime.now())
       });
       print('sent ${doc.documentID}');
-      FocusScope.of(ctx).unfocus();
       _controller.clear();
       setState(() => _empty = true);
     } catch (e) {

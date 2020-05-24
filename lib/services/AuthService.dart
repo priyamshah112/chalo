@@ -67,7 +67,7 @@ class AuthService {
         if (hashedPassword == Hashing.encrypt(password)) flag = true;
       }
       if (flag) {
-        UserData().setData(doc.data, 'email');
+        await UserData().setData(doc.data, 'email');
         return {'success': true, 'email': email, 'password': password};
       } else
         return {"success": false, 'msg': "Unregistered Email or Password"};
@@ -131,8 +131,6 @@ class AuthService {
     phone = '+91' + phone;
     await this.userCollection.getDocuments().then((QuerySnapshot snapshot) {
       snapshot.documents.forEach((doc) {
-        print(phone);
-        print(doc.data['mobile_no']);
         if (phone == doc.data['mobile_no']) {
           contains = true;
         }

@@ -1,6 +1,5 @@
 import 'package:chaloapp/ProfileSetup.dart';
 import 'package:chaloapp/forgot.dart';
-import 'package:chaloapp/main.dart';
 import 'package:chaloapp/services/AuthService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,8 +8,6 @@ import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chaloapp/signup.dart';
 import 'package:chaloapp/home.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'data/User.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -20,7 +17,6 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   var myImage;
-  TextEditingController _emailController = new TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -36,253 +32,250 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Stack(
-          children: <Widget>[
-            Container(
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
+    return Scaffold(
+      body: Stack(
+        children: <Widget>[
+          Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
 //            color: Color.fromRGBO(22, 160, 133, 4.0),
-                color: Colors.black,
-                image: DecorationImage(
-                  image: AssetImage(myImage),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                      Colors.black.withOpacity(0.7), BlendMode.dstATop),
-                ),
+              color: Colors.black,
+              image: DecorationImage(
+                image: AssetImage(myImage),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                    Colors.black.withOpacity(0.7), BlendMode.dstATop),
               ),
-              child: SafeArea(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        SizedBox(
-                          height: 140.0,
+            ),
+            child: SafeArea(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(
+                        height: 140.0,
+                      ),
+                      Text(
+                        'Chalo!!!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 45.0,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Pacifico',
                         ),
-                        Text(
-                          'Chalo!!!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 45.0,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Pacifico',
-                          ),
-                        ),
-                        FlatButton(
-                          onPressed: () => {},
-                          color: Colors.indigo,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 25.0, vertical: 10.0),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0)),
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                FontAwesomeIcons.facebook,
-                                color: Colors.white,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 10.0),
-                              ),
-                              Text(
-                                "Signup using Facebook",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 15.0),
-                              )
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        Text(
-                          "We don't Post Anything to Facebook",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        FlatButton(
-                          onPressed: () => {},
-                          color: Colors.deepOrangeAccent,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 25.0, vertical: 10.0),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0)),
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                FontAwesomeIcons.google,
-                                color: Colors.white,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 10.0),
-                              ),
-                              Text(
-                                "Signup using Google",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 15.0),
-                              )
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        FlatButton(
-                          onPressed: () => {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) => SignUp()),
+                      ),
+                      FlatButton(
+                        onPressed: () => {},
+                        color: Colors.indigo,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 25.0, vertical: 10.0),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0)),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              FontAwesomeIcons.facebook,
+                              color: Colors.white,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 10.0),
+                            ),
+                            Text(
+                              "Signup using Facebook",
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 15.0),
                             )
-                          },
-                          color: Color(0xfff001730),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 25.0, vertical: 10.0),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0)),
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                FontAwesomeIcons.userPlus,
-                                color: Colors.white,
-                                size: 15,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 10.0),
-                              ),
-                              Text(
-                                "Sign Up",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 15.0),
-                              )
-                            ],
-                          ),
+                          ],
                         ),
-                        SizedBox(
-                          height: 40.0,
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Text(
+                        "We don't Post Anything to Facebook",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
-                        Container(
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            children: <Widget>[
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  FittedBox(
-                                    child: Text(
-                                      'Already have an account ?',
-                                      textAlign: TextAlign.end,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      FlatButton(
+                        onPressed: () => {},
+                        color: Colors.deepOrangeAccent,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 25.0, vertical: 10.0),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0)),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              FontAwesomeIcons.google,
+                              color: Colors.white,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 10.0),
+                            ),
+                            Text(
+                              "Signup using Google",
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 15.0),
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      FlatButton(
+                        onPressed: () => {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) => SignUp()),
+                          )
+                        },
+                        color: Color(0xfff001730),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 25.0, vertical: 10.0),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0)),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              FontAwesomeIcons.userPlus,
+                              color: Colors.white,
+                              size: 15,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 10.0),
+                            ),
+                            Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 15.0),
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 40.0,
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        child: Column(
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                FittedBox(
+                                  child: Text(
+                                    'Already have an account ?',
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
                                     ),
                                   ),
-                                  SizedBox(width: 10),
+                                ),
+                                SizedBox(width: 10),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: ((ctx) => HomePage())));
+                                  },
+                                  child: FittedBox(
+                                    child: Text(
+                                      'Sign in',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.red),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text(
+                                    'By continuing you agree to our',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 5),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
                                   GestureDetector(
-                                    onTap: () {
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: ((ctx) => HomePage())));
-                                    },
+                                    onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: ((ctx) => HomePage()))),
                                     child: FittedBox(
                                       child: Text(
-                                        'Sign in',
+                                        'Terms and Conditions',
                                         style: TextStyle(
-                                            fontSize: 18,
+                                            fontSize: 16,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.red),
                                       ),
                                     ),
-                                  )
+                                  ),
+                                  Text(
+                                    "  and  ",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: ((ctx) =>
+                                                ProfileSetup()))),
+                                    child: FittedBox(
+                                      child: Text(
+                                        'Privacy Policy',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 4),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Text(
-                                      'By continuing you agree to our',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    GestureDetector(
-                                      onTap: () => Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: ((ctx) => HomePage()))),
-                                      child: FittedBox(
-                                        child: Text(
-                                          'Terms and Conditions',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.red),
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "  and  ",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () => Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: ((ctx) =>
-                                                  ProfileSetup()))),
-                                      child: FittedBox(
-                                        child: Text(
-                                          'Privacy Policy',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -295,6 +288,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _formKey = GlobalKey<FormState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   String email, password;
   bool _autovalidate = false;
   TextEditingController _emailController = new TextEditingController();
@@ -311,6 +305,7 @@ class _HomePageState extends State<HomePage> {
         key: _formKey,
         autovalidate: _autovalidate,
         child: Scaffold(
+          key: _scaffoldKey,
           backgroundColor: Colors.white,
           body: SingleChildScrollView(
             child: Column(
@@ -419,7 +414,7 @@ class _HomePageState extends State<HomePage> {
                               child: FlatButton(
                                 onPressed: () async {
                                   showDialog(
-                                      context: context,
+                                      context: _scaffoldKey.currentContext,
                                       builder: ((ctx) => Center(
                                           child: CircularProgressIndicator())));
                                   AuthService _auth = new AuthService(
@@ -428,9 +423,9 @@ class _HomePageState extends State<HomePage> {
                                       .googleSignIn()
                                       .then((result) async {
                                     if (result['success']) {
-                                      Navigator.pop(context);
+                                      Navigator.pop(_scaffoldKey.currentContext);
                                       showDialog(
-                                          context: context,
+                                          context: _scaffoldKey.currentContext,
                                           builder: ((ctx) => DialogBox(
                                               icon: Icons.verified_user,
                                               title: "Login Successful",
@@ -441,17 +436,17 @@ class _HomePageState extends State<HomePage> {
                                           Duration(seconds: 2));
                                       bool verified =
                                           await UserData.checkVerified();
-                                      Navigator.pop(context);
+                                      Navigator.pop(_scaffoldKey.currentContext);
                                       if (verified) {
                                         Navigator.pushReplacement(
-                                            context,
+                                            _scaffoldKey.currentContext,
                                             MaterialPageRoute(
                                                 builder:
                                                     (BuildContext context) =>
                                                         MainHome()));
                                       } else {
                                         Navigator.pushReplacement(
-                                            context,
+                                            _scaffoldKey.currentContext,
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     PhoneVerification(
@@ -461,9 +456,9 @@ class _HomePageState extends State<HomePage> {
                                                             result['email'])));
                                       }
                                     } else {
-                                      Navigator.pop(context);
+                                      Navigator.pop(_scaffoldKey.currentContext);
                                       showDialog(
-                                          context: context,
+                                          context: _scaffoldKey.currentContext,
                                           builder: (ctx) => DialogBox(
                                                 title: "Login Failed :(",
                                                 description:
@@ -539,8 +534,9 @@ class _HomePageState extends State<HomePage> {
                                   child: TextFormField(
                                     controller: _emailController,
                                     keyboardType: TextInputType.emailAddress,
-                                    validator: _validateEmail,
-                                    onSaved: (value) => email = value,
+                                    validator: (value) =>
+                                        _validateEmail(value.trim()),
+                                    onSaved: (value) => email = value.trim(),
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
                                       hintText: "Email Address",
@@ -639,61 +635,54 @@ class _HomePageState extends State<HomePage> {
                               onPressed: () async {
                                 if (_formKey.currentState.validate()) {
                                   _formKey.currentState.save();
-                                  showDialog(
+                                  showDialogBox().show_Dialog(
                                       context: context,
-                                      builder: ((ctx) => Center(
-                                          child: CircularProgressIndicator())));
-
+                                      child: Center(
+                                          child: CircularProgressIndicator()));
                                   AuthService _auth =
                                       AuthService(auth: FirebaseAuth.instance);
-                                  await _auth
-                                      .signIn(email, password)
-                                      .then((result) async {
-                                    if (result['success']) {
-                                      Navigator.pop(context);
-                                      showDialog(
-                                          context: context,
-                                          builder: ((ctx) => DialogBox(
+                                  final result =
+                                      await _auth.signIn(email, password);
+                                  if (result['success']) {
+                                    Navigator.pop(context);
+                                    showDialogBox().show_Dialog(
+                                        context: context,
+                                        child: AbsorbPointer(
+                                          absorbing: true,
+                                          child: DialogBox(
                                               icon: Icons.verified_user,
                                               title: "Login Successful",
                                               description: "",
                                               buttonText1: "",
-                                              button1Func: () {})));
-                                      await Future.delayed(
-                                          Duration(seconds: 2));
-                                      bool verified = await UserData.checkVerified();
-                                      Navigator.pop(context);
-                                      if (verified) {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder:
-                                                    (BuildContext context) =>
-                                                        MainHome()));
-                                      } else {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    PhoneVerification(
-                                                        password: result[
-                                                            'password'],
+                                              button1Func: null),
+                                        ));
+                                    await Future.delayed(Duration(seconds: 2));
+                                    // Navigator.pop(context);
+                                    bool verified =
+                                        await UserData.checkVerified();
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                verified
+                                                    ? MainHome()
+                                                    : PhoneVerification(
+                                                        password:
+                                                            result['password'],
                                                         email:
                                                             result['email'])));
-                                      }
-                                    } else {
-                                      Navigator.pop(context);
-                                      showDialog(
-                                          context: context,
-                                          builder: (ctx) => DialogBox(
-                                                title: "Login Failed :(",
-                                                description: result['msg'],
-                                                buttonText1: "OK",
-                                                button1Func: () =>
-                                                    Navigator.pop(context),
-                                              ));
-                                    }
-                                  });
+                                  } else {
+                                    Navigator.pop(context);
+                                    showDialogBox().show_Dialog(
+                                        context: context,
+                                        child: DialogBox(
+                                          title: "Login Failed :(",
+                                          description: result['msg'],
+                                          buttonText1: "OK",
+                                          button1Func: () =>
+                                              Navigator.pop(context),
+                                        ));
+                                  }
                                 } else {
                                   setState(() {
                                     _autovalidate = true;

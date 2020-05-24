@@ -41,9 +41,10 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => OnBoarding()));
       else {
-        FirebaseUser user = await FirebaseAuth.instance.currentUser();
-        bool verified = await UserData.checkVerified();
-        if (user != null && verified) {
+        final prefs = await SharedPreferences.getInstance();
+        bool verified = prefs.getBool('verified');
+        bool loggedIn = prefs.containsKey('email');
+        if (verified && loggedIn) {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => MainHome()));
         } else
@@ -195,8 +196,8 @@ class _HomeState extends State<Home> {
           : Container(
               alignment: Alignment.center,
               height: Platform.isIOS ? 70 : 60,
-              child: GestureDetector(
-                onTap: () {
+              child: FlatButton(
+                onPressed: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => WelcomeScreen()),

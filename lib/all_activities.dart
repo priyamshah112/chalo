@@ -13,6 +13,8 @@ import 'global_colors.dart';
 //import 'package:chaloapp/home.dart';
 
 class AllActivity extends StatefulWidget {
+  final Function onBack;
+  AllActivity({this.onBack});
   @override
   _AllActivityState createState() => _AllActivityState();
 }
@@ -102,62 +104,65 @@ class _AllActivityState extends State<AllActivity> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color(primary),
-          elevation: 0.0,
-          automaticallyImplyLeading: false,
-          title: Center(
-            child: Text(
-              'All Activity',
-              style: TextStyle(
-                color: Colors.white,
+    return WillPopScope(
+      onWillPop: () => widget.onBack(context),
+          child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Color(primary),
+            elevation: 0.0,
+            automaticallyImplyLeading: false,
+            title: Center(
+              child: Text(
+                'All Activity',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
-        ),
-        backgroundColor: Colors.white70,
-        body: Container(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 20,
+          backgroundColor: Colors.white70,
+          body: Container(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  SizedBox(height: 10.0),
+                  Text(
+                    "Sort By Activity",
+                    style: TextStyle(
+                        color: Color(primary),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  FilterByActivity(),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    "All Broadcasted Activities",
+                    style: TextStyle(
+                        color: Color(primary),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(child: Activities()),
+                ],
+              ),
+              // SizedBox(height: 20.0),
+              // Expanded(child: Activities())
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(height: 10.0),
-                Text(
-                  "Sort By Activity",
-                  style: TextStyle(
-                      color: Color(primary),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                FilterByActivity(),
-                SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  "All Broadcasted Activities",
-                  style: TextStyle(
-                      color: Color(primary),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Expanded(child: Activities()),
-              ],
-            ),
-            // SizedBox(height: 20.0),
-            // Expanded(child: Activities())
-          ),
-        ));
+          )),
+    );
   }
 }
 

@@ -22,8 +22,11 @@ class DialogBox extends StatefulWidget {
 }
 
 class _DialogBoxState extends State<DialogBox> {
+  
+
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
@@ -83,7 +86,10 @@ class _DialogBoxState extends State<DialogBox> {
                                         onPressed: widget.button1Func,
                                         child: Text(
                                           widget.buttonText1,
-                                          style: TextStyle(color: widget.buttonText2==null ? Color(primary):Colors.red),
+                                          style: TextStyle(
+                                              color: widget.buttonText2 == null
+                                                  ? Color(primary)
+                                                  : Colors.red),
                                         ),
                                       ),
                                     ),
