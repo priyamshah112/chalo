@@ -1,5 +1,12 @@
+import 'dart:math';
+
+import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/login.dart';
+import 'package:chaloapp/widgets/DailogBox.dart';
+import 'package:chaloapp/widgets/date_time.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
@@ -16,25 +23,21 @@ class AddActivity extends StatefulWidget {
 
 class _AddActivityState extends State<AddActivity> {
   final _formKey = GlobalKey<FormState>();
-  DateTime picked;
+  String activityName, note, type = 'Public';
+  DateTime startTime = DateTime.now().add(Duration(minutes: 29));
+  DateTime endTime;
+  DateTimePicker start = new DateTimePicker();
+  DateTimePicker end = new DateTimePicker();
+  int _peopleCount = 1;
   bool proposeTime = false;
-
-  Future<DateTime> _presentDatePicker(
-      BuildContext contex, DateTime date) async {
-    picked = await showDatePicker(
-        context: context,
-        firstDate: DateTime(1900),
-        initialDate: picked == null ? DateTime.now() : picked,
-        lastDate: DateTime.now());
-    return picked;
-  }
+  bool _autovalidate = false;
+  bool _dateSelected = true;
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
     return Form(
       key: _formKey,
+      autovalidate: _autovalidate,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Color(primary),
@@ -73,20 +76,49 @@ class _AddActivityState extends State<AddActivity> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
+                              Text(
+                                "Activity Title",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Color(primary),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                               Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
-//                                decoration: BoxDecoration(
-//                                  border: Border(
-//                                    bottom: BorderSide(
-//                                      color: Colors.grey[200],
-//                                    ),
-//                                  ),
-//                                ),
+                                child: TextFormField(
+                                  validator: (value) {
+                                    if (value.isEmpty)
+                                      return 'Please Enter a title';
+                                    else
+                                      return null;
+                                  },
+                                  onSaved: (value) => activityName = value,
+                                  keyboardType: TextInputType.text,
+                                  autofocus: false,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: "A name for your Activity",
+                                    prefixIcon: Icon(
+                                      Icons.directions_bike,
+                                    ),
+                                    contentPadding: const EdgeInsets.only(
+                                        left: 30.0, bottom: 18.0, top: 18.0),
+                                    filled: true,
+                                    fillColor: Color(form1),
+                                    hintStyle: TextStyle(
+                                      color: Color(formHint),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 1.0, vertical: 10.0),
                                 child: TextField(
                                   keyboardType: TextInputType.text,
                                   autofocus: false,
-                                  //obscureText: true,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Search for an Activities",
@@ -122,23 +154,12 @@ class _AddActivityState extends State<AddActivity> {
                                       ),
                                     ),
                                     contentPadding: const EdgeInsets.only(
-                                        left: 30.0,
-                                        bottom: 18.0,
-                                        top: 18.0,
-                                        right: 30.0),
+                                        left: 30.0, bottom: 18.0, top: 18.0),
                                     filled: true,
                                     fillColor: Color(form1),
                                     hintStyle: TextStyle(
                                       color: Color(formHint),
                                     ),
-//                                    focusedBorder: OutlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.white),
-//                                    ),
-//                                    enabledBorder: UnderlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.indigo),
-//                                    ),
                                   ),
                                 ),
                               ),
@@ -209,17 +230,9 @@ class _AddActivityState extends State<AddActivity> {
                               Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
-//                                decoration: BoxDecoration(
-//                                  border: Border(
-//                                    bottom: BorderSide(
-//                                      color: Colors.grey[200],
-//                                    ),
-//                                  ),
-//                                ),
                                 child: TextField(
                                   keyboardType: TextInputType.text,
                                   autofocus: false,
-                                  //obscureText: true,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Search for a place",
@@ -262,19 +275,65 @@ class _AddActivityState extends State<AddActivity> {
                                     hintStyle: TextStyle(
                                       color: Color(formHint),
                                     ),
-//                                    focusedBorder: OutlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.white),
-//                                    ),
-//                                    enabledBorder: UnderlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.indigo),
-//                                    ),
                                   ),
                                 ),
                               ),
+                              // Text(
+                              //   "Date",
+                              //   style: TextStyle(
+                              //     fontSize: 15,
+                              //     color: Color(primary),
+                              //     fontWeight: FontWeight.w600,
+                              //   ),
+                              // ),
+                              // Container(
+                              //   padding: EdgeInsets.symmetric(
+                              //       horizontal: 1.0, vertical: 10.0),
+                              //   child: DateTimeField(
+                              //     format: DateFormat('d/MM/y'),
+                              //     onShowPicker: (context, _) => DateTimePicker()
+                              //         .presentDatePicker(
+                              //             context,
+                              //             DateTime.now(),
+                              //             DateTime.now()
+                              //                 .add(Duration(days: 60))),
+                              //     validator: (value) {
+                              //       if (value == null) return "Select Date";
+                              //       return null;
+                              //     },
+                              //     onSaved: (value) {
+                              //       if (value != null)
+                              //         pickedDate = value;
+                              //       else
+                              //         setState(() => _dateSelected = false);
+                              //     },
+                              //     keyboardType: TextInputType.datetime,
+                              //     decoration: InputDecoration(
+                              //       errorText:
+                              //           !_dateSelected ? "Select date" : null,
+                              //       filled: true,
+                              //       fillColor: Color(form1),
+                              //       contentPadding: const EdgeInsets.only(
+                              //           left: 30.0,
+                              //           bottom: 18.0,
+                              //           top: 18.0,
+                              //           right: 30.0),
+                              //       border: InputBorder.none,
+                              //       prefixIcon: Icon(
+                              //         FontAwesomeIcons.calendar,
+                              //         color: Color(primary),
+                              //         size: 18,
+                              //       ),
+                              //       hintText: "DD/MM/YYYY",
+                              //       hintStyle: TextStyle(
+                              //         color: Color(formHint),
+                              //       ),
+                              //     ),
+                              //     autofocus: false,
+                              //   ),
+                              // ),
                               Text(
-                                "Date",
+                                "Date & Time",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
@@ -285,65 +344,30 @@ class _AddActivityState extends State<AddActivity> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
                                 child: DateTimeField(
-                                  format: DateFormat('d/MM/y'),
-                                  onShowPicker: _presentDatePicker,
+                                  onShowPicker: (context, time) =>
+                                      start.presentDateTimePicker(
+                                          context,
+                                          DateTime.now(),
+                                          DateTime.now()
+                                              .add(Duration(days: 60)),
+                                          DateTime.now()
+                                              .add(Duration(minutes: 30))),
+                                  format: DateFormat("EEE, d MMM yyyy hh:mm a"),
                                   validator: (value) {
-                                    String date = DateTime.now()
-                                        .toString()
-                                        .substring(0, 10);
                                     if (value == null)
-                                      return "Select Date";
-                                    else if (value
-                                            .toString()
-                                            .substring(0, 10) ==
-                                        date) {
-                                      print(value.toString());
-                                      return "Select Valid Date";
+                                      return 'Select Start Time';
+                                    else {
+                                      if (value.isBefore(DateTime.now()
+                                          .add(Duration(minutes: 29))))
+                                        return 'Start time must be atleast 30 minutes later';
+                                      else
+                                        return null;
                                     }
-                                    return null;
                                   },
-                                  keyboardType: TextInputType.datetime,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Color(form1),
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 30.0,
-                                        bottom: 18.0,
-                                        top: 18.0,
-                                        right: 30.0),
-                                    border: InputBorder.none,
-                                    prefixIcon: Icon(
-                                      FontAwesomeIcons.calendar,
-                                      color: Color(primary),
-                                      size: 18,
-                                    ),
-                                    hintText: "DD/MM/YYYY",
-                                    hintStyle: TextStyle(
-                                      color: Color(formHint),
-                                    ),
-                                  ),
-                                  autofocus: false,
-                                ),
-                              ),
-                              Text(
-                                "Time",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 1.0, vertical: 10.0),
-//                                decoration: BoxDecoration(
-//                                  border: Border(
-//                                    bottom: BorderSide(
-//                                      color: Colors.grey[200],
-//                                    ),
-//                                  ),
-//                                ),
-                                child: TextField(
+                                  onSaved: (value) {
+                                    // print('start: ' + value.toString());
+                                    startTime = value;
+                                  },
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
@@ -353,37 +377,49 @@ class _AddActivityState extends State<AddActivity> {
                                       color: Color(primary),
                                     ),
                                     contentPadding: const EdgeInsets.only(
-                                        left: 30.0,
-                                        bottom: 18.0,
-                                        top: 18.0,
-                                        right: 30.0),
+                                      bottom: 18.0,
+                                      top: 18.0,
+                                    ),
                                     filled: true,
                                     fillColor: Color(form1),
                                     hintStyle: TextStyle(
                                       color: Color(formHint),
                                     ),
-//                                    focusedBorder: OutlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.white),
-//                                    ),
-//                                    enabledBorder: UnderlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.indigo),
-//                                    ),
                                   ),
                                 ),
                               ),
                               Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
-//                                decoration: BoxDecoration(
-//                                  border: Border(
-//                                    bottom: BorderSide(
-//                                      color: Colors.grey[200],
-//                                    ),
-//                                  ),
-//                                ),
-                                child: TextField(
+                                child: DateTimeField(
+                                  onShowPicker: (context, time) =>
+                                      end.presentDateTimePicker(
+                                          context,
+                                          DateTime.now(),
+                                          DateTime.now()
+                                              .add(Duration(days: 60)),
+                                          DateTime.now()
+                                              .add(Duration(minutes: 60))),
+                                  format: DateFormat("EEE, d MMM yyyy hh:mm a"),
+                                  validator: (value) {
+                                    if (value == null)
+                                      return 'Select End Time';
+                                    else {
+                                      bool condition = startTime != null
+                                          ? value.isBefore(startTime
+                                              .add(Duration(minutes: 29)))
+                                          : value.isBefore(DateTime.now()
+                                              .add(Duration(minutes: 59)));
+                                      if (condition)
+                                        return 'Minimum time is 30 minutes';
+                                      else
+                                        return null;
+                                    }
+                                  },
+                                  onSaved: (value) {
+                                    // print('end: ' + value.toString());
+                                    endTime = value;
+                                  },
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
@@ -393,23 +429,12 @@ class _AddActivityState extends State<AddActivity> {
                                       color: Color(primary),
                                     ),
                                     contentPadding: const EdgeInsets.only(
-                                        left: 30.0,
-                                        bottom: 18.0,
-                                        top: 18.0,
-                                        right: 30.0),
+                                        bottom: 18.0, top: 18.0),
                                     filled: true,
                                     fillColor: Color(form1),
                                     hintStyle: TextStyle(
                                       color: Color(formHint),
                                     ),
-//                                    focusedBorder: OutlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.white),
-//                                    ),
-//                                    enabledBorder: UnderlineInputBorder(
-//                                      borderSide:
-//                                          BorderSide(color: Colors.indigo),
-//                                    ),
                                   ),
                                 ),
                               ),
@@ -445,7 +470,10 @@ class _AddActivityState extends State<AddActivity> {
                               SizedBox(
                                 height: 10,
                               ),
-                              RadioGroup(),
+                              radioGroup(),
+                              Visibility(
+                                  visible: _showDropdown,
+                                  child: SelectPeople()),
                               Text(
                                 "Privacy",
                                 style: TextStyle(
@@ -457,7 +485,7 @@ class _AddActivityState extends State<AddActivity> {
                               SizedBox(
                                 height: 10,
                               ),
-                              Privacy(),
+                              activityType(),
                               SizedBox(
                                 height: 10,
                               ),
@@ -479,7 +507,7 @@ class _AddActivityState extends State<AddActivity> {
                               Row(
                                 children: <Widget>[
                                   Text(
-                                    "Note",
+                                    "Description",
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: Color(primary),
@@ -506,7 +534,8 @@ class _AddActivityState extends State<AddActivity> {
 //                                    ),
 //                                  ),
 //                                ),
-                                child: TextField(
+                                child: TextFormField(
+                                  onSaved: (value) => note = value,
                                   maxLines: 5,
                                   keyboardType: TextInputType.text,
                                   decoration: InputDecoration(
@@ -544,13 +573,62 @@ class _AddActivityState extends State<AddActivity> {
                                   horizontal: 30.0, vertical: 10.0),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50.0)),
-                              onPressed: () {
-//                                Navigator.push(
-//                                  context,
-//                                  MaterialPageRoute(
-//                                      builder: (BuildContext context) =>
-//                                          NextPage()),
-//                                );
+                              onPressed: () async {
+                                _formKey.currentState.save();
+                                if (_formKey.currentState.validate()) {
+                                  _formKey.currentState.save();
+                                  final user = await UserData.getUser();
+                                  Map<String, dynamic> activityDetails = {
+                                    'activity_name': activityName,
+                                    'activity_type': Firestore.instance
+                                        .collection('chalo_activity')
+                                        .document('1igNa5rFLAEv2tda0Mfa'),
+                                    'admin_id': user['email'],
+                                    'admin_name': user['name'],
+                                    'participants_id': [user['email']],
+                                    'blocked_participant_id': [],
+                                    'pending_participant_id': [],
+                                    'broadcast_type': type.toLowerCase(),
+                                    'max_participant': _peopleCount,
+                                    'participant_type': selectedGender,
+                                    'activity_start':
+                                        Timestamp.fromDate(startTime),
+                                    'activity_end': Timestamp.fromDate(endTime),
+                                    'description': note,
+                                    'group_chat': null,
+                                    'location_id': null,
+                                    'map_status': type == 'Public'
+                                        ? 'active'
+                                        : 'inactive',
+                                    'status': 'original',
+                                    'security_code': Random().nextInt(10000),
+                                    'timestamp': Timestamp.now(),
+                                    'plan_id': ""
+                                  };
+                                  print(activityDetails);
+                                  showDialog(
+                                      context: context,
+                                      child: Center(
+                                          child: CircularProgressIndicator()));
+                                  await Future.delayed(Duration(seconds: 1));
+                                  Navigator.pop(context);
+                                  showDialogBox().show_Dialog(
+                                      context: context,
+                                      child: FadeAnimation(
+                                        1,
+                                        DialogBox(
+                                            title: "Success",
+                                            description:
+                                                "Activity successfully created",
+                                            buttonText1: "Ok",
+                                            button1Func: () {
+                                              Navigator.pop(context);
+                                              Navigator.pop(
+                                                  context, activityDetails);
+                                            }),
+                                      ));
+                                } else
+                                  setState(() => _autovalidate = true);
                               },
                               child: Center(
                                 child: Text(
@@ -577,324 +655,172 @@ class _AddActivityState extends State<AddActivity> {
     );
   }
 
-  List<String> Gender = [
-    "Both Boys & Girls",
-    "Only Boys",
-    "Only Girls",
-  ];
-  String gender = "Both Boys & Girls";
-  DropdownButton SelectGender() => DropdownButton<String>(
-        items: [
-          for (int i = 0; i < Gender.length; i++)
-            DropdownMenuItem(
-              value: Gender[i],
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    Gender[i],
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(secondary),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Icon(
-                    Gender[i] == gender ? Icons.check : null,
-                  ),
-                ],
-              ),
-            ),
-        ],
-        onChanged: (value) {
-          setState(() {
-            gender = value;
-            print(gender);
-          });
-        },
-        underline: Container(),
-        hint: Text(
-          gender,
-          style: TextStyle(
-            color: Colors.black,
-          ),
-        ),
-        elevation: 0,
-        isExpanded: true,
-      );
-}
-
-class RadioGroup extends StatefulWidget {
-  @override
-  RadioGroupWidget createState() => RadioGroupWidget();
-}
-
-class RadioGroupWidget extends State {
-  List<String> noOfPeople = [
-    "1 Person",
-    "2 People",
-    "3 People",
-    "4 People",
-    "5 People",
-    "6 People",
-    "7 People",
-    "8 People",
-    "9 People",
-    "10 People",
-    "11 People",
-    "12 People",
-    "13 People",
-    "14 People",
-    "15 People",
-    "16 People",
-    "17 People",
-    "18 People",
-    "19 People",
-    "20 People",
-    "21 People",
-    "22 People",
-    "23 People",
-    "24 People",
-  ];
-  String _value = "1 Person";
-  DropdownButton SelectPeople() => DropdownButton<String>(
-        items: [
-          for (int i = 0; i < noOfPeople.length; i++)
-            DropdownMenuItem(
-              value: noOfPeople[i],
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    noOfPeople[i],
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(secondary),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Icon(
-                    noOfPeople[i] == _value ? Icons.check : null,
-                  ),
-                ],
-              ),
-            ),
-        ],
-        onChanged: (value) {
-          setState(() {
-            _value = value;
-            print(_value);
-          });
-        },
-//        underline: Container(),
-//        hint: Text(
-//          _value,
-//          style: TextStyle(
-//            color: Colors.black,
-//          ),
-//        ),
-        elevation: 0,
-        isExpanded: true,
-      );
-  int id = 1;
-
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(0.0),
+  Map<String, String> gender = {
+    "Both Boys & Girls": 'mixed',
+    "Only Boys": 'male',
+    "Only Girls": 'female'
+  };
+  String selectedGender = "mixed";
+  DropdownButton SelectGender() {
+    return DropdownButton<String>(
+      items: gender.keys.map((option) {
+        return DropdownMenuItem(
+          value: option,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Stack(
-                children: <Widget>[
-                  Radio(
-                    value: 1,
-                    activeColor: Color(primary),
-                    groupValue: id,
-                    onChanged: (val) {
-                      setState(() {
-                        id = 1;
-                        print(id);
-                      });
-                    },
-                  ),
-                  Positioned(
-                    top: 13,
-                    left: 33.0,
-                    child: Icon(
-                      FontAwesomeIcons.male,
-                      size: 20,
-                    ),
-                  ),
-                ],
-              ),
-              Stack(
-                children: <Widget>[
-                  SizedBox(width: 60.0),
-                  Radio(
-                    value: 2,
-                    activeColor: Color(primary),
-                    groupValue: id,
-                    onChanged: (val) {
-                      setState(() {
-                        id = 2;
-                        print(id);
-                      });
-                    },
-                  ),
-                  Positioned(
-                    top: 13,
-                    left: 33.0,
-                    child: Icon(
-                      FontAwesomeIcons.male,
-                      size: 20,
-                    ),
-                  ),
-                  Positioned(
-                    top: 13,
-                    left: 43.0,
-                    child: Icon(
-                      FontAwesomeIcons.male,
-                      size: 20,
-                    ),
-                  ),
-                ],
-              ),
-              Stack(
-                children: <Widget>[
-                  SizedBox(width: 70.0),
-                  Radio(
-                    value: 3,
-                    activeColor: Color(primary),
-                    groupValue: id,
-                    onChanged: (val) {
-                      setState(() {
-                        id = 3;
-                        print(id);
-                      });
-                    },
-                  ),
-                  Positioned(
-                    top: 13,
-                    left: 33.0,
-                    child: Icon(
-                      FontAwesomeIcons.male,
-                      size: 20,
-                    ),
-                  ),
-                  Positioned(
-                    top: 13,
-                    left: 43.0,
-                    child: Icon(
-                      FontAwesomeIcons.male,
-                      size: 20,
-                    ),
-                  ),
-                  Positioned(
-                    top: 13,
-                    left: 53.0,
-                    child: Icon(
-                      FontAwesomeIcons.male,
-                      size: 20,
-                    ),
-                  )
-                ],
-              ),
-              Stack(
-                children: <Widget>[
-                  SizedBox(width: 80.0),
-                  Radio(
-                    value: 4,
-                    activeColor: Color(primary),
-                    groupValue: id,
-                    onChanged: (val) {
-                      setState(() {
-                        id = 4;
-                        print(id);
-                      });
-                    },
-                  ),
-                  Positioned(
-                    top: 13,
-                    left: 33.0,
-                    child: Icon(
-                      FontAwesomeIcons.male,
-                      size: 20,
-                    ),
-                  ),
-                  Positioned(
-                    top: 13,
-                    left: 43.0,
-                    child: Icon(
-                      FontAwesomeIcons.male,
-                      size: 20,
-                    ),
-                  ),
-                  Positioned(
-                    top: 13,
-                    left: 53.0,
-                    child: Icon(
-                      FontAwesomeIcons.male,
-                      size: 20,
-                    ),
-                  ),
-                  Positioned(
-                    top: 13,
-                    left: 63.0,
-                    child: Icon(
-                      FontAwesomeIcons.male,
-                      size: 20,
-                    ),
-                  )
-                ],
-              ),
-//              Container(
-//                width: MediaQuery.of(context).size.width,
-//                child: SelectPeople(),
-//              ),
-              Spacer(),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Color(primary),
-                  ),
-                  borderRadius: BorderRadius.circular(6),
+              Text(
+                option,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(secondary),
                 ),
-                child: IconButton(
-                  icon: Icon(
-                    FontAwesomeIcons.ellipsisH,
-                  ),
-                  color: Color(primary),
-                  onPressed: () {
-                    SelectPeople();
-                    print("clicked");
-                  },
-                ),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Icon(
+                gender[option] == selectedGender ? Icons.check : null,
               ),
             ],
+          ),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          selectedGender = gender[value];
+          print(selectedGender);
+        });
+      },
+      underline: Container(),
+      hint: Text(
+        gender.keys
+            .firstWhere((k) => gender[k] == selectedGender, orElse: () => null),
+        style: TextStyle(
+          color: Colors.black,
+        ),
+      ),
+      elevation: 0,
+      isExpanded: true,
+    );
+  }
+
+  Map<String, int> noOfPeople = makeList();
+  static Map<String, int> makeList() {
+    Map<String, int> temp = Map<String, int>();
+    for (var i = 1; i <= 25; i++) {
+      temp['$i people'] = i;
+    }
+    return temp;
+  }
+
+  DropdownButton SelectPeople() {
+    // print(noOfPeople);
+    return DropdownButton<int>(
+      items: noOfPeople.keys.map((count) {
+        return DropdownMenuItem(
+          value: noOfPeople[count],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(
+                count,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(secondary),
+                ),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Icon(
+                noOfPeople[count] == _peopleCount ? Icons.check : null,
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _peopleCount = value;
+          print(_peopleCount);
+        });
+      },
+      underline: Container(),
+      hint: Text(
+        noOfPeople.keys.firstWhere((k) => noOfPeople[k] == _peopleCount,
+            orElse: () => null),
+        style: TextStyle(
+          color: Colors.black,
+        ),
+      ),
+      elevation: 0,
+      isExpanded: true,
+    );
+  }
+
+  Widget radioButtons(int count, double size) {
+    return Stack(children: <Widget>[
+      SizedBox(
+        width: size,
+      ),
+      Radio(
+        value: count,
+        activeColor: Color(primary),
+        groupValue: _peopleCount,
+        onChanged: (val) {
+          setState(() {
+            _peopleCount = count;
+            print(_peopleCount);
+          });
+        },
+      ),
+      for (var i = 0; i < count; i++)
+        Positioned(
+          top: 13.0,
+          left: 36.0 + 10 * i,
+          child: Icon(
+            FontAwesomeIcons.male,
+            size: 20,
+          ),
+        )
+    ]);
+  }
+
+  bool _showDropdown = false;
+  Widget radioGroup() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        radioButtons(1, 50.0),
+        radioButtons(2, 60.0),
+        radioButtons(3, 70.0),
+        // radioButtons(4, 80.0),
+        Spacer(),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Color(primary),
+            ),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: IconButton(
+            icon: Icon(
+              FontAwesomeIcons.ellipsisH,
+            ),
+            color: Color(primary),
+            onPressed: () {
+              setState(() => _showDropdown = !_showDropdown);
+            },
           ),
         ),
       ],
     );
   }
-}
 
-class Privacy extends StatefulWidget {
-  @override
-  PrivacyWidget createState() => PrivacyWidget();
-}
-
-class PrivacyWidget extends State {
-  int typeActivity = 1;
-
-  Widget build(BuildContext context) {
+  Widget activityType() {
     return Column(
       children: <Widget>[
         Padding(
@@ -903,13 +829,13 @@ class PrivacyWidget extends State {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Radio(
-                value: 1,
+                value: 'Public',
                 activeColor: Color(primary),
-                groupValue: typeActivity,
+                groupValue: type,
                 onChanged: (val) {
                   setState(() {
-                    typeActivity = 1;
-                    print(typeActivity);
+                    type = val;
+                    print(type);
                   });
                 },
               ),
@@ -921,13 +847,13 @@ class PrivacyWidget extends State {
                 ),
               ),
               Radio(
-                value: 2,
+                value: 'Private',
                 activeColor: Color(primary),
-                groupValue: typeActivity,
+                groupValue: type,
                 onChanged: (val) {
                   setState(() {
-                    typeActivity = 2;
-                    print(typeActivity);
+                    type = val;
+                    print(type);
                   });
                 },
               ),

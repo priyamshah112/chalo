@@ -1,16 +1,19 @@
+import 'package:chaloapp/data/User.dart';
+import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:chaloapp/services/Hashing.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   AuthService({@required this.auth});
   final FirebaseAuth auth;
+  String _verificationID;
   CollectionReference userCollection = Firestore.instance.collection('users');
-  Future<Map> googleSignIn(email, password) async {
+  Future<Map> googleSignIn() async {
     try {
-      // await signOut('google');
       GoogleSignIn googleSignIn = new GoogleSignIn();
       GoogleSignInAccount googleUser = await googleSignIn.signIn();
       GoogleSignInAuthentication googleAuth = await googleUser.authentication;
@@ -20,16 +23,27 @@ class AuthService {
       );
       FirebaseUser user = (await auth.signInWithCredential(credential)).user;
       bool contains = false;
+      DocumentSnapshot userDoc;
       await this.userCollection.getDocuments().then((QuerySnapshot snapshot) {
         snapshot.documents.forEach((doc) {
           if (user.email == doc.data['email']) {
+            userDoc = doc;
             contains = true;
           }
         });
       });
-      return contains
-          ? {"success": true, 'username': user.email, 'type': 'google'}
-          : {"success": false, 'username': user.email, 'type': 'google'};
+      if (contains) {
+        await UserData().setData(userDoc.data, 'google');
+        return {
+          "success": true,
+          'credentials': credential,
+          'email': user.email
+        };
+      } else {
+        googleSignIn.signOut();
+        deleteUser(user);
+        return {"success": false, 'msg': 'Unregistered Email'};
+      }
     } catch (e) {
       print(e.toString());
       return {"success": false, 'msg': e.toString()};
@@ -37,29 +51,33 @@ class AuthService {
   }
 
   Future<Map> signIn(email, password) async {
+    DocumentSnapshot doc;
+    print('Signing in...');
     try {
-      FirebaseUser user = (await auth.signInWithEmailAndPassword(
-              email: email, password: password))
-          .user;
-      return {"success": true, 'username': email, 'type': 'email'};
+      await auth.signInWithEmailAndPassword(email: email, password: password);
+      doc = await this.userCollection.document(email).get();
+      await UserData().setData(doc.data, 'email');
+      return {"success": true, 'email': email, 'password': password};
     } catch (e) {
-      bool flag = false;
-      DocumentSnapshot doc = await this.userCollection.document(email).get();
-      String hashedPassword = doc.data['password'];
       print(e.toString());
+      bool flag = false;
       if (e.code == 'ERROR_WRONG_PASSWORD') {
-        print(hashedPassword);
-        print(Hashing.encrypt(password));
-        if (hashedPassword == Hashing.encrypt(password)) flag = true;
+        doc = await this.userCollection.document(email).get();
+        String hashedPassword = doc.data['password'];
+        if (hashedPassword == Hashing.encrypt(password)) {
+          flag = true;}
       }
-      return flag
-          ? {"success": true, 'username': email, 'type': 'email'}
-          : {"success": false, 'msg': "Unregistered Email or Password"};
+      if (flag) {
+        await UserData().setData(doc.data, 'email');
+        return {'success': true, 'email': email, 'password': password};
+      } else
+        return {"success": false, 'msg': "Unregistered Email or Password"};
     }
   }
 
   Future<bool> signOut(String type) async {
     try {
+      await UserData().deleteData();
       if (type == 'email')
         await auth.signOut();
       else {
@@ -109,8 +127,24 @@ class AuthService {
     }
   }
 
-  Future deleteUser() async {
-    FirebaseUser user = await auth.currentUser();
-    user.delete();
+  Future<bool> verifyPhone(phone) async {
+    bool contains = false;
+    phone = '+91' + phone;
+    await this.userCollection.getDocuments().then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((doc) {
+        if (phone == doc.data['mobile_no']) {
+          contains = true;
+        }
+      });
+    });
+    return !contains;
+  }
+
+  Future<void> deleteUser(FirebaseUser user) async {
+    try {
+      user.delete();
+    } catch (e) {
+      print(e.toString());
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:chaloapp/global_colors.dart';
 
 class DialogBox extends StatefulWidget {
   final String title, description, buttonText1, buttonText2;
@@ -21,8 +22,11 @@ class DialogBox extends StatefulWidget {
 }
 
 class _DialogBoxState extends State<DialogBox> {
+  
+
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
@@ -77,20 +81,27 @@ class _DialogBoxState extends State<DialogBox> {
                                       ? MainAxisAlignment.spaceEvenly
                                       : MainAxisAlignment.center,
                                   children: <Widget>[
-                                    FlatButton(
-                                      onPressed: widget.button1Func,
-                                      child: Text(
-                                        widget.buttonText1,
-                                        style: TextStyle(color: Colors.red),
+                                    Expanded(
+                                      child: FlatButton(
+                                        onPressed: widget.button1Func,
+                                        child: Text(
+                                          widget.buttonText1,
+                                          style: TextStyle(
+                                              color: widget.buttonText2 == null
+                                                  ? Color(primary)
+                                                  : Colors.red),
+                                        ),
                                       ),
                                     ),
                                     widget.buttonText2 != null
-                                        ? FlatButton(
-                                            onPressed: widget.button2Func,
-                                            child: Text(
-                                              widget.buttonText2,
-                                              style: TextStyle(
-                                                  color: Colors.green),
+                                        ? Expanded(
+                                            child: FlatButton(
+                                              onPressed: widget.button2Func,
+                                              child: Text(
+                                                widget.buttonText2,
+                                                style: TextStyle(
+                                                    color: Colors.green),
+                                              ),
                                             ),
                                           )
                                         : Text("")
@@ -129,6 +140,7 @@ class _DialogBoxState extends State<DialogBox> {
 
 class showDialogBox {
   void show_Dialog({Widget child, BuildContext context}) {
-    showDialog(context: context, builder: ((ctx) => child));
+    showDialog(
+        context: context, builder: ((ctx) => child), barrierDismissible: false);
   }
 }

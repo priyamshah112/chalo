@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/forgot.dart';
 import 'package:chaloapp/global_colors.dart';
 import 'package:chaloapp/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'data/data.dart';
 import 'package:chaloapp/login.dart';
 
@@ -13,10 +15,6 @@ void main() => runApp(
         theme: ThemeData(
             primaryColor: Color(primary), accentColor: Color(primary)),
         debugShowCheckedModeBanner: false,
-        // routes: {
-        //   '/': (context) => SplashScreen(),
-        //   'forgot': (context) => ForgotPage(),
-        // },
         home: SplashScreen(),
       ),
     );
@@ -27,18 +25,33 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  Future<bool> _showOnBoarding() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.containsKey('onBoarding')
+        ? prefs.setBool('onBoarding', false)
+        : prefs.setBool('onBoarding', true);
+    if (!prefs.containsKey('verified')) prefs.setBool('verified', false);
+    return prefs.getBool('onBoarding');
+  }
+
   void checkUser() async {
-    await Future.delayed(Duration(seconds: 3));
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    user != null
-        ? Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => MainHome(username: user.email)))
-        : Navigator.pushReplacement(
-            context,
-            // MaterialPageRoute(builder: (context) => OnBoarding()),
-            MaterialPageRoute(builder: (context) => WelcomeScreen()));
+    await Future.delayed(Duration(seconds: 2));
+    _showOnBoarding().then((show) async {
+      if (show)
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => OnBoarding()));
+      else {
+        final prefs = await SharedPreferences.getInstance();
+        bool verified = prefs.getBool('verified');
+        bool loggedIn = prefs.containsKey('email');
+        if (verified && loggedIn) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => MainHome()));
+        } else
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => HomePage()));
+      }
+    });
   }
 
   @override
@@ -183,8 +196,8 @@ class _HomeState extends State<Home> {
           : Container(
               alignment: Alignment.center,
               height: Platform.isIOS ? 70 : 60,
-              child: GestureDetector(
-                onTap: () {
+              child: FlatButton(
+                onPressed: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => WelcomeScreen()),

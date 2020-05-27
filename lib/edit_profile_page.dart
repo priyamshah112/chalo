@@ -62,6 +62,7 @@ class _EditProfileState extends State<EditProfile> {
               Icons.menu,
               color: Colors.white,
             ),
+            onPressed: (){},
           ),
         ],
       ),

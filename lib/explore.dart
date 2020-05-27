@@ -311,6 +311,7 @@ class _ExploreState extends State<Explore> {
                               size: 17,
                               color: Color(secondary),
                             ),
+                            onPressed: (){},
                           ),
                         ),
                       ],

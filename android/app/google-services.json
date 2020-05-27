@@ -8,14 +8,14 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:591673871843:android:c6ac5f6a3ec3b387d224d6",
+        "mobilesdk_app_id": "1:591673871843:android:681c7b7abb759bb5d224d6",
         "android_client_info": {
           "package_name": "com.example.chaloapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "591673871843-5j6jt18oc4mtm036bemgillhblv4t4cj.apps.googleusercontent.com",
+          "client_id": "591673871843-deshnpkm2fbq740ogt4eik3dvt15ib42.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.chaloapp",

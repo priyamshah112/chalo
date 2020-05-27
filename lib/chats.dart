@@ -1,11 +1,11 @@
-//import 'package:chaloapp/forgot.dart';
-//import 'package:chaloapp/main.dart';
-//import 'package:chaloapp/widgets/DailogBox.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chaloapp/Chat_item_page.dart';
+import 'package:chaloapp/data/User.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:intl/intl.dart';
+import 'package:toast/toast.dart';
+import 'Animation/FadeAnimation.dart';
 import 'data/chat_model.dart';
 import 'global_colors.dart';
 //import 'package:chaloapp/Animation/FadeAnimation.dart';
@@ -18,17 +18,62 @@ class Chats extends StatefulWidget {
   _ChatsState createState() => _ChatsState();
 }
 
-class _ChatsState extends State<Chats> {
+class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
   List<ChatModel> list = ChatModel.list;
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  void getData() async {
+    final user = await UserData.getUser();
+    setState(() {
+      email = user['email'];
+      name = user['name'];
+    });
+  }
+
+  bool _search = false;
+  String email, name;
+
+  Widget appbar() {
+    return _search
+        ? AppBar(
+            leading: Align(
+                alignment: Alignment.centerRight, child: Icon(Icons.search)),
+            actions: <Widget>[
+              IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () => setState(() => _search = false))
+            ],
+            backgroundColor: Color(primary),
+            title: FadeAnimation(
+              0.3,
+              TextField(
+                style: TextStyle(color: Colors.white, fontSize: 20.0),
+                keyboardType: TextInputType.text,
+                autofocus: true,
+                cursorColor: Colors.white,
+                cursorWidth: 2,
+                decoration: InputDecoration(
+                  hintText: " Search",
+                  contentPadding: const EdgeInsets.only(
+                    bottom: 18.0,
+                    top: 18.0,
+                  ),
+                  hintStyle: TextStyle(color: Colors.white, fontSize: 20.0),
+                ),
+              ),
+            ))
+        : AppBar(
+            leading: Container(),
+            actions: <Widget>[
+              IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () => setState(() => _search = true))
+            ],
             backgroundColor: Color(primary),
             bottom: TabBar(
               labelColor: Color(primary),
@@ -54,654 +99,156 @@ class _ChatsState extends State<Chats> {
                 ),
               ],
             ),
-            title: Center(child: Text('My Chats')),
-          ),
-          body: TabBarView(
+            title: Center(child: Text('My Chats')));
+  }
+
+  DateTime currentBackPressTime;
+  Future<bool> _onWillPop(BuildContext context) {
+    DateTime now = DateTime.now();
+    if (currentBackPressTime == null ||
+        now.difference(currentBackPressTime) > Duration(seconds: 1)) {
+      currentBackPressTime = now;
+      Toast.show("Press back again to exit", context);
+      return Future.value(false);
+    }
+    return Future.value(true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: appbar(),
+        body: WillPopScope(
+          onWillPop: () => _onWillPop(context),
+          child: TabBarView(
             children: [
-              Container(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(top: 15),
-                        decoration: BoxDecoration(
-                          color: Color(primary),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20),
-                          ),
-                        ),
-                        child: TextField(
-                          keyboardType: TextInputType.text,
-                          autofocus: false,
-                          //obscureText: true,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Search",
-                            prefixIcon: Icon(
-                              Icons.search,
-                            ),
-                            contentPadding: const EdgeInsets.only(
-                                left: 30.0,
-                                bottom: 18.0,
-                                top: 18.0,
-                                right: 30.0),
-                            filled: true,
-                            fillColor: Color(form1),
-                            hintStyle: TextStyle(
-                              color: Color(formHint),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                            itemCount: list.length,
+              email == null && name == null
+                  ? Center(child: CircularProgressIndicator())
+                  : StreamBuilder(
+                      stream: Firestore.instance
+                          .collection('user_plans')
+                          .document(email)
+                          .snapshots(),
+                      builder: (ctx, snapshot) {
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting ||
+                            !snapshot.hasData)
+                          return Center(child: CircularProgressIndicator());
+                        List plans = snapshot.data['current_plans'];
+                        return ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                            itemCount: plans.length,
                             itemBuilder: (context, index) {
-                              return Container(
-                                width: MediaQuery.of(context).size.width,
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 0),
-                                margin: EdgeInsets.symmetric(vertical: 4),
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Color(primary),
-                                    ),
-                                    borderRadius: BorderRadius.circular(6)),
-                                child: ListTile(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                ChatItemPage()),
-                                      );
-                                    },
-                                    title: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: <Widget>[
-                                        Container(
-                                          width: 55.0,
-                                          height: 55.0,
-                                          child: CircleAvatar(
-                                            foregroundColor: Color(primary),
-                                            backgroundColor: Color(secondary),
-                                            backgroundImage: AssetImage(
-                                                'images/bgcover.jpg'),
+                              return FutureBuilder(
+                                  future: plans[index].get(),
+                                  builder: (ctx, planSnap) {
+                                    if (!planSnap.hasData) return Container();
+                                    return Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 15),
+                                      margin: EdgeInsets.symmetric(vertical: 4),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Color(primary),
                                           ),
-                                        ),
-                                        SizedBox(
-                                          width: 10.0,
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: <Widget>[
-                                            Text(
-                                              list[index].activityName,
+                                          borderRadius:
+                                              BorderRadius.circular(6)),
+                                      child: FadeAnimation(
+                                        index - 0.8,
+                                        ListTile(
+                                            onTap: () => Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (BuildContext
+                                                              context) =>
+                                                          ChatItemPage(
+                                                              planId: planSnap
+                                                                      .data[
+                                                                  'plan_id'],
+                                                              chatTitle: planSnap
+                                                                      .data[
+                                                                  'activity_name'])),
+                                                ),
+                                            leading: Container(
+                                              width: 55.0,
+                                              height: 55.0,
+                                              child: CircleAvatar(
+                                                foregroundColor: Color(primary),
+                                                backgroundColor:
+                                                    Color(secondary),
+                                                backgroundImage: AssetImage(
+                                                    'images/bgcover.jpg'),
+                                              ),
+                                            ),
+                                            title: Text(
+                                              planSnap.data['activity_name'],
                                               style: TextStyle(
                                                 color: Color(primary),
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            if (list[index].isRemoved)
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.5,
+                                            trailing: Container(
+                                              margin:
+                                                  EdgeInsets.only(bottom: 30),
+                                              child: FittedBox(
                                                 child: Text(
-                                                  list[index].lastMessage,
+                                                  DateFormat('MMM d').format(DateTime
+                                                      .fromMillisecondsSinceEpoch(
+                                                          planSnap
+                                                                  .data[
+                                                                      'activity_start']
+                                                                  .seconds *
+                                                              1000)),
                                                   style: TextStyle(
                                                     color: Color(secondary),
-                                                    fontSize: 14,
+                                                    fontSize: 13,
                                                   ),
                                                 ),
-                                              )
-                                            else if (list[index].isPending)
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.5,
-                                                child: Text(
-                                                  "",
-                                                ),
-                                              )
-                                            else
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.5,
-                                                child: Text(
-                                                  list[index].lastMessage,
-                                                  style: TextStyle(
-                                                    color: Color(secondary),
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                              )
-                                          ],
-                                        ),
-                                        Spacer(),
-                                        Container(
-                                          margin: EdgeInsets.only(bottom: 30),
-                                          child: FittedBox(
-                                            child: Text(
-                                              list[index].activityDate,
-                                              style: TextStyle(
-                                                color: Color(secondary),
-                                                fontSize: 13,
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    subtitle: list[index].isPending
-                                        ? Column(
-                                            children: <Widget>[
-                                              SizedBox(
-                                                height: 3,
-                                              ),
-                                              Divider(
-                                                thickness: 1,
-                                              ),
-                                              SizedBox(
-                                                height: 3,
-                                              ),
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                    .size
-                                                    .width,
-                                                child: Text(
-                                                  "Request to join pending",
-                                                  style: TextStyle(
-                                                    color: Colors.green,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                    .size
-                                                    .width,
-                                                child: Text(
-                                                  "Once they accept, we'll open chat for your new group",
-                                                  style: TextStyle(
-                                                    color: Color(secondary),
-                                                    fontSize: 15,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        : list[index].isRemoved
-                                            ? Column(
-                                                children: <Widget>[
-                                                  SizedBox(
-                                                    height: 3,
-                                                  ),
-                                                  Divider(
-                                                    thickness: 1,
-                                                  ),
-                                                  SizedBox(
-                                                    height: 3,
-                                                  ),
-                                                  Container(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                            .size
-                                                            .width,
-                                                    child: Text(
-                                                      "You were removed fron this activity",
-                                                      style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    height: 5,
-                                                  ),
-                                                  Container(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                            .size
-                                                            .width,
-                                                    child: Text(
-                                                      "Swipe left to delete this activity from your activity list",
-                                                      style: TextStyle(
-                                                        color: Color(secondary),
-                                                        fontSize: 15,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            : null),
-                              );
-                            }),
-                      ),
-//                        Column(
-//                          mainAxisSize: MainAxisSize.min,
-//                          children: <Widget>[
-
-//                        Card(
-//                          shape: RoundedRectangleBorder(
-//                              borderRadius:
-//                              BorderRadius.circular(10.0)),
-//                          child: Container(
-//                            width: MediaQuery.of(context).size.width,
-//                            padding: EdgeInsets.symmetric(
-//                                vertical: 20, horizontal: 20),
-//                            decoration: BoxDecoration(
-//                                border: Border.all(
-//                                  color: Color(primary),
-//                                ),
-//                                borderRadius:
-//                                BorderRadius.circular(6)),
-//                            child: Column(
-//                              crossAxisAlignment:
-//                              CrossAxisAlignment.start,
-//                              children: <Widget>[
-//                                Row(
-//                                  crossAxisAlignment:
-//                                  CrossAxisAlignment.start,
-//                                  children: <Widget>[
-//                                    Container(
-//                                      width: 55.0,
-//                                      height: 55.0,
-//                                      child: CircleAvatar(
-//                                        foregroundColor:
-//                                        Color(primary),
-//                                        backgroundColor:
-//                                        Color(secondary),
-//                                        backgroundImage: AssetImage(
-//                                            'images/bgcover.jpg'),
-//                                      ),
-//                                    ),
-//                                    SizedBox(
-//                                      width: 10.0,
-//                                    ),
-//                                    Column(
-//                                      crossAxisAlignment:
-//                                      CrossAxisAlignment.start,
-//                                      children: <Widget>[
-//                                        Text(
-//                                          "Activity Name",
-//                                          style: TextStyle(
-//                                            color: Color(primary),
-//                                            fontSize: 18,
-//                                            fontWeight:
-//                                            FontWeight.bold,
-//                                          ),
-//                                        ),
-//                                        SizedBox(
-//                                          height: 5,
-//                                        ),
-//                                        Container(
-//                                          width:
-//                                          MediaQuery.of(context)
-//                                              .size
-//                                              .width *
-//                                              0.45,
-//                                          child: Text(
-//                                            "Admin name removed User name from the group",
-//                                            style: TextStyle(
-//                                              color: Color(secondary),
-//                                              fontSize: 13,
-//                                            ),
-//                                          ),
-//                                        ),
-//                                      ],
-//                                    ),
-//                                    Spacer(),
-//                                    Container(
-//                                      child: Text(
-//                                        "Fri 21 Feb",
-//                                        style: TextStyle(
-//                                          color: Color(secondary),
-//                                          fontSize: 12,
-//                                        ),
-//                                      ),
-//                                    ),
-//                                  ],
-//                                ),
-//                                SizedBox(
-//                                  height: 5,
-//                                ),
-//                              ],
-//                            ),
-//                          ),
-//                        ),
-//                            Card(
-//                              shape: RoundedRectangleBorder(
-//                                  borderRadius: BorderRadius.circular(10.0)),
-//                              child: Container(
-//                                width: MediaQuery.of(context).size.width,
-//                                padding: EdgeInsets.symmetric(
-//                                    vertical: 20, horizontal: 20),
-//                                decoration: BoxDecoration(
-//                                    border: Border.all(
-//                                      color: Color(primary),
-//                                    ),
-//                                    borderRadius: BorderRadius.circular(6)),
-//                                child: Column(
-//                                  crossAxisAlignment: CrossAxisAlignment.start,
-//                                  children: <Widget>[
-//                                    Row(
-//                                      crossAxisAlignment:
-//                                          CrossAxisAlignment.start,
-//                                      children: <Widget>[
-//                                        Container(
-//                                          width: 55.0,
-//                                          height: 55.0,
-//                                          child: CircleAvatar(
-//                                            foregroundColor: Color(primary),
-//                                            backgroundColor: Color(secondary),
-//                                            backgroundImage: AssetImage(
-//                                                'images/bgcover.jpg'),
-//                                          ),
-//                                        ),
-//                                        SizedBox(
-//                                          width: 10.0,
-//                                        ),
-//                                        Column(
-//                                          crossAxisAlignment:
-//                                              CrossAxisAlignment.start,
-//                                          children: <Widget>[
-//                                            Text(
-//                                              "Activity Name",
-//                                              style: TextStyle(
-//                                                color: Color(primary),
-//                                                fontSize: 18,
-//                                                fontWeight: FontWeight.bold,
-//                                              ),
-//                                            ),
-//                                            SizedBox(
-//                                              height: 5,
-//                                            ),
-//                                            Container(
-//                                              width: MediaQuery.of(context)
-//                                                      .size
-//                                                      .width *
-//                                                  0.45,
-//                                              child: Text(
-//                                                "Admin name removed User name from the group",
-//                                                style: TextStyle(
-//                                                  color: Color(secondary),
-//                                                  fontSize: 13,
-//                                                ),
-//                                              ),
-//                                            ),
-//                                          ],
-//                                        ),
-//                                        Spacer(),
-//                                        Container(
-//                                          child: Text(
-//                                            "Fri 21 Feb",
-//                                            style: TextStyle(
-//                                              color: Color(secondary),
-//                                              fontSize: 12,
-//                                            ),
-//                                          ),
-//                                        ),
-//                                      ],
-//                                    ),
-//                                    SizedBox(
-//                                      height: 5,
-//                                    ),
-//                                  ],
-//                                ),
-//                              ),
-//                            ),
-//                            Card(
-//                              shape: RoundedRectangleBorder(
-//                                  borderRadius: BorderRadius.circular(10.0)),
-//                              child: Container(
-//                                width: MediaQuery.of(context).size.width,
-//                                padding: EdgeInsets.symmetric(
-//                                    vertical: 20, horizontal: 20),
-//                                decoration: BoxDecoration(
-//                                    border: Border.all(
-//                                      color: Color(primary),
-//                                    ),
-//                                    borderRadius: BorderRadius.circular(6)),
-//                                child: Column(
-//                                  crossAxisAlignment: CrossAxisAlignment.start,
-//                                  children: <Widget>[
-//                                    Row(
-//                                      crossAxisAlignment:
-//                                          CrossAxisAlignment.start,
-//                                      children: <Widget>[
-//                                        Container(
-//                                          width: 55.0,
-//                                          height: 55.0,
-//                                          child: CircleAvatar(
-//                                            foregroundColor: Color(primary),
-//                                            backgroundColor: Color(secondary),
-//                                            backgroundImage: AssetImage(
-//                                                'images/bgcover.jpg'),
-//                                          ),
-//                                        ),
-//                                        SizedBox(
-//                                          width: 10.0,
-//                                        ),
-//                                        Column(
-//                                          crossAxisAlignment:
-//                                              CrossAxisAlignment.start,
-//                                          children: <Widget>[
-//                                            Text(
-//                                              "Activity Name",
-//                                              style: TextStyle(
-//                                                color: Color(primary),
-//                                                fontSize: 18,
-//                                                fontWeight: FontWeight.bold,
-//                                              ),
-//                                            ),
-//                                            SizedBox(
-//                                              height: 5,
-//                                            ),
-//                                            Container(
-//                                              width: MediaQuery.of(context)
-//                                                      .size
-//                                                      .width *
-//                                                  0.45,
-//                                              child: Text(
-//                                                "Admin name removed User name from the group",
-//                                                style: TextStyle(
-//                                                  color: Color(secondary),
-//                                                  fontSize: 13,
-//                                                ),
-//                                              ),
-//                                            ),
-//                                          ],
-//                                        ),
-//                                        Spacer(),
-//                                        Container(
-//                                          child: Text(
-//                                            "Fri 21 Feb",
-//                                            style: TextStyle(
-//                                              color: Color(secondary),
-//                                              fontSize: 12,
-//                                            ),
-//                                          ),
-//                                        ),
-//                                      ],
-//                                    ),
-//                                    SizedBox(
-//                                      height: 5,
-//                                    ),
-//                                    Divider(
-//                                      thickness: 1,
-//                                    ),
-//                                    SizedBox(
-//                                      height: 5,
-//                                    ),
-//                                    Container(
-//                                      width: MediaQuery.of(context).size.width,
-//                                      child: Text(
-//                                        "You were removed from this activity",
-//                                        style: TextStyle(
-//                                          color: Colors.red,
-//                                          fontSize: 15,
-//                                          fontWeight: FontWeight.bold,
-//                                        ),
-//                                      ),
-//                                    ),
-//                                    SizedBox(
-//                                      height: 5,
-//                                    ),
-//                                    Container(
-//                                      width: MediaQuery.of(context).size.width,
-//                                      child: Text(
-//                                        "Swipe left to delete this activity from your activity list",
-//                                        style: TextStyle(
-//                                          color: Color(secondary),
-//                                          fontSize: 13,
-//                                        ),
-//                                      ),
-//                                    ),
-//                                  ],
-//                                ),
-//                              ),
-//                            ),
-//                            Card(
-//                              shape: RoundedRectangleBorder(
-//                                  borderRadius: BorderRadius.circular(10.0)),
-//                              child: Container(
-//                                width: MediaQuery.of(context).size.width,
-//                                padding: EdgeInsets.symmetric(
-//                                    vertical: 20, horizontal: 20),
-//                                decoration: BoxDecoration(
-//                                    border: Border.all(
-//                                      color: Color(primary),
-//                                    ),
-//                                    borderRadius: BorderRadius.circular(6)),
-//                                child: Column(
-//                                  crossAxisAlignment: CrossAxisAlignment.start,
-//                                  children: <Widget>[
-//                                    Row(
-//                                      crossAxisAlignment:
-//                                          CrossAxisAlignment.start,
-//                                      children: <Widget>[
-//                                        Container(
-//                                          width: 55.0,
-//                                          height: 55.0,
-//                                          child: CircleAvatar(
-//                                            foregroundColor: Color(primary),
-//                                            backgroundColor: Color(secondary),
-//                                            backgroundImage: AssetImage(
-//                                                'images/bgcover.jpg'),
-//                                          ),
-//                                        ),
-//                                        SizedBox(
-//                                          width: 10.0,
-//                                        ),
-//                                        Column(
-//                                          crossAxisAlignment:
-//                                              CrossAxisAlignment.start,
-//                                          children: <Widget>[
-//                                            Text(
-//                                              "Activity Name",
-//                                              style: TextStyle(
-//                                                color: Color(primary),
-//                                                fontSize: 18,
-//                                                fontWeight: FontWeight.bold,
-//                                              ),
-//                                            ),
-//                                            SizedBox(
-//                                              height: 5,
-//                                            ),
-//                                            Container(
-//                                              width: MediaQuery.of(context)
-//                                                      .size
-//                                                      .width *
-//                                                  0.45,
-//                                              child: Text(
-//                                                "Admin name removed User name from the group",
-//                                                style: TextStyle(
-//                                                  color: Color(secondary),
-//                                                  fontSize: 13,
-//                                                ),
-//                                              ),
-//                                            ),
-//                                          ],
-//                                        ),
-//                                        Spacer(),
-//                                        Container(
-//                                          child: Text(
-//                                            "Fri 21 Feb",
-//                                            style: TextStyle(
-//                                              color: Color(secondary),
-//                                              fontSize: 12,
-//                                            ),
-//                                          ),
-//                                        ),
-//                                      ],
-//                                    ),
-//                                    SizedBox(
-//                                      height: 5,
-//                                    ),
-//                                    Divider(
-//                                      thickness: 1,
-//                                    ),
-//                                    SizedBox(
-//                                      height: 5,
-//                                    ),
-//                                    Container(
-//                                      width: MediaQuery.of(context).size.width,
-//                                      child: Text(
-//                                        "Request to join pending",
-//                                        style: TextStyle(
-//                                          color: Colors.green,
-//                                          fontSize: 15,
-//                                          fontWeight: FontWeight.bold,
-//                                        ),
-//                                      ),
-//                                    ),
-//                                    SizedBox(
-//                                      height: 5,
-//                                    ),
-//                                    Container(
-//                                      width: MediaQuery.of(context).size.width,
-//                                      child: Text(
-//                                        "Once they accept, we'll open chat for your new group",
-//                                        style: TextStyle(
-//                                          color: Color(secondary),
-//                                          fontSize: 13,
-//                                        ),
-//                                      ),
-//                                    ),
-//                                  ],
-//                                ),
-//                              ),
-//                            ),
-//                          ],
-//                        ),
-                    ],
-                  ),
-                ),
-              ),
+                                            subtitle: StreamBuilder(
+                                                stream: Firestore.instance
+                                                    .collection(
+                                                        'group_chat/${planSnap.data['plan_id']}/chat')
+                                                    .orderBy('timestamp',
+                                                        descending: true)
+                                                    .limit(1)
+                                                    .snapshots(),
+                                                builder: (ctx, message) {
+                                                  if (!message.hasData || message.hasError)
+                                                    return Container();
+                                                  return message.data.documents.length ==1 ?
+                                                   Row(
+                                                    children: <Widget>[
+                                                      message.data.documents[0][
+                                                                  'sender_name'] ==
+                                                              name
+                                                          ? Text('You:')
+                                                          : Text(message
+                                                                  .data
+                                                                  .documents[0][
+                                                                      'sender_name']
+                                                                  .toString()
+                                                                  .split(
+                                                                      " ")[0] +
+                                                              ':'),
+                                                      SizedBox(width: 5),
+                                                      Text(message
+                                                              .data.documents[0]
+                                                          ['message_content'])
+                                                    ],
+                                                  ):Text('Start Chatting');
+                                                })),
+                                      ),
+                                    );
+                                  });
+                            });
+                      }),
               //**************Completed Section**********
               SingleChildScrollView(
                 child: Container(
