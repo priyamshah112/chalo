@@ -26,6 +26,8 @@ class _AddActivityState extends State<AddActivity> {
   String activityName, note, type = 'Public';
   DateTime startTime = DateTime.now().add(Duration(minutes: 29));
   DateTime endTime;
+  DateTimePicker start = new DateTimePicker();
+  DateTimePicker end = new DateTimePicker();
   int _peopleCount = 1;
   bool proposeTime = false;
   bool _autovalidate = false;
@@ -343,7 +345,7 @@ class _AddActivityState extends State<AddActivity> {
                                     horizontal: 1.0, vertical: 10.0),
                                 child: DateTimeField(
                                   onShowPicker: (context, time) =>
-                                      DateTimePicker.presentDateTimePicker(
+                                      start.presentDateTimePicker(
                                           context,
                                           DateTime.now(),
                                           DateTime.now()
@@ -375,7 +377,6 @@ class _AddActivityState extends State<AddActivity> {
                                       color: Color(primary),
                                     ),
                                     contentPadding: const EdgeInsets.only(
-                                      left: 30.0,
                                       bottom: 18.0,
                                       top: 18.0,
                                     ),
@@ -392,7 +393,7 @@ class _AddActivityState extends State<AddActivity> {
                                     horizontal: 1.0, vertical: 10.0),
                                 child: DateTimeField(
                                   onShowPicker: (context, time) =>
-                                      DateTimePicker.presentDateTimePicker(
+                                      end.presentDateTimePicker(
                                           context,
                                           DateTime.now(),
                                           DateTime.now()
@@ -428,7 +429,7 @@ class _AddActivityState extends State<AddActivity> {
                                       color: Color(primary),
                                     ),
                                     contentPadding: const EdgeInsets.only(
-                                        left: 30.0, bottom: 18.0, top: 18.0),
+                                        bottom: 18.0, top: 18.0),
                                     filled: true,
                                     fillColor: Color(form1),
                                     hintStyle: TextStyle(
@@ -602,6 +603,7 @@ class _AddActivityState extends State<AddActivity> {
                                     'status': 'original',
                                     'security_code': Random().nextInt(10000),
                                     'timestamp': Timestamp.now(),
+                                    'plan_id': ""
                                   };
                                   print(activityDetails);
                                   showDialog(

@@ -4,8 +4,10 @@
 //import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:toast/toast.dart';
 import 'global_colors.dart';
 //import 'package:chaloapp/Animation/FadeAnimation.dart';
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,8 +15,6 @@ import 'global_colors.dart';
 //import 'package:chaloapp/home.dart';
 
 class AllActivity extends StatefulWidget {
-  final Function onBack;
-  AllActivity({this.onBack});
   @override
   _AllActivityState createState() => _AllActivityState();
 }
@@ -105,8 +105,8 @@ class _AllActivityState extends State<AllActivity> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () => widget.onBack(context),
-          child: Scaffold(
+      onWillPop: () => _onWillPop(context),
+      child: Scaffold(
           appBar: AppBar(
             backgroundColor: Color(primary),
             elevation: 0.0,
@@ -164,6 +164,19 @@ class _AllActivityState extends State<AllActivity> {
           )),
     );
   }
+
+  DateTime currentBackPressTime;
+  Future<bool> _onWillPop(BuildContext context) {
+    DateTime now = DateTime.now();
+    if (currentBackPressTime == null ||
+        now.difference(currentBackPressTime) > Duration(seconds: 1)) {
+      currentBackPressTime = now;
+      Toast.show("Press back again to exit", context);
+      return Future.value(false);
+    }
+    SystemNavigator.pop();
+    return Future.value(true);
+  }
 }
 
 class Activities extends StatefulWidget {
@@ -191,6 +204,7 @@ class _ActivitiesState extends State<Activities> {
                   name: plans[index]['admin_name'],
                   start: start,
                   count: plans[index]['max_participant'],
+                  activity: plans[index]['activity_name'],
                 );
               });
         });
@@ -198,14 +212,14 @@ class _ActivitiesState extends State<Activities> {
 }
 
 class ActivityCard extends StatelessWidget {
-  final String name, gender, activity = "Walking";
+  final String name, gender, activity;
   final int count;
   final DateTime start;
   const ActivityCard({
     Key key,
     this.name,
     this.gender,
-    // this.activity,
+    this.activity,
     this.count,
     this.start,
   }) : super(key: key);
@@ -238,38 +252,44 @@ class ActivityCard extends StatelessWidget {
                 SizedBox(
                   width: 10.0,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      name,
-                      style: TextStyle(
-                        color: Color(secondary),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      FittedBox(
+                        child: Text(
+                          name,
+                          style: TextStyle(
+                            color: Color(secondary),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Icon(
-                          FontAwesomeIcons.trophy,
-                          color: Colors.amberAccent,
-                          size: 15,
-                        ),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text(" 0 activities Done"),
-                      ],
-                    ),
-                  ],
+                      Row(
+                        children: <Widget>[
+                          Icon(
+                            FontAwesomeIcons.trophy,
+                            color: Colors.amberAccent,
+                            size: 15,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text(" 0 activities Done"),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                Spacer(),
-                Container(
-                  child: IconButton(
-                    icon: Icon(Icons.share),
-                    color: Colors.green,
-                    onPressed: () {},
+                Expanded(
+                  child: Container(
+                    child: IconButton(
+                      icon: Icon(Icons.share),
+                      color: Colors.green,
+                      onPressed: () {},
+                    ),
                   ),
                 ),
               ],

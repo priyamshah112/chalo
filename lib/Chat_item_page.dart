@@ -1,24 +1,21 @@
 import 'package:chaloapp/data/Send_menu_items.dart';
 import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/data/chat_item_model.dart';
-import 'package:chaloapp/data/chat_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
-import 'package:steel_crypt/PointyCastleN/src/ufixnum.dart';
-
+import 'Animation/FadeAnimation.dart';
 import 'global_colors.dart';
 
 class ChatItemPage extends StatefulWidget {
+  final String planId, chatTitle;
+  ChatItemPage({@required this.planId, @required this.chatTitle});
   @override
   _ChatItemPageState createState() => _ChatItemPageState();
 }
 
 class _ChatItemPageState extends State<ChatItemPage> {
   bool isMe;
-
   @override
   void initState() {
     super.initState();
@@ -29,14 +26,14 @@ class _ChatItemPageState extends State<ChatItemPage> {
         print(msg);
         return;
       },
-      onLaunch: (msg) {
-        print(msg);
-        return;
-      },
-      onResume: (msg) {
-        print(msg);
-        return;
-      },
+      // onLaunch: (msg) {
+      //   print(msg);
+      //   return;
+      // },
+      // onResume: (msg) {
+      //   print(msg);
+      //   return;
+      // },
     );
     fbm.subscribeToTopic('chat');
   }
@@ -51,6 +48,13 @@ class _ChatItemPageState extends State<ChatItemPage> {
       return true;
     } else
       return false;
+  }
+
+  Future getData() async {
+    Map user = await UserData.getUser();
+    user['group_chatdoc'] =
+        Firestore.instance.collection('group_chat').document(widget.planId);
+    return user;
   }
 
   @override
@@ -79,19 +83,17 @@ class _ChatItemPageState extends State<ChatItemPage> {
           ],
           backgroundColor: Color(primary),
           centerTitle: true,
-          title: Center(child: Text("Hiking")),
+          title: Center(child: Text(widget.chatTitle)),
         ),
         body: FutureBuilder(
-            future: UserData.getUser(),
-            builder: (context, user) {
-              if (!user.hasData)
+            future: getData(),
+            builder: (context, userSnap) {
+              if (!userSnap.hasData)
                 return Center(child: CircularProgressIndicator());
               return StreamBuilder(
-                  stream: Firestore.instance
-                      .collection('group_chat')
-                      .document('chatDoc')
+                  stream: userSnap.data['group_chatdoc']
                       .collection('chat')
-                      .orderBy('time', descending: true)
+                      .orderBy('timestamp', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting ||
@@ -101,37 +103,51 @@ class _ChatItemPageState extends State<ChatItemPage> {
                     int msgs = messages.length;
                     return Column(children: <Widget>[
                       Expanded(
-                          child: ListView.builder(
-                              reverse: true,
-                              itemCount: msgs,
-                              itemBuilder: (contex, index) {
-                                messages[index]['email'] == user.data['email']
-                                    ? isMe = true
-                                    : isMe = false;
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 6),
-                                  child: Column(
-                                    children: <Widget>[
-                                      if (index == msgs - 1)
-                                        MessageDate(
-                                            messages: messages, index: index),
-                                      ChatBubble(
-                                        isMe: isMe,
-                                        content: messages[index]['text'],
-                                        name: messages[index]['name'],
-                                        timestamp: messages[index]['time'],
-                                      ),
-                                      if (displayDate(messages[index]['time']))
-                                        MessageDate(
-                                            messages: messages,
-                                            index: index - 1),
-                                    ],
-                                  ),
-                                );
-                              })),
+                          child: msgs == 0
+                              ? Center(
+                                  child: Text('Send the first message!'),
+                                )
+                              : FadeAnimation(
+                                  0.5,
+                                  ListView.builder(
+                                      reverse: true,
+                                      itemCount: msgs,
+                                      itemBuilder: (contex, index) {
+                                        messages[index]['sender_id'] ==
+                                                userSnap.data['email']
+                                            ? isMe = true
+                                            : isMe = false;
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 6),
+                                          child: Column(
+                                            children: <Widget>[
+                                              if (index == msgs - 1)
+                                                MessageDate(
+                                                    messages: messages,
+                                                    index: index),
+                                              ChatBubble(
+                                                isMe: isMe,
+                                                content: messages[index]
+                                                    ['message_content'],
+                                                name: messages[index]
+                                                    ['sender_name'],
+                                                timestamp: messages[index]
+                                                    ['timestamp'],
+                                              ),
+                                              if (displayDate(messages[index]
+                                                      ['timestamp']) &&
+                                                  msgs > 1)
+                                                MessageDate(
+                                                    messages: messages,
+                                                    index: index - 1),
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                )),
                       SizedBox(height: 10),
-                      MessageInput()
+                      MessageInput(chatDoc: userSnap.data['group_chatdoc'])
                     ]);
                   });
             }));
@@ -262,7 +278,8 @@ class _MessageDateState extends State<MessageDate> {
             child: Text(
               DateFormat('MMM d, yyyy').format(
                   DateTime.fromMillisecondsSinceEpoch(
-                      widget.messages[widget.index]['time'].seconds * 1000)),
+                      widget.messages[widget.index]['timestamp'].seconds *
+                          1000)),
               style: TextStyle(
                 color: Color(secondary),
                 fontSize: 12,
@@ -274,6 +291,8 @@ class _MessageDateState extends State<MessageDate> {
 }
 
 class MessageInput extends StatefulWidget {
+  final DocumentReference chatDoc;
+  MessageInput({@required this.chatDoc});
   @override
   _MessageInputState createState() => _MessageInputState();
 }
@@ -295,24 +314,34 @@ class _MessageInputState extends State<MessageInput> {
       child: Row(
         children: <Widget>[
           Expanded(
-            child: TextField(
-              autofocus: false,
-              onChanged: (value) {
-                if (value.isEmpty)
-                  setState(() => _empty = true);
-                else
-                  setState(() => _empty = false);
-              },
-              controller: _controller,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: "Type something...",
-                hintStyle: TextStyle(
-                  color: Color(formHint),
+              child: LimitedBox(
+            maxHeight: 300,
+            child: new Scrollbar(
+              child: new SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                reverse: true,
+                child: TextField(
+                  minLines: 1,
+                  maxLines: 4,
+                  autofocus: false,
+                  onChanged: (value) {
+                    if (value.isEmpty)
+                      setState(() => _empty = true);
+                    else
+                      setState(() => _empty = false);
+                  },
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: "Type something...",
+                    hintStyle: TextStyle(
+                      color: Color(formHint),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          )),
           IconButton(
               icon: Icon(
                 Icons.add,
@@ -336,15 +365,14 @@ class _MessageInputState extends State<MessageInput> {
     final user = await UserData.getUser();
     print(_controller.text);
     try {
-      final doc = await Firestore.instance
-          .collection('group_chat')
-          .document('chatDoc')
+      final doc = await widget.chatDoc
           .collection('chat')
           .add({
-        'text': _controller.text,
-        'name': user['name'],
-        'email': user['email'],
-        'time': Timestamp.fromDate(DateTime.now())
+        'message_content': _controller.text,
+        'message_type': 'text',
+        'sender_name': user['name'],
+        'sender_id': user['email'],
+        'timestamp': Timestamp.fromDate(DateTime.now())
       });
       print('sent ${doc.documentID}');
       _controller.clear();

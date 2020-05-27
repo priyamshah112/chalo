@@ -64,7 +64,8 @@ class AuthService {
       if (e.code == 'ERROR_WRONG_PASSWORD') {
         doc = await this.userCollection.document(email).get();
         String hashedPassword = doc.data['password'];
-        if (hashedPassword == Hashing.encrypt(password)) flag = true;
+        if (hashedPassword == Hashing.encrypt(password)) {
+          flag = true;}
       }
       if (flag) {
         await UserData().setData(doc.data, 'email');

@@ -413,17 +413,18 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             borderRadius: BorderRadius.circular(50.0)),
                         onPressed: () async {
                           try {
-                            showDialogBox().show_Dialog(
-                                child:
+                            showDialog(
+                                builder: (ctx) =>
                                     Center(child: CircularProgressIndicator()),
                                 context: context);
-                            var _auth =
+                            final _auth =
                                 AuthService(auth: FirebaseAuth.instance);
                             widget.creds != null
                                 ? FirebaseAuth.instance
                                     .signInWithCredential(widget.creds)
                                 : _auth.signIn(widget.email, widget.password);
-                            Navigator.pop(context);
+                            await Future.delayed(Duration(seconds: 2));
+                            Navigator.of(context, rootNavigator: true).pop();
                             showDialog(
                                 context: context,
                                 builder: ((ctx) => DialogBox(
@@ -432,7 +433,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                         "You've Successfully Signed Up",
                                     buttonText1: "Ok",
                                     button1Func: () {
-                                      Navigator.pop(context);
+                                      Navigator.of(context, rootNavigator: true)
+                                          .pop();
                                       Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
@@ -440,7 +442,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                     })));
                           } catch (e) {
                             print(e);
-                            Navigator.pop(context);
+                            Navigator.of(context,rootNavigator: true).pop();
                           }
                         },
                         child: Center(

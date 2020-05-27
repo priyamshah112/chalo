@@ -1,14 +1,11 @@
 import 'package:chaloapp/services/Hashing.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
 import '../data/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DataService {
   Future createUser(User user) async {
-    final CollectionReference userCollection =
-        Firestore.instance.collection('users');
-    await userCollection.document(user.email).setData({
+    final database = Firestore.instance;
+    await database.collection('users').document(user.email).setData({
       'first_name': user.fname,
       'last_name': user.lname,
       'email': user.email,
@@ -20,18 +17,42 @@ class DataService {
       'timestamp': Timestamp.now(),
       'verified': false
     });
+    await database.collection('user_plans').document(user.email).setData({
+      'cancelled_plans': [],
+      'completed_plans': [],
+      'current_plans': [],
+      'requested_plans': [],
+      'your_adminplans': []
+    });
+    await database.collection('user_reputation').document(user.email).setData({
+      'behaviour': 0,
+      'activity_completed': 0,
+      'activity_last_month': 0,
+      'followers': 0,
+      'following': 0,
+      'payment': 0,
+      'punctuality': 0
+    });
+    await database.collection('additional_info').document(user.email).setData({
+      'folloing_id': [],
+      'followers_id': [],
+      'facebook_acc': "",
+      'instagram_acc': "",
+      'profile_pic': "",
+    });
   }
 
   Future createPlan(Map details) async {
     Firestore database = Firestore.instance;
-    final CollectionReference plan = database.collection('plan');
-    final CollectionReference groupchat = database.collection('group_chat');
     try {
-      DocumentReference plandoc = await plan.add(details);
+      DocumentReference plandoc =
+          await database.collection('plan').add(details);
       DocumentReference groupchatdoc =
-          await groupchat.add({'messages_id': [], 'plan_id': plandoc});
+          database.collection('group_chat').document(plandoc.documentID);
+      await groupchatdoc.setData({'messages_id': [], 'plan_id': plandoc});
       DocumentReference locationdoc =
-          await database.collection('location').add({
+          database.collection('location').document(plandoc.documentID);
+      await locationdoc.setData({
         'city': 'Mumbai',
         'country': 'India',
         'pincode': '400060',
@@ -52,9 +73,18 @@ class DataService {
       print(plandoc.documentID);
       print(groupchatdoc.documentID);
       print(locationdoc.documentID);
-      database.runTransaction((transaction) async {
-        await transaction.update(
-            plandoc, {'group_chat': groupchatdoc, 'location_id': locationdoc});
+      await database.runTransaction((transaction) async {
+        await transaction.update(plandoc, {
+          'group_chat': groupchatdoc,
+          'location_id': locationdoc,
+          'plan_id': plandoc.documentID
+        });
+      });
+      await database
+          .collection('user_plans')
+          .document(details['admin_id'])
+          .updateData({
+        'current_plans': FieldValue.arrayUnion([plandoc])
       });
     } catch (e) {
       print(e.toString());

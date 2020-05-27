@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:chaloapp/global_colors.dart';
 
 class DateTimePicker {
-  static DateTime _pickedDate;
-  static TimeOfDay _pickedTime;
+  DateTime _pickedDate;
+  TimeOfDay _pickedTime;
 
-  static Future<DateTime> presentDatePicker(
+  Future<DateTime> presentDatePicker(
       BuildContext ctx, DateTime first, DateTime last) async {
     _pickedDate = await showDatePicker(
       context: ctx,
@@ -26,8 +26,7 @@ class DateTimePicker {
     return _pickedDate;
   }
 
-  static Future<DateTime> presentTimePicker(
-      BuildContext ctx, DateTime time) async {
+  Future<DateTime> presentTimePicker(BuildContext ctx, DateTime time) async {
     _pickedTime = await showTimePicker(
       context: ctx,
       initialTime: time == null
@@ -48,7 +47,7 @@ class DateTimePicker {
     return DateTimeField.convert(_pickedTime);
   }
 
-  static Future<DateTime> presentDateTimePicker(
+  Future<DateTime> presentDateTimePicker(
       BuildContext ctx, DateTime first, DateTime last, DateTime time) async {
     _pickedDate = await showDatePicker(
       context: ctx,
@@ -68,9 +67,8 @@ class DateTimePicker {
     if (_pickedDate != null) {
       _pickedTime = await showTimePicker(
         context: ctx,
-        initialTime: time == null
-            ? TimeOfDay.fromDateTime(DateTime.now())
-            : TimeOfDay.fromDateTime(time),
+        initialTime:
+            _pickedTime ?? TimeOfDay.fromDateTime(time ?? DateTime.now()),
         builder: (BuildContext context, Widget child) {
           return Theme(
             data: ThemeData.light().copyWith(
@@ -83,8 +81,8 @@ class DateTimePicker {
           );
         },
       );
-      print('picker: ' +
-          DateTimeField.combine(_pickedDate, _pickedTime).toString());
+      // print('picker: ' +
+      //     DateTimeField.combine(_pickedDate, _pickedTime).toString());
     }
     return _pickedDate == null || _pickedTime == null
         ? time

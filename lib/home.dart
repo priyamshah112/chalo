@@ -8,6 +8,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
+import 'package:toast/toast.dart';
 import 'login.dart';
 import 'widgets/DailogBox.dart';
 import 'package:chaloapp/broadcast.dart';
@@ -24,17 +25,11 @@ class _MainHomeState extends State<MainHome> {
   int _currentIndex = 0;
   List tabs = [
     MainMap(),
-    AllActivity(onBack: _onWillPop),
+    AllActivity(),
     Broadcast(),
     ProfilePage(),
     Chats()
   ];
-
-  static Future<bool> _onWillPop(BuildContext context) async {
-    await Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => MainMap()));
-    return true;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +112,7 @@ class _MainMapState extends State<MainMap> {
   }
 
   @override
-  Widget build(BuildContext context) { 
+  Widget build(BuildContext context) {
     _getData();
     return Scaffold(
       floatingActionButton: Builder(
@@ -131,7 +126,7 @@ class _MainMapState extends State<MainMap> {
                 ));
               })),
       body: WillPopScope(
-        onWillPop: _onWillPop,
+        onWillPop: () => _onWillPop(context),
         child: Stack(
           fit: StackFit.expand,
           children: <Widget>[
@@ -152,79 +147,99 @@ class _MainMapState extends State<MainMap> {
               ),
             ),
             Positioned(
-              top: 60.0,
-              right: 15.0,
-              left: 15.0,
-              child: Container(
-                height: 50.0,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(3.0),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.grey,
-                        offset: Offset(1.0, 1.0),
-                        blurRadius: 10,
-                        spreadRadius: 2)
-                  ],
-                ),
-                child: TextField(
-                  cursorColor: Colors.black,
-                  decoration: InputDecoration(
-                    icon: Container(
-                      margin: EdgeInsets.only(left: 15, bottom: 5, top: 7),
-                      width: 40,
-                      height: 50,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    ProfilePage()),
-                          );
-                        },
-                        child: CircleAvatar(
-                          child: ClipOval(
-                            child: Image.asset(
-                              'images/bgcover.jpg',
-                              height: 50,
-                              width: 50,
-                              fit: BoxFit.cover,
+                top: 60.0,
+                left: 15.0,
+                right: 15.0,
+                child: Container(
+                  height: 50.0,
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(1.0, 1.0),
+                          blurRadius: 10,
+                          spreadRadius: 2)
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.only(left: 15, bottom: 5, top: 7),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      ProfilePage()),
+                            );
+                          },
+                          child: CircleAvatar(
+                            child: ClipOval(
+                              child: Image.asset(
+                                'images/bgcover.jpg',
+                                height: 50,
+                                width: 50,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    hintText: "Search Users",
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.only(left: 11.0, top: 5.0),
+                      Expanded(
+                        child: TextField(
+                          cursorColor: Colors.black,
+                          decoration: InputDecoration(
+                            hintText: "Search Users",
+                            border: InputBorder.none,
+                            contentPadding:
+                                EdgeInsets.only(left: 11.0, top: 5.0),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                          icon: Icon(Icons.exit_to_app),
+                          onPressed: () => signOut(context))
+                    ],
                   ),
-                ),
-              ),
-            ),
+                ))
           ],
         ),
       ),
     );
   }
 
-  Future<bool> _onWillPop() {
-    return showDialog(
+  DateTime currentBackPressTime;
+  Future<bool> _onWillPop(BuildContext context) {
+    DateTime now = DateTime.now();
+    if (currentBackPressTime == null ||
+        now.difference(currentBackPressTime) > Duration(seconds: 1)) {
+      currentBackPressTime = now;
+      Toast.show("Press back again to exit", context);
+      return Future.value(false);
+    }
+    return Future.value(true);
+  }
+
+  void signOut(BuildContext context) {
+    showDialog(
         context: context,
         builder: (ctx) => DialogBox(
             title: 'Warning',
             description: "Are you sure you want to Sign out ?",
             buttonText1: "No",
-            button1Func: () => Navigator.pop(context, false),
+            button1Func: () =>
+                Navigator.of(context, rootNavigator: true).pop(false),
             buttonText2: "Yes",
             button2Func: () async {
               AuthService _auth = new AuthService(auth: FirebaseAuth.instance);
               SharedPreferences prefs = await SharedPreferences.getInstance();
               await _auth.signOut(prefs.getString('type'));
               print("Signed out");
-              Navigator.pop(context);
+              Navigator.of(context, rootNavigator: true).pop(true);
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(

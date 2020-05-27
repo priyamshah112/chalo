@@ -182,7 +182,7 @@ class _SignUpState extends State<SignUp> {
                                   child: DateTimeField(
                                     format: DateFormat('d/MM/y'),
                                     onShowPicker: (context, _) =>
-                                        DateTimePicker.presentDatePicker(
+                                        DateTimePicker().presentDatePicker(
                                             context,
                                             DateTime(1900),
                                             DateTime.now()),
@@ -411,10 +411,13 @@ class _SignUpState extends State<SignUp> {
                                             description:
                                                 "Make sure all your entered details are correct",
                                             buttonText1: "Check again",
-                                            button1Func: () =>
-                                                Navigator.pop(context),
+                                            button1Func: () => Navigator.of(
+                                                    context,
+                                                    rootNavigator: true)
+                                                .pop(),
                                             buttonText2: "Yes I'm Sure",
-                                            button2Func: _createUser));
+                                            button2Func: () =>
+                                                _createUser(context)));
                                   }
                                 } else {
                                   setState(() {
@@ -464,25 +467,26 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  void _createUser() async {
-    Navigator.pop(context);
-    showDialogBox().show_Dialog(
-        child: Center(child: CircularProgressIndicator()), context: context);
+  void _createUser(BuildContext context) async {
+    Navigator.of(context, rootNavigator: true).pop();
+    showDialog(
+        builder: (ctx) => Center(child: CircularProgressIndicator()),
+        context: context);
     AuthService _auth = AuthService(auth: FirebaseAuth.instance);
     Map result = await _auth.createUser(
         user.email, user.password, (user.fname + " " + user.lname));
     if (result['success']) {
       user.setUid(result['uid']);
       await DataService().createUser(user);
-      Navigator.pop(context);
-      showDialogBox().show_Dialog(
+      Navigator.of(context, rootNavigator: true).pop();
+      showDialog(
           context: context,
-          child: DialogBox(
+          builder: (ctx) => DialogBox(
               title: "Done !",
               description: "Check your Email for the verification Link",
               buttonText1: "Ok",
               button1Func: () {
-                Navigator.pop(context);
+                Navigator.of(context, rootNavigator: true).pop();
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -493,14 +497,15 @@ class _SignUpState extends State<SignUp> {
                 );
               }));
     } else {
-      Navigator.pop(context);
-      showDialogBox().show_Dialog(
+      Navigator.of(context, rootNavigator: true).pop();
+      showDialog(
           context: context,
-          child: DialogBox(
+          builder: (ctx) => DialogBox(
               title: "Error :(",
               description: result['error'],
               buttonText1: "Ok",
-              button1Func: () => Navigator.pop(context)));
+              button1Func: () =>
+                  Navigator.of(context, rootNavigator: true).pop()));
     }
   }
 }
@@ -524,7 +529,8 @@ void _validateGender(BuildContext context) {
             actions: <Widget>[
               FlatButton(
                 child: Text("OK", style: TextStyle(color: Color(primary))),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () =>
+                    Navigator.of(context, rootNavigator: true).pop(),
               )
             ],
           )));
@@ -533,7 +539,8 @@ void _validateGender(BuildContext context) {
 class PhoneVerification extends StatefulWidget {
   final AuthCredential creds;
   final String email, password;
-  const PhoneVerification({Key key, this.creds, this.email, this.password})
+  const PhoneVerification(
+      {Key key, @required this.email, this.creds, this.password})
       : super(key: key);
   @override
   _PhoneVerificationState createState() => _PhoneVerificationState();
@@ -555,7 +562,6 @@ class _PhoneVerificationState extends State<PhoneVerification> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await _auth.signOut(prefs.getString('type'));
     }
-    // Navigator.pop(context);
     await Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => HomePage()));
     return false;
@@ -738,8 +744,8 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                                   if (_formKey.currentState.validate()) {
                                     _formKey.currentState.save();
                                     FocusScope.of(context).unfocus();
-                                    showDialogBox().show_Dialog(
-                                        child: Center(
+                                    showDialog(
+                                        builder: (ctx) => Center(
                                             child: CircularProgressIndicator()),
                                         context: context);
                                     AuthService _auth = AuthService(
@@ -753,16 +759,19 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                                           : await verifyOTP(
                                               widget.email, _phone);
                                     } else {
-                                      Navigator.pop(context);
-                                      showDialogBox().show_Dialog(
+                                      Navigator.of(context, rootNavigator: true)
+                                          .pop();
+                                      showDialog(
                                           context: context,
-                                          child: DialogBox(
+                                          builder: (ctx) => DialogBox(
                                               title: "Error :(",
                                               description:
                                                   "This Phone number is already registered and verified \nTry again with another phone number ",
                                               buttonText1: "OK",
-                                              button1Func: () =>
-                                                  Navigator.pop(context)));
+                                              button1Func: () => Navigator.of(
+                                                      context,
+                                                      rootNavigator: true)
+                                                  .pop()));
                                     }
                                   } else {
                                     setState(() {
@@ -889,12 +898,12 @@ class _PhoneVerificationState extends State<PhoneVerification> {
           FirebaseUser user = (await auth.signInWithCredential(creds)).user;
           DataService().verifyUser(email, phone);
           AuthService(auth: FirebaseAuth.instance).deleteUser(user);
-          Navigator.pop(context);
+          Navigator.of(context, rootNavigator: true).pop();
           showSuccess(context, email, widget.password, widget.creds);
         },
         verificationFailed: (AuthException e) {
           print(e.code + "\n" + e.message);
-          Navigator.pop(context);
+          Navigator.of(context, rootNavigator: true).pop();
           showFail(context);
         },
         codeSent: (verID, [int forceResend]) async {
@@ -903,7 +912,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
             _verificaionId = verID;
             _codeSent = true;
           });
-          Navigator.pop(context);
+          Navigator.of(context, rootNavigator: true).pop();
           _scaffoldKey.currentState.showSnackBar(new SnackBar(
             content: Text('Verification Code Sent'),
             duration: Duration(seconds: 2),
@@ -913,8 +922,9 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   }
 
   Future<void> signInwithOTP(verID, smsCode, phone, email) async {
-    showDialogBox().show_Dialog(
-        context: context, child: Center(child: CircularProgressIndicator()));
+    showDialog(
+        context: context,
+        builder: (ctx) => Center(child: CircularProgressIndicator()));
     AuthCredential creds = PhoneAuthProvider.getCredential(
         verificationId: verID, smsCode: smsCode);
     try {
@@ -922,11 +932,11 @@ class _PhoneVerificationState extends State<PhoneVerification> {
           (await FirebaseAuth.instance.signInWithCredential(creds)).user;
       DataService().verifyUser(email, phone);
       AuthService(auth: FirebaseAuth.instance).deleteUser(user);
-      Navigator.pop(context);
+      Navigator.of(context, rootNavigator: true).pop();
       showSuccess(context, email, widget.password, widget.creds);
     } catch (e) {
       print(e.toString());
-      Navigator.pop(context);
+      Navigator.of(context, rootNavigator: true).pop();
       showFail(context);
     }
   }
@@ -944,8 +954,8 @@ String _validateEmail(String value) {
 
 void showSuccess(BuildContext context, String email, String password,
     AuthCredential creds) async {
-  showDialogBox().show_Dialog(
-      child: DialogBox(
+  showDialog(
+      builder: (ctx) => DialogBox(
           title: "Verification",
           description: "Phone Verification Successful",
           icon: Icons.check,
@@ -954,7 +964,7 @@ void showSuccess(BuildContext context, String email, String password,
           button1Func: () {}),
       context: context);
   await Future.delayed(Duration(seconds: 2));
-  Navigator.pop(context);
+  Navigator.of(context, rootNavigator: true).pop();
   Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -963,13 +973,13 @@ void showSuccess(BuildContext context, String email, String password,
 }
 
 void showFail(BuildContext context) {
-  showDialogBox().show_Dialog(
-      child: DialogBox(
+  showDialog(
+      builder: (ctx) => DialogBox(
           title: "Verification",
           description: "Phone Verification Failed",
           icon: Icons.clear,
           iconColor: Colors.red,
           buttonText1: "OK",
-          button1Func: () => Navigator.pop(context)),
+          button1Func: () => Navigator.of(context, rootNavigator: true).pop()),
       context: context);
 }
