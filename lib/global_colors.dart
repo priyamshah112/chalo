@@ -61,3 +61,45 @@ var formHint = 0xfff001730;
 //color: Colors.white,
 //),
 //),
+
+//Don't delete this
+//AppBar(
+//centerTitle: true,
+//automaticallyImplyLeading: false,
+//title: Center(
+//child: Text(
+//"Add Location",
+//style: TextStyle(
+//color: Colors.white,
+//fontFamily: bodyText,
+//fontWeight: FontWeight.bold,
+//),
+//),
+//),
+//leading: InkWell(
+//onTap: () {
+//Navigator.pop(context);
+//},
+//child: Icon(
+//Icons.arrow_back,
+//color: Colors.white,
+//),
+//),
+//actions: <Widget>[
+//FlatButton(
+//onPressed: () {
+//Navigator.pop(context);
+//},
+//child: Text(
+//"Done",
+//style: TextStyle(
+//color: Colors.white,
+//fontSize: 17,
+//fontFamily: bodyText,
+//fontWeight: FontWeight.bold,
+//),
+//),
+//),
+//],
+//elevation: 1.0,
+//),

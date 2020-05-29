@@ -38,6 +38,10 @@ dependencies:
   flutter_spinkit: "^4.1.2"
   image_picker: ^0.6.6+1
   like_button: ^0.2.0
+  mapbox_search_flutter:
+  latlong: ^0.6.1
+  location: ^2.3.5
+
 
 dev_dependencies:
   flutter_test:

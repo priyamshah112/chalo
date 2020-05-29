@@ -12,7 +12,8 @@ import 'dart:io';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:chaloapp/global_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gender_selection/gender_selection.dart';
+
+import 'add_location.dart';
 import 'data/activity.dart';
 import 'package:intl/intl.dart';
 
@@ -254,7 +255,7 @@ class _AddActivityState extends State<AddActivity> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    ViewActivity(),
+                                                    GetLocation(),
                                               ),
                                             );
                                           },
