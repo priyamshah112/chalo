@@ -3,6 +3,7 @@
 //import 'package:chaloapp/widgets/DailogBox.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -381,3 +382,20 @@ class IconText extends StatelessWidget {
     );
   }
 }
+
+// void storeActivity() async {
+//   final activity = "Gym";
+//   final Storageref =
+//       FirebaseStorage.instance.ref().child('activities').child('$activity.png');
+//   final url = await Storageref.getDownloadURL();
+//   await Firestore.instance
+//       .collection('chalo_activity')
+//       .document(activity)
+//       .setData({
+//     'collaborator_id': [],
+//     'description': 'Activtiy description goes here',
+//     'logo': url,
+//     'name': activity
+//   });
+//   print(url);
+// }

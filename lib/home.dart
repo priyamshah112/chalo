@@ -1,4 +1,3 @@
-import 'package:chaloapp/ProfileSetup.dart';
 import 'package:chaloapp/global_colors.dart';
 import 'package:chaloapp/profile_page.dart';
 import 'package:chaloapp/services/AuthService.dart';
@@ -14,7 +13,6 @@ import 'widgets/DailogBox.dart';
 import 'package:chaloapp/broadcast.dart';
 import 'package:chaloapp/all_activities.dart';
 import 'package:chaloapp/chats.dart';
-import 'package:chaloapp/explore.dart';
 
 class MainHome extends StatefulWidget {
   @override
@@ -23,13 +21,7 @@ class MainHome extends StatefulWidget {
 
 class _MainHomeState extends State<MainHome> {
   int _currentIndex = 0;
-  List tabs = [
-    MainMap(),
-    AllActivity(),
-    Broadcast(),
-    ProfilePage(),
-    Chats()
-  ];
+  List tabs = [MainMap(), AllActivity(), Broadcast(), ProfilePage(), Chats()];
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +111,7 @@ class _MainMapState extends State<MainMap> {
           builder: (context) => FloatingActionButton(
               backgroundColor: Colors.white,
               child: Icon(Icons.person, color: Colors.black),
-              onPressed: () {
+              onPressed: () async {
                 Scaffold.of(context).showSnackBar(SnackBar(
                   content: Text('user: $user\n email: $email'),
                   duration: Duration(seconds: 2),
@@ -235,9 +227,8 @@ class _MainMapState extends State<MainMap> {
                 Navigator.of(context, rootNavigator: true).pop(false),
             buttonText2: "Yes",
             button2Func: () async {
-              AuthService _auth = new AuthService(auth: FirebaseAuth.instance);
               SharedPreferences prefs = await SharedPreferences.getInstance();
-              await _auth.signOut(prefs.getString('type'));
+              await AuthService().signOut(prefs.getString('type'));
               print("Signed out");
               Navigator.of(context, rootNavigator: true).pop(true);
               Navigator.pushReplacement(

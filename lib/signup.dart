@@ -472,9 +472,8 @@ class _SignUpState extends State<SignUp> {
     showDialog(
         builder: (ctx) => Center(child: CircularProgressIndicator()),
         context: context);
-    AuthService _auth = AuthService(auth: FirebaseAuth.instance);
-    Map result = await _auth.createUser(
-        user.email, user.password, (user.fname + " " + user.lname));
+    Map result = await AuthService()
+        .createUser(user.email, user.password, (user.fname + " " + user.lname));
     if (result['success']) {
       user.setUid(result['uid']);
       await DataService().createUser(user);
@@ -558,7 +557,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   Future<bool> onBack() async {
     final user = await FirebaseAuth.instance.currentUser();
     if (user != null) {
-      AuthService _auth = AuthService(auth: FirebaseAuth.instance);
+      final _auth = AuthService();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await _auth.signOut(prefs.getString('type'));
     }
@@ -748,10 +747,8 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                                         builder: (ctx) => Center(
                                             child: CircularProgressIndicator()),
                                         context: context);
-                                    AuthService _auth = AuthService(
-                                        auth: FirebaseAuth.instance);
                                     bool result =
-                                        await _auth.verifyPhone(_phone);
+                                        await DataService().verifyPhone(_phone);
                                     if (result) {
                                       _codeSent
                                           ? await signInwithOTP(_verificaionId,
@@ -895,9 +892,9 @@ class _PhoneVerificationState extends State<PhoneVerification> {
         phoneNumber: phone,
         timeout: Duration(seconds: 60),
         verificationCompleted: (AuthCredential creds) async {
-          FirebaseUser user = (await auth.signInWithCredential(creds)).user;
+          FirebaseUser user = await AuthService().credsSignIn(creds);
           DataService().verifyUser(email, phone);
-          AuthService(auth: FirebaseAuth.instance).deleteUser(user);
+          AuthService().deleteUser(user);
           Navigator.of(context, rootNavigator: true).pop();
           showSuccess(context, email, widget.password, widget.creds);
         },
@@ -928,10 +925,9 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     AuthCredential creds = PhoneAuthProvider.getCredential(
         verificationId: verID, smsCode: smsCode);
     try {
-      FirebaseUser user =
-          (await FirebaseAuth.instance.signInWithCredential(creds)).user;
+      FirebaseUser user = await AuthService().credsSignIn(creds);
       DataService().verifyUser(email, phone);
-      AuthService(auth: FirebaseAuth.instance).deleteUser(user);
+      AuthService().deleteUser(user);
       Navigator.of(context, rootNavigator: true).pop();
       showSuccess(context, email, widget.password, widget.creds);
     } catch (e) {
@@ -964,7 +960,6 @@ void showSuccess(BuildContext context, String email, String password,
           button1Func: () {}),
       context: context);
   await Future.delayed(Duration(seconds: 2));
-  Navigator.of(context, rootNavigator: true).pop();
   Navigator.pushReplacement(
       context,
       MaterialPageRoute(

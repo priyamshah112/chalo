@@ -3,8 +3,8 @@ import '../data/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DataService {
+  static final database = Firestore.instance;
   Future createUser(User user) async {
-    final database = Firestore.instance;
     await database.collection('users').document(user.email).setData({
       'first_name': user.fname,
       'last_name': user.lname,
@@ -39,11 +39,11 @@ class DataService {
       'facebook_acc': "",
       'instagram_acc': "",
       'profile_pic': "",
+      'interested_activity': []
     });
   }
 
   Future createPlan(Map details) async {
-    Firestore database = Firestore.instance;
     try {
       DocumentReference plandoc =
           await database.collection('plan').add(details);
@@ -91,10 +91,48 @@ class DataService {
     }
   }
 
+  Future<DocumentSnapshot> getUserDoc(String email) async {
+    DocumentSnapshot userDoc;
+    await database
+        .collection('users')
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((doc) {
+        if (email == doc.data['email']) userDoc = doc;
+      });
+    });
+    return userDoc;
+  }
+
+  Future userActivities(String email, List activities) async {
+    activities = List<String>.generate(
+        activities.length, (index) => activities[index][1]);
+    database.runTransaction((transaction) async {
+      final docRef = database.collection('additional_info').document(email);
+      await transaction.update(docRef, {'interested_activities': activities});
+    });
+  }
+
+  Future<bool> verifyPhone(phone) async {
+    bool contains = false;
+    phone = '+91' + phone;
+    await database
+        .collection('users')
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((doc) {
+        if (phone == doc.data['mobile_no']) {
+          contains = true;
+        }
+      });
+    });
+    return !contains;
+  }
+
   void verifyUser(String email, String phone) {
-    Firestore.instance.runTransaction((transaction) async {
+    database.runTransaction((transaction) async {
       final DocumentReference doc =
-          Firestore.instance.collection('users').document(email);
+          database.collection('users').document(email);
       await transaction.update(doc, {'mobile_no': phone, 'verified': true});
     });
   }

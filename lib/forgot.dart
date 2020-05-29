@@ -1,7 +1,6 @@
 import 'package:chaloapp/login.dart';
 import 'package:chaloapp/services/AuthService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:chaloapp/global_colors.dart';
@@ -154,9 +153,7 @@ class _ForgotPageState extends State<ForgotPage> {
                                       context: context,
                                       child: Center(
                                           child: CircularProgressIndicator()));
-                                  AuthService _auth = new AuthService(
-                                      auth: FirebaseAuth.instance);
-                                  await _auth
+                                  await AuthService()
                                       .resetPassword(_emailController.text)
                                       .then((result) {
                                     if (result['success']) {
