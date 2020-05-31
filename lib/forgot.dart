@@ -149,18 +149,18 @@ class _ForgotPageState extends State<ForgotPage> {
                                   borderRadius: BorderRadius.circular(50.0)),
                               onPressed: () async {
                                 if (_formKey.currentState.validate()) {
-                                  showDialogBox().show_Dialog(
+                                  showDialog(
                                       context: context,
-                                      child: Center(
+                                      builder: (ctx) => Center(
                                           child: CircularProgressIndicator()));
                                   await AuthService()
                                       .resetPassword(_emailController.text)
                                       .then((result) {
                                     if (result['success']) {
-                                      Navigator.pop(context);
-                                      showDialogBox().show_Dialog(
-                                          context: context,
-                                          child: DialogBox(
+                                      Navigator.of(context,rootNavigator: true).pop();
+                                      showDialog(
+                                      context: context,
+                                      builder: (ctx) => DialogBox(
                                               title: "Password reset",
                                               description:
                                                   "We have sent an email to your regirestered email address regarding the instruction to reset your password",
@@ -178,9 +178,9 @@ class _ForgotPageState extends State<ForgotPage> {
                                               }));
                                     } else {
                                       Navigator.pop(context);
-                                      showDialogBox().show_Dialog(
-                                          context: context,
-                                          child: DialogBox(
+                                      showDialog(
+                                      context: context,
+                                      builder: (ctx) => DialogBox(
                                               title: "User not Found !",
                                               description: result['msg'],
                                               buttonText1: "Ok",

@@ -1,4 +1,5 @@
-import 'package:chaloapp/services/Hashing.dart';
+import 'CloudMessaging.dart';
+import 'Hashing.dart';
 import '../data/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -45,11 +46,12 @@ class DataService {
 
   Future createPlan(Map details) async {
     try {
+      Map user = await UserData.getUser();
       DocumentReference plandoc =
           await database.collection('plan').add(details);
       DocumentReference groupchatdoc =
           database.collection('group_chat').document(plandoc.documentID);
-      await groupchatdoc.setData({'messages_id': [], 'plan_id': plandoc});
+      await groupchatdoc.setData({'messenger_id': [user['email']], 'plan_id': plandoc});
       DocumentReference locationdoc =
           database.collection('location').document(plandoc.documentID);
       await locationdoc.setData({
@@ -93,12 +95,18 @@ class DataService {
 
   Future<DocumentSnapshot> getUserDoc(String email) async {
     DocumentSnapshot userDoc;
-    await database
-        .collection('users')
-        .getDocuments()
-        .then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((doc) {
-        if (email == doc.data['email']) userDoc = doc;
+    CollectionReference users = database.collection('users');
+    await users.getDocuments().then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((doc) async {
+        if (email == doc.data['email']) {
+          userDoc = doc;
+          String userToken = await CloudMessaging.getToken();
+          if (!doc.data.containsKey('token') || doc.data['token'] != userToken)
+            database.runTransaction((transaction) async {
+              final docRef = users.document(email);
+              transaction.update(docRef, {'token': userToken});
+            });
+        }
       });
     });
     return userDoc;

@@ -20,10 +20,11 @@ class _ViewActivityState extends State<ViewActivity> {
   @override
   void initState() {
     super.initState();
-    ActivityList.getActivityList()
-        .then((list) => setState(() => allactivityList = list));
-    activityNames = List<String>.generate(
-        allactivityList.length, (index) => allactivityList[index][1]);
+    ActivityList.getActivityList().then((list) {
+      setState(() => allactivityList = list);
+      activityNames = List<String>.generate(
+          allactivityList.length, (index) => allactivityList[index][1]);
+    });
   }
 
   @override

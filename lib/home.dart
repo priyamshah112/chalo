@@ -88,6 +88,7 @@ class MainMap extends StatefulWidget {
 
 class _MainMapState extends State<MainMap> {
   String user, email;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   void _getData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -107,16 +108,16 @@ class _MainMapState extends State<MainMap> {
   Widget build(BuildContext context) {
     _getData();
     return Scaffold(
-      floatingActionButton: Builder(
-          builder: (context) => FloatingActionButton(
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Colors.black),
-              onPressed: () async {
-                Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text('user: $user\n email: $email'),
-                  duration: Duration(seconds: 2),
-                ));
-              })),
+      key: _scaffoldKey,
+      floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.white,
+          child: Icon(Icons.person, color: Colors.black),
+          onPressed: () async {
+            _scaffoldKey.currentState.showSnackBar(SnackBar(
+              content: Text('user: $user\n email: $email'),
+              duration: Duration(seconds: 2),
+            ));
+          }),
       body: WillPopScope(
         onWillPop: () => _onWillPop(context),
         child: Stack(

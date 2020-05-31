@@ -138,6 +138,9 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                             !snapshot.hasData)
                           return Center(child: CircularProgressIndicator());
                         List plans = snapshot.data['current_plans'];
+                        if (plans.length == 0)
+                          return Center(
+                              child: Text('No Current Plans to show!'));
                         return ListView.builder(
                             padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
                             itemCount: plans.length,
@@ -145,7 +148,9 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                               return FutureBuilder(
                                   future: plans[index].get(),
                                   builder: (ctx, planSnap) {
-                                    if (!planSnap.hasData) return Container();
+                                    if (!planSnap.hasData)
+                                      return Center(
+                                          child: CircularProgressIndicator());
                                     return Container(
                                       width: MediaQuery.of(context).size.width,
                                       padding:
@@ -220,29 +225,38 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                     .limit(1)
                                                     .snapshots(),
                                                 builder: (ctx, message) {
-                                                  if (!message.hasData || message.hasError)
+                                                  if (!message.hasData ||
+                                                      message.hasError)
                                                     return Container();
-                                                  return message.data.documents.length ==1 ?
-                                                   Row(
-                                                    children: <Widget>[
-                                                      message.data.documents[0][
-                                                                  'sender_name'] ==
-                                                              name
-                                                          ? Text('You:')
-                                                          : Text(message
-                                                                  .data
-                                                                  .documents[0][
-                                                                      'sender_name']
-                                                                  .toString()
-                                                                  .split(
-                                                                      " ")[0] +
-                                                              ':'),
-                                                      SizedBox(width: 5),
-                                                      Text(message
-                                                              .data.documents[0]
-                                                          ['message_content'])
-                                                    ],
-                                                  ):Text('Start Chatting');
+                                                  return message.data.documents
+                                                              .length ==
+                                                          1
+                                                      ? Row(
+                                                          children: <Widget>[
+                                                            message.data.documents[
+                                                                            0][
+                                                                        'sender_name'] ==
+                                                                    name
+                                                                ? Text('You:')
+                                                                : Text(message
+                                                                        .data
+                                                                        .documents[
+                                                                            0][
+                                                                            'sender_name']
+                                                                        .toString()
+                                                                        .split(
+                                                                            " ")[0] +
+                                                                    ':'),
+                                                            SizedBox(width: 5),
+                                                            Text(message
+                                                                .data
+                                                                .documents[0][
+                                                                    'message_content']
+                                                                .toString()
+                                                                .split("\n")[0])
+                                                          ],
+                                                        )
+                                                      : Text('Start Chatting');
                                                 })),
                                       ),
                                     );

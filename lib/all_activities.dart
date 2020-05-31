@@ -189,7 +189,10 @@ class _ActivitiesState extends State<Activities> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: Firestore.instance.collection('plan').snapshots(),
+        stream: Firestore.instance
+            .collection('plan')
+            .where('broadcast_type', isEqualTo: "public")
+            .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData ||
               snapshot.connectionState == ConnectionState.waiting)

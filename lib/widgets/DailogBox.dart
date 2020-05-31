@@ -138,9 +138,3 @@ class _DialogBoxState extends State<DialogBox> {
   }
 }
 
-class showDialogBox {
-  void show_Dialog({Widget child, BuildContext context}) {
-    showDialog(
-        context: context, builder: ((ctx) => child), barrierDismissible: false);
-  }
-}

@@ -65,13 +65,12 @@ class AuthService {
 
   Future<bool> signOut(String type) async {
     try {
-      await UserData().deleteData();
-      if (type == 'email')
-        await auth.signOut();
-      else {
+      if (type != 'email') {
         GoogleSignIn googleAcc = new GoogleSignIn();
         googleAcc.signOut();
       }
+      await UserData().deleteData();
+      await auth.signOut();
       return true;
     } catch (e) {
       print(e.toString());

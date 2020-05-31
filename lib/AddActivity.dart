@@ -123,7 +123,8 @@ class _AddActivityState extends State<AddActivity> {
                                     else {
                                       bool contains = true;
                                       for (var activity in activities) {
-                                        contains= value == activity ? true : false;
+                                        contains =
+                                            value == activity ? true : false;
                                         if (contains) break;
                                       }
                                       return contains
@@ -141,6 +142,7 @@ class _AddActivityState extends State<AddActivity> {
                                         builder: (context) => ViewActivity(),
                                       ),
                                     );
+                                    if (result == null) return;
                                     activityController.text =
                                         result['selected'];
                                     activities = result['activityList'];
@@ -585,21 +587,21 @@ class _AddActivityState extends State<AddActivity> {
                                           child: CircularProgressIndicator()));
                                   await Future.delayed(Duration(seconds: 1));
                                   Navigator.pop(context);
-                                  showDialogBox().show_Dialog(
+                                  showDialog(
                                       context: context,
-                                      child: FadeAnimation(
-                                        1,
-                                        DialogBox(
-                                            title: "Success",
-                                            description:
-                                                "Activity successfully created",
-                                            buttonText1: "Ok",
-                                            button1Func: () {
-                                              Navigator.pop(context);
-                                              Navigator.pop(
-                                                  context, activityDetails);
-                                            }),
-                                      ));
+                                      builder: (ctx) => FadeAnimation(
+                                            1,
+                                            DialogBox(
+                                                title: "Success",
+                                                description:
+                                                    "Activity successfully created",
+                                                buttonText1: "Ok",
+                                                button1Func: () {
+                                                  Navigator.pop(context);
+                                                  Navigator.pop(
+                                                      context, activityDetails);
+                                                }),
+                                          ));
                                 } else
                                   setState(() => _autovalidate = true);
                               },
