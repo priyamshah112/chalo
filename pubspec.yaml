@@ -41,6 +41,8 @@ dependencies:
   mapbox_search_flutter:
   latlong: ^0.6.1
   location: ^2.3.5
+  geolocator: ^5.3.1
+  geocoder: ^0.2.1
 
 
 dev_dependencies:

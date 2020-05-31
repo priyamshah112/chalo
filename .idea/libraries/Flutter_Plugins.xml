@@ -19,6 +19,10 @@
       <root url="file://$USER_HOME$/Developer/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-1.0.8" />
       <root url="file://$USER_HOME$/Developer/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker-0.6.7" />
       <root url="file://$USER_HOME$/Developer/flutter/.pub-cache/hosted/pub.dartlang.org/location-2.5.4" />
+      <root url="file://$USER_HOME$/Developer/flutter/.pub-cache/hosted/pub.dartlang.org/geolocator-5.3.1" />
+      <root url="file://$USER_HOME$/Developer/flutter/.pub-cache/hosted/pub.dartlang.org/location_permissions-2.0.5" />
+      <root url="file://$USER_HOME$/Developer/flutter/.pub-cache/hosted/pub.dartlang.org/google_api_availability-2.0.4" />
+      <root url="file://$USER_HOME$/Developer/flutter/.pub-cache/hosted/pub.dartlang.org/geocoder-0.2.1" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

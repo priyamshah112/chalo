@@ -26,6 +26,7 @@ class _AddActivityState extends State<AddActivity> {
   final _formKey = GlobalKey<FormState>();
   String activityName, note, type = 'Public';
   DateTime startTime = DateTime.now().add(Duration(minutes: 29));
+  TextEditingController abcd = TextEditingController();
   DateTime endTime;
   DateTimePicker start = new DateTimePicker();
   DateTimePicker end = new DateTimePicker();
@@ -232,6 +233,7 @@ class _AddActivityState extends State<AddActivity> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
                                 child: TextField(
+                                  controller: abcd,
                                   keyboardType: TextInputType.text,
                                   autofocus: false,
                                   decoration: InputDecoration(
@@ -250,14 +252,18 @@ class _AddActivityState extends State<AddActivity> {
                                           Radius.circular(10.0),
                                         ),
                                         child: InkWell(
-                                          onTap: () {
-                                            Navigator.push(
+                                          onTap: () async {
+                                            var x = await Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     GetLocation(),
                                               ),
                                             );
+                                            if (x != null) {
+                                              abcd.value =
+                                                  TextEditingValue(text: x);
+                                            }
                                           },
                                           child: Icon(
                                             Icons.location_on,
