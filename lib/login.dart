@@ -2,7 +2,6 @@ import 'package:chaloapp/ProfileSetup.dart';
 import 'package:chaloapp/forgot.dart';
 import 'package:chaloapp/services/AuthService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:flutter/services.dart';
@@ -426,9 +425,8 @@ class _HomePageState extends State<HomePage> {
                                       context: context,
                                       builder: ((ctx) => Center(
                                           child: CircularProgressIndicator())));
-                                  AuthService _auth = new AuthService(
-                                      auth: FirebaseAuth.instance);
-                                  final result = await _auth.googleSignIn();
+                                  final result =
+                                      await AuthService().googleSignIn();
                                   login(result);
                                 },
                                 color: Colors.deepOrangeAccent,
@@ -602,10 +600,8 @@ class _HomePageState extends State<HomePage> {
                                       context: context,
                                       builder: (ctx) => Center(
                                           child: CircularProgressIndicator()));
-                                  AuthService _auth =
-                                      AuthService(auth: FirebaseAuth.instance);
-                                  final result =
-                                      await _auth.signIn(email, password);
+                                  final result = await AuthService()
+                                      .signIn(email, password);
                                   login(result);
                                 } else {
                                   setState(() {

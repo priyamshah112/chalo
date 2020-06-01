@@ -1,7 +1,6 @@
 import 'dart:math';
-
 import 'package:chaloapp/data/User.dart';
-
+import 'package:chaloapp/login.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:chaloapp/widgets/date_time.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,8 +23,8 @@ class AddActivity extends StatefulWidget {
 class _AddActivityState extends State<AddActivity> {
   final _formKey = GlobalKey<FormState>();
   final activityController = TextEditingController();
-  TextEditingController abcd = TextEditingController();
   String activityName, activity, note, type = 'Public';
+  TextEditingController address = TextEditingController();
   List<String> activities;
   DateTime startTime = DateTime.now().add(Duration(minutes: 29));
   DateTime endTime;
@@ -264,7 +263,7 @@ class _AddActivityState extends State<AddActivity> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
                                 child: TextField(
-                                  controller: abcd,
+                                  controller: address,
                                   keyboardType: TextInputType.text,
                                   autofocus: false,
                                   decoration: InputDecoration(
@@ -292,7 +291,7 @@ class _AddActivityState extends State<AddActivity> {
                                               ),
                                             );
                                             if (x != null) {
-                                              abcd.value =
+                                              address.value =
                                                   TextEditingValue(text: x);
                                             }
                                           },

@@ -1,39 +1,38 @@
 import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:chaloapp/services/Hashing.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'DatabaseService.dart';
 
 class AuthService {
-  AuthService({@required this.auth});
-  final FirebaseAuth auth;
-  String _verificationID;
-  CollectionReference userCollection = Firestore.instance.collection('users');
+  static final FirebaseAuth auth = FirebaseAuth.instance;
+  final CollectionReference userCollection =
+      Firestore.instance.collection('users');
+
   Future<Map> googleSignIn() async {
+    final GoogleSignIn googleSignIn = new GoogleSignIn();
+    GoogleSignInAccount googleUser;
+    GoogleSignInAuthentication googleAuth;
+    AuthCredential credential;
     try {
-      GoogleSignIn googleSignIn = new GoogleSignIn();
-      GoogleSignInAccount googleUser = await googleSignIn.signIn();
-      GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.getCredential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      FirebaseUser user = (await auth.signInWithCredential(credential)).user;
-      bool contains = false;
-      DocumentSnapshot userDoc;
-      await this.userCollection.getDocuments().then((QuerySnapshot snapshot) {
-        snapshot.documents.forEach((doc) {
-          if (user.email == doc.data['email']) {
-            userDoc = doc;
-            contains = true;
-          }
-        });
-      });
-      if (contains) {
+      try {
+        googleUser = await googleSignIn.signIn();
+        googleAuth = await googleUser.authentication;
+        credential = GoogleAuthProvider.getCredential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+      } catch (e) {
+        print(e.toString());
+        return {"success": false, 'msg': 'Please select an account'};
+      }
+      FirebaseUser user = await credsSignIn(credential);
+      final userDoc = await DataService().getUserDoc(user.email);
+      if (userDoc != null) {
         await UserData().setData(userDoc.data, 'google');
+        DataService().updateToken(true);
         return {
           "success": true,
           'credentials': credential,
@@ -54,41 +53,44 @@ class AuthService {
     DocumentSnapshot doc;
     print('Signing in...');
     try {
+      
       await auth.signInWithEmailAndPassword(email: email, password: password);
-      doc = await this.userCollection.document(email).get();
+      doc = await DataService().getUserDoc(email);
       await UserData().setData(doc.data, 'email');
+      DataService().updateToken(true);
       return {"success": true, 'email': email, 'password': password};
     } catch (e) {
       print(e.toString());
-      bool flag = false;
-      if (e.code == 'ERROR_WRONG_PASSWORD') {
-        doc = await this.userCollection.document(email).get();
-        String hashedPassword = doc.data['password'];
-        if (hashedPassword == Hashing.encrypt(password)) {
-          flag = true;}
-      }
-      if (flag) {
-        await UserData().setData(doc.data, 'email');
-        return {'success': true, 'email': email, 'password': password};
-      } else
-        return {"success": false, 'msg': "Unregistered Email or Password"};
+      return e.code == 'ERROR_WRONG_PASSWORD'
+          ? {
+              "success": false,
+              'msg': "Please use your social media Login \"Google or Facebook\""
+            }
+          : {"success": false, 'msg': "Unregistered Email or Password"};
     }
   }
 
+  Future<FirebaseUser> credsSignIn(AuthCredential creds) async {
+    FirebaseUser user = (await auth.signInWithCredential(creds)).user;
+    return user;
+  }
+
   Future<bool> signOut(String type) async {
+    DataService().updateToken(false);
     try {
+      if (type != 'email') GoogleSignIn().signOut();
       await UserData().deleteData();
-      if (type == 'email')
-        await auth.signOut();
-      else {
-        GoogleSignIn googleAcc = new GoogleSignIn();
-        googleAcc.signOut();
-      }
+      await auth.signOut();
       return true;
     } catch (e) {
       print(e.toString());
       return false;
     }
+  }
+
+  Future<bool> isUserLoggedIn() async {
+    final user = await auth.currentUser();
+    return user == null ? false : true;
   }
 
   Future<Map> createUser(email, password, name) async {
@@ -125,19 +127,6 @@ class AuthService {
         };
       return {'success': false, 'msg': e.toString()};
     }
-  }
-
-  Future<bool> verifyPhone(phone) async {
-    bool contains = false;
-    phone = '+91' + phone;
-    await this.userCollection.getDocuments().then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((doc) {
-        if (phone == doc.data['mobile_no']) {
-          contains = true;
-        }
-      });
-    });
-    return !contains;
   }
 
   Future<void> deleteUser(FirebaseUser user) async {

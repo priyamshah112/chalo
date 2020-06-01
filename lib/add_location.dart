@@ -18,13 +18,11 @@ class GetLocation extends StatefulWidget {
 class _GetLocationState extends State<GetLocation> {
   String mapSearchValue = null;
   String mapSearchValue1 = null;
-  bool istap = false;
   Position position1;
   TextEditingController locationval = TextEditingController();
   getLocation() async {
     Position position = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    //debugPrint('location: ${position.latitude}');
     final coordinates = new Coordinates(position.latitude, position.longitude);
     var addresses =
         await Geocoder.local.findAddressesFromCoordinates(coordinates);
@@ -35,19 +33,6 @@ class _GetLocationState extends State<GetLocation> {
     });
     print("${first.featureName} : ${first.addressLine}");
   }
-//  void getLocation() async {
-//    Position pos = await Geolocator()
-//        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-//    print(pos);
-//    var addresses = await Geocoder.local
-//        .findAddressesFromCoordinates(Coordinates(pos.latitude, pos.longitude));
-//    var first = addresses.first;
-//    print("${first.featureName} : ${first.addressLine}");
-//    setState(() {
-//      position = pos;
-//      mapSearchValue = pos.latitude.toString();
-//    });
-//  }
 
   @override
   Widget build(BuildContext context) {
@@ -220,16 +205,13 @@ class _GetLocationState extends State<GetLocation> {
                   )
                 : MapBoxPlaceSearchWidget(
                     apiKey: kApiKey,
-//
                     searchHint: 'Search here',
                     limit: 15,
-
                     onSelected: (place) {
                       setState(() {
                         MapBoxPlace temp = place;
                         mapSearchValue1 = temp.placeName;
-                        print("search value val : ${mapSearchValue1}");
-
+                        print("search value  : ${mapSearchValue1}");
                         print("gps val : ${mapSearchValue}");
                       });
                     },

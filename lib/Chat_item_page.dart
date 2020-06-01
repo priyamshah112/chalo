@@ -363,19 +363,17 @@ class _MessageInputState extends State<MessageInput> {
   void _send(BuildContext ctx) async {
     print('sending');
     final user = await UserData.getUser();
-    print(_controller.text);
+    var msg = _controller.text;
+    _controller.clear();
     try {
-      final doc = await widget.chatDoc
-          .collection('chat')
-          .add({
-        'message_content': _controller.text,
+      final doc = await widget.chatDoc.collection('chat').add({
+        'message_content': msg,
         'message_type': 'text',
         'sender_name': user['name'],
         'sender_id': user['email'],
         'timestamp': Timestamp.fromDate(DateTime.now())
       });
       print('sent ${doc.documentID}');
-      _controller.clear();
       setState(() => _empty = true);
     } catch (e) {
       print('error: $e');
