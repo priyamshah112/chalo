@@ -16,7 +16,8 @@ class GetLocation extends StatefulWidget {
 }
 
 class _GetLocationState extends State<GetLocation> {
-  String mapSearchValue;
+  String mapSearchValue = null;
+  String mapSearchValue1 = null;
   bool istap = false;
   Position position1;
   TextEditingController locationval = TextEditingController();
@@ -89,8 +90,9 @@ class _GetLocationState extends State<GetLocation> {
         actions: <Widget>[
           FlatButton(
             onPressed: () {
-              Navigator.pop(context,
-                  mapSearchValue != null ? mapSearchValue : locationval);
+              String temp = mapSearchValue;
+              mapSearchValue = null;
+              Navigator.pop(context, temp != null ? temp : mapSearchValue1);
             },
             child: Text(
               "Done",
@@ -104,6 +106,7 @@ class _GetLocationState extends State<GetLocation> {
           ),
         ],
         elevation: 1.0,
+//        backgroundColor: Color(primary),
       ),
       body: Stack(
         fit: StackFit.expand,
@@ -112,8 +115,42 @@ class _GetLocationState extends State<GetLocation> {
             decoration: BoxDecoration(
               color: Colors.white,
             ),
-            child: Map1(
-              position1: position1,
+            child: FlutterMap(
+              options: new MapOptions(
+                  interactive: true,
+                  center: new LatLng(
+                      position1 == null ? 19.0760 : position1.latitude,
+                      position1 == null ? 72.8777 : position1.longitude),
+                  minZoom: 10.0),
+              layers: [
+                new TileLayerOptions(
+                  urlTemplate:
+                      "https://api.mapbox.com/styles/v1/abdulquadir123/ck9kbtkmm0ngc1ipif8vq6qbv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw",
+                  additionalOptions: {
+                    'accessToken':
+                        'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw',
+                    'id': 'mapbox.mapbox-streets-v8'
+                  },
+                ),
+                new MarkerLayerOptions(
+                  markers: [
+                    new Marker(
+                      width: 80.0,
+                      height: 80.0,
+                      point: new LatLng(
+                          position1 == null ? 19.0760 : position1.latitude,
+                          position1 == null ? 72.8777 : position1.longitude),
+                      builder: (ctx) => new Container(
+                        child: Icon(
+                          Icons.location_on,
+//                          color: Color(secondary),
+                          size: 45.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           Positioned(
@@ -178,41 +215,22 @@ class _GetLocationState extends State<GetLocation> {
                             ],
                           ),
                         ),
-//                          child: TextField(
-//                            style: TextStyle(
-//                              fontSize:
-//                                  MediaQuery.of(context).size.width * 0.04,
-//                            ),
-//                            enabled: false,
-//                            cursorColor: Colors.black,
-//                            decoration: InputDecoration(
-//                              hintText: mapSearchValue,
-//                              suffixIcon: Icon(Icons.delete),
-//                              border: InputBorder.none,
-//                              contentPadding: EdgeInsets.symmetric(
-//                                  horizontal: 0.0, vertical: 14.0),
-//                            ),
-//                          ),
                       ),
                     ),
                   )
                 : MapBoxPlaceSearchWidget(
                     apiKey: kApiKey,
-//              location: Location(
-//                  lat: position1 == null ? 19 : position1.latitude,
-//                  lng: position1 == null ? 19 : position1.longitude),
+//
                     searchHint: 'Search here',
                     limit: 15,
 
-                    onSelected: (place) async {
-                      var addresses = await Geocoder.local
-                          .findAddressesFromQuery(place.matchingPlaceName);
-                      var first = addresses.first;
+                    onSelected: (place) {
                       setState(() {
-                        mapSearchValue = place.matchingPlaceName;
-                        position1 = Position(
-                            latitude: first.coordinates.latitude,
-                            longitude: first.coordinates.longitude);
+                        MapBoxPlace temp = place;
+                        mapSearchValue1 = temp.placeName;
+                        print("search value val : ${mapSearchValue1}");
+
+                        print("gps val : ${mapSearchValue}");
                       });
                     },
                     context: context,
@@ -220,61 +238,6 @@ class _GetLocationState extends State<GetLocation> {
           )
         ],
       ),
-    );
-  }
-}
-
-class Map1 extends StatefulWidget {
-  final Position position1;
-  Map1({this.position1});
-
-  @override
-  _Map1State createState() => _Map1State();
-}
-
-class _Map1State extends State<Map1> {
-  @override
-  Widget build(BuildContext context) {
-    return FlutterMap(
-      options: new MapOptions(
-          interactive: true,
-          center: new LatLng(
-              widget.position1 == null ? 19.0760 : widget.position1.latitude,
-              widget.position1 == null ? 72.8777 : widget.position1.longitude),
-          minZoom: 10.0),
-      layers: [
-        new TileLayerOptions(
-          urlTemplate:
-              "https://api.mapbox.com/styles/v1/abdulquadir123/ck9kbtkmm0ngc1ipif8vq6qbv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw",
-          additionalOptions: {
-            'accessToken':
-                'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw',
-            'id': 'mapbox.mapbox-streets-v8'
-          },
-        ),
-        new MarkerLayerOptions(
-          markers: [
-            new Marker(
-              width: 80.0,
-              height: 80.0,
-              point: new LatLng(
-                  widget.position1 == null
-                      ? 19.0760
-                      : widget.position1.latitude,
-                  widget.position1 == null
-                      ? 72.8777
-                      : widget.position1.longitude),
-              builder: (ctx) => new Container(
-                child: Icon(
-                  Icons.location_on,
-//                          color: Color(secondary),
-                  size: 45.0,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 }
