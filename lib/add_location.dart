@@ -106,7 +106,7 @@ class _GetLocationState extends State<GetLocation> {
           ),
         ],
         elevation: 1.0,
-//        backgroundColor: Color(primary),
+//        backgroundColor: Color(),
       ),
       body: Stack(
         fit: StackFit.expand,

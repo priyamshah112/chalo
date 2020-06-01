@@ -23,13 +23,7 @@ class MainHome extends StatefulWidget {
 
 class _MainHomeState extends State<MainHome> {
   int _currentIndex = 0;
-  List tabs = [
-    MainMap(),
-    AllActivity(),
-    Broadcast(),
-    ProfilePage(),
-    Chats()
-  ];
+  List tabs = [MainMap(), AllActivity(), Broadcast(), Explore(), Chats()];
 
   @override
   Widget build(BuildContext context) {

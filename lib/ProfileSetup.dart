@@ -442,7 +442,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                     })));
                           } catch (e) {
                             print(e);
-                            Navigator.of(context,rootNavigator: true).pop();
+                            Navigator.of(context, rootNavigator: true).pop();
                           }
                         },
                         child: Center(

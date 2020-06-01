@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:chaloapp/edit_profile_page.dart';
+import 'package:chaloapp/following.dart';
 import 'package:chaloapp/home.dart';
 import 'package:chaloapp/post_details.dart';
 import 'package:toast/toast.dart';
@@ -287,7 +288,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   ),
                                                 ),
                                               ),
-                                              onTap: () {},
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Following(),
+                                                  ),
+                                                );
+                                              },
                                               splashColor: Color(background1),
                                             ),
                                             InkWell(
@@ -304,7 +313,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   ),
                                                 ),
                                               ),
-                                              onTap: () {},
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Following(),
+                                                  ),
+                                                );
+                                              },
                                               splashColor: Color(background1),
                                             ),
                                           ],
