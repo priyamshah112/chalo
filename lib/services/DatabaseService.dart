@@ -51,7 +51,10 @@ class DataService {
           await database.collection('plan').add(details);
       DocumentReference groupchatdoc =
           database.collection('group_chat').document(plandoc.documentID);
-      await groupchatdoc.setData({'messenger_id': [user['email']], 'plan_id': plandoc});
+      await groupchatdoc.setData({
+        'messenger_id': {user['email']: await CloudMessaging.getToken()},
+        'plan_id': plandoc
+      });
       DocumentReference locationdoc =
           database.collection('location').document(plandoc.documentID);
       await locationdoc.setData({
@@ -86,7 +89,7 @@ class DataService {
           .collection('user_plans')
           .document(details['admin_id'])
           .updateData({
-        'current_plans': FieldValue.arrayUnion([plandoc])
+        'current_plans': FieldValue.arrayUnion([plandoc.documentID])
       });
     } catch (e) {
       print(e.toString());
@@ -143,5 +146,29 @@ class DataService {
           database.collection('users').document(email);
       await transaction.update(doc, {'mobile_no': phone, 'verified': true});
     });
+  }
+
+  void updateToken(bool update) async {
+    Map user = await UserData.getUser();
+    final email = user['email'];
+    final userplan =
+        await database.collection('user_plans').document(email).get();
+    List plans = userplan.data['current_plans'];
+    if (plans.length == 0) return;
+    final batch = database.batch();
+    String token = await CloudMessaging.getToken();
+    print('updating: $update');
+    for (var i = 0; i < plans.length; i++) {
+      DocumentReference ref =
+          database.collection('group_chat').document(plans[i]);
+      DocumentSnapshot snap = await ref.get();
+      Map tokens = snap.data['messenger_id'];
+      if (update)
+        tokens[email] = token;
+      else
+        tokens[email] = null;
+      batch.updateData(ref, {'messenger_id': tokens});
+    }
+    batch.commit();
   }
 }

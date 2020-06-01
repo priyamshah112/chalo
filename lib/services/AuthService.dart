@@ -2,6 +2,7 @@ import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/services/Hashing.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'DatabaseService.dart';
 
@@ -11,18 +12,27 @@ class AuthService {
       Firestore.instance.collection('users');
 
   Future<Map> googleSignIn() async {
+    final GoogleSignIn googleSignIn = new GoogleSignIn();
+    GoogleSignInAccount googleUser;
+    GoogleSignInAuthentication googleAuth;
+    AuthCredential credential;
     try {
-      GoogleSignIn googleSignIn = new GoogleSignIn();
-      GoogleSignInAccount googleUser = await googleSignIn.signIn();
-      GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.getCredential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+      try {
+        googleUser = await googleSignIn.signIn();
+        googleAuth = await googleUser.authentication;
+        credential = GoogleAuthProvider.getCredential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+      } catch (e) {
+        print(e.toString());
+        return {"success": false, 'msg': 'Please select an account'};
+      }
       FirebaseUser user = await credsSignIn(credential);
       final userDoc = await DataService().getUserDoc(user.email);
       if (userDoc != null) {
         await UserData().setData(userDoc.data, 'google');
+        DataService().updateToken(true);
         return {
           "success": true,
           'credentials': credential,
@@ -43,9 +53,11 @@ class AuthService {
     DocumentSnapshot doc;
     print('Signing in...');
     try {
+      
       await auth.signInWithEmailAndPassword(email: email, password: password);
       doc = await DataService().getUserDoc(email);
       await UserData().setData(doc.data, 'email');
+      DataService().updateToken(true);
       return {"success": true, 'email': email, 'password': password};
     } catch (e) {
       print(e.toString());
@@ -64,11 +76,9 @@ class AuthService {
   }
 
   Future<bool> signOut(String type) async {
+    DataService().updateToken(false);
     try {
-      if (type != 'email') {
-        GoogleSignIn googleAcc = new GoogleSignIn();
-        googleAcc.signOut();
-      }
+      if (type != 'email') GoogleSignIn().signOut();
       await UserData().deleteData();
       await auth.signOut();
       return true;

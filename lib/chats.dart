@@ -26,7 +26,7 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
     super.initState();
     getData();
   }
-
+  
   void getData() async {
     final user = await UserData.getUser();
     setState(() {
@@ -146,7 +146,10 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                             itemCount: plans.length,
                             itemBuilder: (context, index) {
                               return FutureBuilder(
-                                  future: plans[index].get(),
+                                  future: Firestore.instance
+                                      .collection('plan')
+                                      .document(plans[index])
+                                      .get(),
                                   builder: (ctx, planSnap) {
                                     if (!planSnap.hasData)
                                       return Center(
@@ -219,7 +222,7 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                             subtitle: StreamBuilder(
                                                 stream: Firestore.instance
                                                     .collection(
-                                                        'group_chat/${planSnap.data['plan_id']}/chat')
+                                                        'group_chat/${plans[index]}/chat')
                                                     .orderBy('timestamp',
                                                         descending: true)
                                                     .limit(1)
@@ -248,12 +251,21 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                                             " ")[0] +
                                                                     ':'),
                                                             SizedBox(width: 5),
-                                                            Text(message
-                                                                .data
-                                                                .documents[0][
-                                                                    'message_content']
-                                                                .toString()
-                                                                .split("\n")[0])
+                                                            Flexible(
+                                                              child: Text(
+                                                                message
+                                                                    .data
+                                                                    .documents[
+                                                                        0][
+                                                                        'message_content']
+                                                                    .toString()
+                                                                    .split(
+                                                                        "\n")[0],
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              ),
+                                                            )
                                                           ],
                                                         )
                                                       : Text('Start Chatting');

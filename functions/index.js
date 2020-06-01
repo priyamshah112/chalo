@@ -12,24 +12,19 @@ exports.chatNotification = functions.firestore
             }).catch(err => {
                 console.log('Error getting document', err);
             });
-        
-        var tokens = [];
-        await Promise.all(emails.map(async (email) => {
-            var token = await db.collection('users').doc(email).get()
-                .then(doc => {
-                    return doc.data().token;
-                });
-            tokens.push(token);
-        }));
 
         try {
-            admin.messaging().sendToDevice(tokens, {
-            notification: {
-                title: 'Message from ' + snapshot.data().sender_name,
-                body: snapshot.data().message_content,
-                clickAction: 'FLUTTER_NOTIFICATION_CLICK'
+            for (const [key, value] of Object.entries(emails)) {
+                if (value !== null) {
+                    admin.messaging().sendToDevice(value, {
+                        notification: {
+                            title: 'Message from ' + snapshot.data().sender_name,
+                            body: snapshot.data().message_content,
+                            clickAction: 'FLUTTER_NOTIFICATION_CLICK'
+                        }
+                    });
+                }
             }
-            });
         } catch (e) {
             console.log('Error:', e);
         }
