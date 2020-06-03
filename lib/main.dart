@@ -1,19 +1,19 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/forgot.dart';
 import 'package:chaloapp/global_colors.dart';
 import 'package:chaloapp/home.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'data/data.dart';
 import 'package:chaloapp/login.dart';
+import 'services/AuthService.dart';
 
 void main() => runApp(
       MaterialApp(
         theme: ThemeData(
-            primaryColor: Color(primary), accentColor: Color(primary)),
+            primaryColor: Color(primary),
+            accentColor: Color(primary),
+            cursorColor: Color(primary)),
         debugShowCheckedModeBanner: false,
         home: SplashScreen(),
       ),
@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
       else {
         final prefs = await SharedPreferences.getInstance();
         bool verified = prefs.getBool('verified');
-        bool loggedIn = prefs.containsKey('email');
+        bool loggedIn = await AuthService().isUserLoggedIn();
         if (verified && loggedIn) {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => MainHome()));

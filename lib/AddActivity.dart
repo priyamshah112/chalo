@@ -6,13 +6,12 @@ import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:chaloapp/widgets/date_time.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:chaloapp/global_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gender_selection/gender_selection.dart';
+import 'activitylist.dart';
 import 'data/activity.dart';
 import 'package:intl/intl.dart';
 
@@ -23,7 +22,9 @@ class AddActivity extends StatefulWidget {
 
 class _AddActivityState extends State<AddActivity> {
   final _formKey = GlobalKey<FormState>();
-  String activityName, note, type = 'Public';
+  final activityController = TextEditingController();
+  String activityName, activity, note, type = 'Public';
+  List<String> activities;
   DateTime startTime = DateTime.now().add(Duration(minutes: 29));
   DateTime endTime;
   DateTimePicker start = new DateTimePicker();
@@ -31,7 +32,6 @@ class _AddActivityState extends State<AddActivity> {
   int _peopleCount = 1;
   bool proposeTime = false;
   bool _autovalidate = false;
-  bool _dateSelected = true;
 
   @override
   Widget build(BuildContext context) {
@@ -116,12 +116,42 @@ class _AddActivityState extends State<AddActivity> {
                               Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
-                                child: TextField(
+                                child: TextFormField(
+                                  validator: (value) {
+                                    if (value.isEmpty)
+                                      return 'Please Select an Activity';
+                                    else {
+                                      bool contains = true;
+                                      for (var activity in activities) {
+                                        contains =
+                                            value == activity ? true : false;
+                                        if (contains) break;
+                                      }
+                                      return contains
+                                          ? null
+                                          : 'Make sure to select an activity from the list';
+                                    }
+                                  },
+                                  onSaved: (value) => activity = value,
                                   keyboardType: TextInputType.text,
                                   autofocus: false,
+                                  onTap: () async {
+                                    var result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ViewActivity(),
+                                      ),
+                                    );
+                                    if (result == null) return;
+                                    activityController.text =
+                                        result['selected'];
+                                    activities = result['activityList'];
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  controller: activityController,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: "Search for an Activities",
+                                    hintText: "Select an Activity",
                                     prefixIcon: Icon(
                                       Icons.search,
                                     ),
@@ -137,15 +167,6 @@ class _AddActivityState extends State<AddActivity> {
                                           Radius.circular(30.0),
                                         ),
                                         child: InkWell(
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    ViewActivity(),
-                                              ),
-                                            );
-                                          },
                                           child: Icon(
                                             Icons.format_list_bulleted,
                                             color: Color(primary),
@@ -163,59 +184,69 @@ class _AddActivityState extends State<AddActivity> {
                                   ),
                                 ),
                               ),
-                              Text(
-                                "Your Activities",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Container(
-                                height: 109,
-                                child: ListView(
-                                  scrollDirection: Axis.horizontal,
-                                  children: <Widget>[
-                                    for (int i = 0;
-                                        i < AllselectedActivityList.length;
-                                        i++)
-                                      Padding(
-                                        padding: EdgeInsets.all(2.0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              border: Border.all(
-                                                color: Color(primary),
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(6)),
-                                          width: 110,
-                                          child: ListTile(
-                                            title: Image.asset(
-                                              AllselectedActivityList[i][0],
-                                              width: 60,
-                                              height: 60,
-                                            ),
-                                            subtitle: Container(
-                                              padding: EdgeInsets.only(top: 7),
-                                              child: Text(
-                                                AllselectedActivityList[i][1],
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Color(secondary),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
+                              // Text(
+                              //   "Your Activities",
+                              //   style: TextStyle(
+                              //     fontSize: 15,
+                              //     color: Color(primary),
+                              //     fontWeight: FontWeight.w600,
+                              //   ),
+                              // ),
+                              // SizedBox(
+                              //   height: 10,
+                              // ),
+                              // Container(
+                              //   height: 109,
+                              //   child: AllselectedActivityList == null
+                              //       ? Center(child: CircularProgressIndicator())
+                              //       : ListView(
+                              //           scrollDirection: Axis.horizontal,
+                              //           children: <Widget>[
+                              //             for (int i = 0;
+                              //                 i <
+                              //                     AllselectedActivityList
+                              //                         .length;
+                              //                 i++)
+                              //               Padding(
+                              //                 padding: EdgeInsets.all(2.0),
+                              //                 child: Container(
+                              //                   decoration: BoxDecoration(
+                              //                       border: Border.all(
+                              //                         color: Color(primary),
+                              //                       ),
+                              //                       borderRadius:
+                              //                           BorderRadius.circular(
+                              //                               6)),
+                              //                   width: 110,
+                              //                   child: ListTile(
+                              //                     title: Image.network(
+                              //                       AllselectedActivityList[i]
+                              //                           [0],
+                              //                       width: 60,
+                              //                       height: 60,
+                              //                     ),
+                              //                     subtitle: Container(
+                              //                       padding:
+                              //                           EdgeInsets.only(top: 7),
+                              //                       child: Text(
+                              //                         AllselectedActivityList[i]
+                              //                             [1],
+                              //                         textAlign:
+                              //                             TextAlign.center,
+                              //                         style: TextStyle(
+                              //                           fontSize: 13,
+                              //                           fontWeight:
+                              //                               FontWeight.bold,
+                              //                           color: Color(secondary),
+                              //                         ),
+                              //                       ),
+                              //                     ),
+                              //                   ),
+                              //                 ),
+                              //               ),
+                              //           ],
+                              //         ),
+                              // ),
                               SizedBox(
                                 height: 10,
                               ),
@@ -278,60 +309,6 @@ class _AddActivityState extends State<AddActivity> {
                                   ),
                                 ),
                               ),
-                              // Text(
-                              //   "Date",
-                              //   style: TextStyle(
-                              //     fontSize: 15,
-                              //     color: Color(primary),
-                              //     fontWeight: FontWeight.w600,
-                              //   ),
-                              // ),
-                              // Container(
-                              //   padding: EdgeInsets.symmetric(
-                              //       horizontal: 1.0, vertical: 10.0),
-                              //   child: DateTimeField(
-                              //     format: DateFormat('d/MM/y'),
-                              //     onShowPicker: (context, _) => DateTimePicker()
-                              //         .presentDatePicker(
-                              //             context,
-                              //             DateTime.now(),
-                              //             DateTime.now()
-                              //                 .add(Duration(days: 60))),
-                              //     validator: (value) {
-                              //       if (value == null) return "Select Date";
-                              //       return null;
-                              //     },
-                              //     onSaved: (value) {
-                              //       if (value != null)
-                              //         pickedDate = value;
-                              //       else
-                              //         setState(() => _dateSelected = false);
-                              //     },
-                              //     keyboardType: TextInputType.datetime,
-                              //     decoration: InputDecoration(
-                              //       errorText:
-                              //           !_dateSelected ? "Select date" : null,
-                              //       filled: true,
-                              //       fillColor: Color(form1),
-                              //       contentPadding: const EdgeInsets.only(
-                              //           left: 30.0,
-                              //           bottom: 18.0,
-                              //           top: 18.0,
-                              //           right: 30.0),
-                              //       border: InputBorder.none,
-                              //       prefixIcon: Icon(
-                              //         FontAwesomeIcons.calendar,
-                              //         color: Color(primary),
-                              //         size: 18,
-                              //       ),
-                              //       hintText: "DD/MM/YYYY",
-                              //       hintStyle: TextStyle(
-                              //         color: Color(formHint),
-                              //       ),
-                              //     ),
-                              //     autofocus: false,
-                              //   ),
-                              // ),
                               Text(
                                 "Date & Time",
                                 style: TextStyle(
@@ -580,9 +557,7 @@ class _AddActivityState extends State<AddActivity> {
                                   final user = await UserData.getUser();
                                   Map<String, dynamic> activityDetails = {
                                     'activity_name': activityName,
-                                    'activity_type': Firestore.instance
-                                        .collection('chalo_activity')
-                                        .document('1igNa5rFLAEv2tda0Mfa'),
+                                    'activity_type': activity,
                                     'admin_id': user['email'],
                                     'admin_name': user['name'],
                                     'participants_id': [user['email']],
@@ -612,21 +587,21 @@ class _AddActivityState extends State<AddActivity> {
                                           child: CircularProgressIndicator()));
                                   await Future.delayed(Duration(seconds: 1));
                                   Navigator.pop(context);
-                                  showDialogBox().show_Dialog(
+                                  showDialog(
                                       context: context,
-                                      child: FadeAnimation(
-                                        1,
-                                        DialogBox(
-                                            title: "Success",
-                                            description:
-                                                "Activity successfully created",
-                                            buttonText1: "Ok",
-                                            button1Func: () {
-                                              Navigator.pop(context);
-                                              Navigator.pop(
-                                                  context, activityDetails);
-                                            }),
-                                      ));
+                                      builder: (ctx) => FadeAnimation(
+                                            1,
+                                            DialogBox(
+                                                title: "Success",
+                                                description:
+                                                    "Activity successfully created",
+                                                buttonText1: "Ok",
+                                                button1Func: () {
+                                                  Navigator.pop(context);
+                                                  Navigator.pop(
+                                                      context, activityDetails);
+                                                }),
+                                          ));
                                 } else
                                   setState(() => _autovalidate = true);
                               },

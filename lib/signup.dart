@@ -404,9 +404,9 @@ class _SignUpState extends State<SignUp> {
                                   if (gender == null) {
                                     _validateGender(context);
                                   } else {
-                                    showDialogBox().show_Dialog(
+                                    showDialog(
                                         context: context,
-                                        child: DialogBox(
+                                        builder: (ctx) => DialogBox(
                                             title: "Are you Sure ?",
                                             description:
                                                 "Make sure all your entered details are correct",
@@ -472,9 +472,8 @@ class _SignUpState extends State<SignUp> {
     showDialog(
         builder: (ctx) => Center(child: CircularProgressIndicator()),
         context: context);
-    AuthService _auth = AuthService(auth: FirebaseAuth.instance);
-    Map result = await _auth.createUser(
-        user.email, user.password, (user.fname + " " + user.lname));
+    Map result = await AuthService()
+        .createUser(user.email, user.password, (user.fname + " " + user.lname));
     if (result['success']) {
       user.setUid(result['uid']);
       await DataService().createUser(user);
@@ -558,7 +557,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   Future<bool> onBack() async {
     final user = await FirebaseAuth.instance.currentUser();
     if (user != null) {
-      AuthService _auth = AuthService(auth: FirebaseAuth.instance);
+      final _auth = AuthService();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await _auth.signOut(prefs.getString('type'));
     }
@@ -748,10 +747,8 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                                         builder: (ctx) => Center(
                                             child: CircularProgressIndicator()),
                                         context: context);
-                                    AuthService _auth = AuthService(
-                                        auth: FirebaseAuth.instance);
                                     bool result =
-                                        await _auth.verifyPhone(_phone);
+                                        await DataService().verifyPhone(_phone);
                                     if (result) {
                                       _codeSent
                                           ? await signInwithOTP(_verificaionId,
@@ -895,15 +892,15 @@ class _PhoneVerificationState extends State<PhoneVerification> {
         phoneNumber: phone,
         timeout: Duration(seconds: 60),
         verificationCompleted: (AuthCredential creds) async {
-          FirebaseUser user = (await auth.signInWithCredential(creds)).user;
+          FirebaseUser user = await AuthService().credsSignIn(creds);
           DataService().verifyUser(email, phone);
-          AuthService(auth: FirebaseAuth.instance).deleteUser(user);
-          Navigator.of(context, rootNavigator: true).pop();
+          AuthService().deleteUser(user);
+          if (isLoading) Navigator.of(context, rootNavigator: true).pop();
           showSuccess(context, email, widget.password, widget.creds);
         },
         verificationFailed: (AuthException e) {
           print(e.code + "\n" + e.message);
-          Navigator.of(context, rootNavigator: true).pop();
+          if(isLoading) Navigator.of(context, rootNavigator: true).pop();
           showFail(context);
         },
         codeSent: (verID, [int forceResend]) async {
@@ -921,17 +918,18 @@ class _PhoneVerificationState extends State<PhoneVerification> {
         codeAutoRetrievalTimeout: (verID) => {});
   }
 
+  bool isLoading = false;
   Future<void> signInwithOTP(verID, smsCode, phone, email) async {
     showDialog(
         context: context,
         builder: (ctx) => Center(child: CircularProgressIndicator()));
+    isLoading = true;
     AuthCredential creds = PhoneAuthProvider.getCredential(
         verificationId: verID, smsCode: smsCode);
     try {
-      FirebaseUser user =
-          (await FirebaseAuth.instance.signInWithCredential(creds)).user;
+      FirebaseUser user = await AuthService().credsSignIn(creds);
       DataService().verifyUser(email, phone);
-      AuthService(auth: FirebaseAuth.instance).deleteUser(user);
+      AuthService().deleteUser(user);
       Navigator.of(context, rootNavigator: true).pop();
       showSuccess(context, email, widget.password, widget.creds);
     } catch (e) {
@@ -940,46 +938,48 @@ class _PhoneVerificationState extends State<PhoneVerification> {
       showFail(context);
     }
   }
+
+  void showSuccess(BuildContext context, String email, String password,
+      AuthCredential creds) async {
+    showDialog(
+        builder: (ctx) => DialogBox(
+            title: "Verification",
+            description: "Phone Verification Successful",
+            icon: Icons.check,
+            iconColor: Colors.teal,
+            buttonText1: "",
+            button1Func: () {}),
+        context: context);
+    await Future.delayed(Duration(seconds: 2));
+    Navigator.of(context, rootNavigator: true).pop();
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (contex) =>
+                ProfileSetup(email: email, password: password, creds: creds)));
+  }
+
+  void showFail(BuildContext context) {
+    showDialog(
+        builder: (ctx) => DialogBox(
+            title: "Verification",
+            description: "Phone Verification Failed",
+            icon: Icons.clear,
+            iconColor: Colors.red,
+            buttonText1: "OK",
+            button1Func: () =>
+                Navigator.of(context, rootNavigator: true).pop()),
+        context: context);
+  }
 }
 
-String _validateEmail(String value) {
-  Pattern pattern =
-      r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-  RegExp regex = new RegExp(pattern);
-  if (!regex.hasMatch(value))
-    return 'Enter Valid Email';
-  else
-    return null;
-}
 
-void showSuccess(BuildContext context, String email, String password,
-    AuthCredential creds) async {
-  showDialog(
-      builder: (ctx) => DialogBox(
-          title: "Verification",
-          description: "Phone Verification Successful",
-          icon: Icons.check,
-          iconColor: Colors.teal,
-          buttonText1: "",
-          button1Func: () {}),
-      context: context);
-  await Future.delayed(Duration(seconds: 2));
-  Navigator.of(context, rootNavigator: true).pop();
-  Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-          builder: (contex) =>
-              ProfileSetup(email: email, password: password, creds: creds)));
-}
-
-void showFail(BuildContext context) {
-  showDialog(
-      builder: (ctx) => DialogBox(
-          title: "Verification",
-          description: "Phone Verification Failed",
-          icon: Icons.clear,
-          iconColor: Colors.red,
-          buttonText1: "OK",
-          button1Func: () => Navigator.of(context, rootNavigator: true).pop()),
-      context: context);
-}
+  String _validateEmail(String value) {
+    Pattern pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value))
+      return 'Enter Valid Email';
+    else
+      return null;
+  }

@@ -3,18 +3,13 @@ import 'dart:io';
 import 'package:chaloapp/home.dart';
 import 'package:chaloapp/services/AuthService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'services/DatabaseService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'data/User.dart';
-import 'data/data.dart';
-import 'package:chaloapp/login.dart';
 import 'package:chaloapp/global_colors.dart';
-import 'package:chaloapp/data/activity.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
+import 'activitylist.dart';
 
 class ProfileSetup extends StatefulWidget {
   final String email, password;
@@ -31,24 +26,9 @@ class _ProfileSetupState extends State<ProfileSetup> {
   @override
   void initState() {
     super.initState();
-    activityList = [
-      ['images/activities/Beach.png', 'Beach', 'false'],
-      ['images/activities/BirdWatching.png', 'Bird Watching', 'false'],
-      ['images/activities/Canoeing.png', 'Caneoing', 'false'],
-      ['images/activities/Hiking.png', 'Hiking', 'false'],
-      ['images/activities/BeachBBQ.png', 'Beach BBQ', 'false'],
-      ['images/activities/Camping.png', 'Camping', 'false'],
-      ['images/activities/Cycling.png', 'Cycling', 'false'],
-      ['images/activities/DogWalking.png', 'Dog Walking', 'false'],
-      ['images/activities/Fishing.png', 'Fishing', 'false'],
-      ['images/activities/Gardening.png', 'Gardening', 'false'],
-      ['images/activities/Gym.png', 'Gym', 'false'],
-      ['images/activities/MountainBiking.png', 'Mountain Biking', 'false'],
-      ['images/activities/Picnic.png', 'Picnic', 'false'],
-      ['images/activities/Kayaking.png', 'Kayaking', 'false'],
-      ['images/activities/Museum.png', 'Museum', 'false'],
-    ];
     selectedActivityList = [];
+    ActivityList.getActivityList()
+        .then((list) => setState(() => activityList = list));
   }
 
   File _image;
@@ -239,11 +219,12 @@ class _ProfileSetupState extends State<ProfileSetup> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          await Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => allActivity()));
+                          setState(() {});
                         },
                         child: Text(
                           "View all",
@@ -259,145 +240,166 @@ class _ProfileSetupState extends State<ProfileSetup> {
                   SizedBox(
                     height: 10,
                   ),
-                  Container(
-                    height: 107,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: <Widget>[
-                        for (int i = 0; i < activityList.length; i++)
-                          Padding(
-                            padding: EdgeInsets.all(2.0),
-                            child: InkWell(
-                              onTap: () {
-                                activityList[i][2] = 'true';
-                                for (int j = 0;
-                                    j < selectedActivityList.length;
-                                    j++) {
-                                  if (activityList[i][0] ==
-                                          selectedActivityList[j][0] &&
-                                      activityList[i][1] ==
-                                          selectedActivityList[j][1]) {
-                                    activityList[i][2] = 'false';
-                                    break;
-                                  }
-                                }
-                                print(activityList[i][2]);
-                                if (activityList[i][2] == 'true')
-                                  setState(() {
-                                    selectedActivityList.add([
-                                      activityList[i][0],
-                                      activityList[i][1],
-                                    ]);
-                                  });
-                                else
-                                  for (int j = 0;
-                                      j < selectedActivityList.length;
-                                      j++) {
-                                    if (activityList[i][0] ==
-                                            selectedActivityList[j][0] &&
-                                        activityList[i][1] ==
-                                            selectedActivityList[j][1]) {
-                                      selectedActivityList.removeAt(j);
-                                      break;
-                                    }
-                                  }
-                                setState(() {});
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Color(primary),
-                                    ),
-                                    borderRadius: BorderRadius.circular(6)),
-                                width: 110,
-                                child: Stack(
-                                  children: <Widget>[
-                                    activityList[i][2] == 'true'
-                                        ? Container(
-                                            color: Colors.redAccent.shade100)
-                                        : Text(''),
-                                    ListTile(
-                                      title: Image.asset(
-                                        activityList[i][0],
-                                        width: 60,
-                                        height: 60,
-                                      ),
-                                      subtitle: Container(
-                                        padding: EdgeInsets.only(top: 7),
-                                        child: Text(
-                                          activityList[i][1],
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(secondary),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
-                    child: Text(
-                      selectedActivityList.length != 0 ? "Your Activities" : "",
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Color(secondary),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  selectedActivityList.length != 0
-                      ? Container(
-                          margin: EdgeInsets.only(bottom: 20),
+                  activityList == null
+                      ? Center(child: CircularProgressIndicator())
+                      : Container(
                           height: 107,
                           child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            children: <Widget>[
-                              for (int i = 0;
-                                  i < selectedActivityList.length;
-                                  i++)
-                                Padding(
-                                  padding: EdgeInsets.all(2.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: Color(primary),
-                                        ),
-                                        borderRadius: BorderRadius.circular(6)),
-                                    width: 110,
-                                    child: ListTile(
-                                      title: Image.asset(
-                                        selectedActivityList[i][0],
-                                        width: 60,
-                                        height: 60,
-                                      ),
-                                      subtitle: Container(
-                                        padding: EdgeInsets.only(top: 7),
-                                        child: Text(
-                                          selectedActivityList[i][1],
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(secondary),
+                              scrollDirection: Axis.horizontal,
+                              children: activityList
+                                  .map((activity) => Padding(
+                                        padding: EdgeInsets.all(2.0),
+                                        child: InkWell(
+                                          onTap: () {
+                                            activity[2] = 'true';
+                                            for (var selected
+                                                in selectedActivityList) {
+                                              if (activity[0] == selected[0] &&
+                                                  activity[1] == selected[1]) {
+                                                activity[2] = 'false';
+                                                break;
+                                              }
+                                            }
+                                            if (activity[2] == 'true')
+                                              setState(() {
+                                                selectedActivityList.add([
+                                                  activity[0],
+                                                  activity[1],
+                                                ]);
+                                              });
+                                            else
+                                              for (var selected
+                                                  in selectedActivityList) {
+                                                if (activity[0] ==
+                                                        selected[0] &&
+                                                    activity[1] ==
+                                                        selected[1]) {
+                                                  setState(() =>
+                                                      selectedActivityList.removeAt(
+                                                          selectedActivityList
+                                                              .indexOf(
+                                                                  selected)));
+                                                  break;
+                                                }
+                                              }
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: Color(primary),
+                                                ),
+                                                color: activity[2] == 'true'
+                                                    ? Colors.redAccent.shade100
+                                                    : null,
+                                                borderRadius:
+                                                    BorderRadius.circular(6)),
+                                            width: 110,
+                                            child: Card(
+                                              elevation: 5,
+                                              shadowColor: Colors.white,
+                                              color: activity[2] == 'true'
+                                                  ? Colors.redAccent.shade100
+                                                  : null,
+                                              child: Column(
+                                                children: <Widget>[
+                                                  Image.network(
+                                                    activity[0],
+                                                    width: 60,
+                                                    height: 60,
+                                                  ),
+                                                  SizedBox(height: 7),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: <Widget>[
+                                                      FittedBox(
+                                                        child: Text(
+                                                          activity[1],
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Color(
+                                                                secondary),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                      ))
+                                  .toList()),
+                        ),
+                  if (selectedActivityList.length != 0)
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        "Your Activities",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Color(secondary),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  if (selectedActivityList.length != 0)
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      height: 107,
+                      child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: selectedActivityList
+                              .map((selected) => Padding(
+                                    padding: EdgeInsets.all(2.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Color(primary),
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(6)),
+                                      width: 110,
+                                      child: Card(
+                                          child: Column(
+                                        children: <Widget>[
+                                          Image.network(
+                                            selected[0],
+                                            width: 60,
+                                            height: 60,
+                                          ),
+                                          SizedBox(
+                                            height: 7,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              FittedBox(
+                                                child: Text(
+                                                  selected[1],
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Color(secondary),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      )),
                                     ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        )
-                      : Container(),
+                                  ))
+                              .toList()),
+                    ),
                   SizedBox(
                     height: 30,
                   ),
@@ -412,44 +414,56 @@ class _ProfileSetupState extends State<ProfileSetup> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50.0)),
                         onPressed: () async {
-                          try {
-                            showDialog(
-                                builder: (ctx) =>
-                                    Center(child: CircularProgressIndicator()),
-                                context: context);
-                            final _auth =
-                                AuthService(auth: FirebaseAuth.instance);
-                            widget.creds != null
-                                ? FirebaseAuth.instance
-                                    .signInWithCredential(widget.creds)
-                                : _auth.signIn(widget.email, widget.password);
-                            await Future.delayed(Duration(seconds: 2));
-                            Navigator.of(context, rootNavigator: true).pop();
+                          if (selectedActivityList.length == 0) {
                             showDialog(
                                 context: context,
-                                builder: ((ctx) => DialogBox(
-                                    title: "Done !",
-                                    description:
-                                        "You've Successfully Signed Up",
+                                builder: (ctx) => DialogBox(
+                                    title: "Activities",
+                                    description: "Atleast Select one activity",
                                     buttonText1: "Ok",
-                                    button1Func: () {
-                                      Navigator.of(context, rootNavigator: true)
-                                          .pop();
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: ((ctx) => MainHome())));
-                                    })));
-                          } catch (e) {
-                            print(e);
-                            Navigator.of(context,rootNavigator: true).pop();
+                                    button1Func: () => Navigator.of(context,
+                                            rootNavigator: true)
+                                        .pop()));
+                          } else {
+                            DataService().userActivities(
+                                widget.email, selectedActivityList);
+                            try {
+                              showDialog(
+                                  builder: (ctx) => Center(
+                                      child: CircularProgressIndicator()),
+                                  context: context);
+                              widget.creds != null
+                                  ? AuthService().credsSignIn(widget.creds)
+                                  : AuthService()
+                                      .signIn(widget.email, widget.password);
+                              await Future.delayed(Duration(seconds: 2));
+                              Navigator.of(context, rootNavigator: true).pop();
+                              showDialog(
+                                  context: context,
+                                  builder: ((ctx) => DialogBox(
+                                      title: "Done !",
+                                      description:
+                                          "You've Successfully Signed Up",
+                                      buttonText1: "Ok",
+                                      button1Func: () {
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop();
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: ((ctx) =>
+                                                    MainHome())));
+                                      })));
+                            } catch (e) {
+                              print(e);
+                              Navigator.of(context, rootNavigator: true).pop();
+                            }
                           }
                         },
                         child: Center(
                           child: Text(
-                            selectedActivityList.length == 0
-                                ? "Skip & Finish"
-                                : "Finish",
+                            "Finish",
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
@@ -535,7 +549,7 @@ class _allActivityState extends State<allActivity> {
           ),
         ),
         elevation: 0.0,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.white54,
       ),
       body: SafeArea(
         child: Container(
@@ -546,69 +560,68 @@ class _allActivityState extends State<allActivity> {
             mainAxisSpacing: 3,
             crossAxisCount: 3,
             children: <Widget>[
-              for (int i = 0; i < activityList.length; i++)
+              for (var activity in activityList)
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 2, vertical: 3),
                   child: InkWell(
                     onTap: () {
-                      activityList[i][2] = 'true';
-                      for (int j = 0; j < selectedActivityList.length; j++) {
-                        if (activityList[i][0] == selectedActivityList[j][0] &&
-                            activityList[i][1] == selectedActivityList[j][1]) {
-                          activityList[i][2] = 'false';
+                      activity[2] = 'true';
+                      for (var selected in selectedActivityList) {
+                        if (activity[0] == selected[0] &&
+                            activity[1] == selected[1]) {
+                          activity[2] = 'false';
                           break;
                         }
                       }
-                      print(activityList[i][2]);
-                      if (activityList[i][2] == 'true')
-                        setState(() {
-                          selectedActivityList.add([
-                            activityList[i][0],
-                            activityList[i][1],
-                          ]);
-                        });
+                      if (activity[2] == 'true')
+                        setState(() => selectedActivityList.add([
+                              activity[0],
+                              activity[1],
+                            ]));
                       else
-                        for (int j = 0; j < selectedActivityList.length; j++) {
-                          if (activityList[i][0] ==
-                                  selectedActivityList[j][0] &&
-                              activityList[i][1] ==
-                                  selectedActivityList[j][1]) {
-                            selectedActivityList.removeAt(j);
+                        for (var selected in selectedActivityList) {
+                          if (activity[0] == selected[0] &&
+                              activity[1] == selected[1]) {
+                            setState(() => selectedActivityList.removeAt(
+                                selectedActivityList.indexOf(selected)));
                             break;
                           }
                         }
-                      setState(() {});
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color(primary),
-                        ),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Stack(
-                        children: <Widget>[
-                          activityList[i][2] == 'true'
-                              ? Container(color: Colors.redAccent.shade100)
-                              : Text(""),
-                          Center(
-                            child: Column(
+                          border: Border.all(
+                            color: Color(primary),
+                          ),
+                          color: activity[2] == 'true'
+                              ? Colors.redAccent.shade100
+                              : null,
+                          borderRadius: BorderRadius.circular(6)),
+                      width: 110,
+                      child: Card(
+                        elevation: 5,
+                        shadowColor: Colors.white,
+                        color: activity[2] == 'true'
+                            ? Colors.redAccent.shade100
+                            : null,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Image.network(
+                              activity[0],
+                              width: 60,
+                              height: 60,
+                            ),
+                            SizedBox(height: 7),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                SizedBox(height: 10),
-                                Image.asset(
-                                  activityList[i][0],
-                                  width: 60,
-                                  height: 60,
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
                                 FittedBox(
                                   child: Text(
-                                    activityList[i][1],
+                                    activity[1],
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.bold,
                                       color: Color(secondary),
                                     ),
@@ -616,8 +629,8 @@ class _allActivityState extends State<allActivity> {
                                 ),
                               ],
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

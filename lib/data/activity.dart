@@ -1,50 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:chaloapp/ProfileSetup.dart';
 import 'package:chaloapp/home.dart';
 import 'package:flutter/material.dart';
 import 'package:chaloapp/login.dart';
 import 'package:chaloapp/global_colors.dart';
-import 'package:chaloapp/data/activity.dart';
+import '../activitylist.dart';
 
-List<List<String>> AllactivityList = [
-  ['images/activities/Beach.png', 'Beach'],
-  ['images/activities/BirdWatching.png', 'Bird Watching'],
-  ['images/activities/Canoeing.png', 'Caneoing'],
-  ['images/activities/Hiking.png', 'Hiking'],
-  ['images/activities/BeachBBQ.png', 'Beach BBQ'],
-  ['images/activities/Camping.png', 'Camping'],
-  ['images/activities/Cycling.png', 'Cycling'],
-  ['images/activities/DogWalking.png', 'Dog Walking'],
-  ['images/activities/Fishing.png', 'Fishing'],
-  ['images/activities/Gardening.png', 'Gardening'],
-  ['images/activities/Gym.png', 'Gym'],
-  ['images/activities/MountainBiking.png', 'Mountain Biking'],
-  ['images/activities/Picnic.png', 'Picnic'],
-  ['images/activities/Kayaking.png', 'Kayaking'],
-  ['images/activities/Museum.png', 'Museum'],
-  ['images/activities/Beach.png', 'Beach'],
-  ['images/activities/BirdWatching.png', 'Bird Watching'],
-  ['images/activities/Canoeing.png', 'Caneoing'],
-  ['images/activities/Hiking.png', 'Hiking'],
-  ['images/activities/BeachBBQ.png', 'Beach BBQ'],
-  ['images/activities/Camping.png', 'Camping'],
-  ['images/activities/Cycling.png', 'Cycling'],
-  ['images/activities/DogWalking.png', 'Dog Walking'],
-  ['images/activities/Fishing.png', 'Fishing'],
-  ['images/activities/Gardening.png', 'Gardening'],
-  ['images/activities/Gym.png', 'Gym'],
-  ['images/activities/MountainBiking.png', 'Mountain Biking'],
-  ['images/activities/Picnic.png', 'Picnic'],
-  ['images/activities/Kayaking.png', 'Kayaking'],
-  ['images/activities/Museum.png', 'Museum'],
-];
-List<List<String>> AllselectedActivityList = [
-  ['images/activities/BirdWatching.png', 'Bird Watching'],
-  ['images/activities/Canoeing.png', 'Caneoing'],
-  ['images/activities/Hiking.png', 'Hiking'],
-  ['images/activities/Kayaking.png', 'Kayaking'],
-  ['images/activities/Museum.png', 'Museum'],
-];
+List<List<String>> allactivityList;
+List<String> activityNames;
+String selectedActivity;
 
 class ViewActivity extends StatefulWidget {
   @override
@@ -53,12 +18,23 @@ class ViewActivity extends StatefulWidget {
 
 class _ViewActivityState extends State<ViewActivity> {
   @override
+  void initState() {
+    super.initState();
+    ActivityList.getActivityList().then((list) {
+      setState(() => allactivityList = list);
+      activityNames = List<String>.generate(
+          allactivityList.length, (index) => allactivityList[index][1]);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: InkWell(
           onTap: () {
-            Navigator.pop(context);
+            Navigator.pop(context,
+                {'selected': selectedActivity, 'activityList': activityNames});
           },
           child: Icon(
             Icons.arrow_back,
@@ -68,7 +44,10 @@ class _ViewActivityState extends State<ViewActivity> {
         actions: <Widget>[
           FlatButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(context, {
+                'selected': selectedActivity,
+                'activityList': activityNames
+              });
             },
             child: Text(
               "Done",
@@ -85,90 +64,79 @@ class _ViewActivityState extends State<ViewActivity> {
         elevation: 0.0,
         backgroundColor: Colors.white,
       ),
-      body: SafeArea(
-        child: Container(
-          child: GridView.count(
-            primary: false,
-            padding: const EdgeInsets.all(10),
-            crossAxisSpacing: 3,
-            mainAxisSpacing: 3,
-            crossAxisCount: 3,
-            children: <Widget>[
-              for (int i = 0; i < AllactivityList.length; i++)
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 3),
-                  child: InkWell(
-                    onTap: () {
-                      bool contains = false;
-                      for (int j = 0; j < AllselectedActivityList.length; j++) {
-                        if (AllactivityList[i][0] ==
-                                AllselectedActivityList[j][0] &&
-                            AllactivityList[i][1] ==
-                                AllselectedActivityList[j][1]) {
-                          contains = true;
-                          break;
-                        }
-                      }
-                      print(contains);
-                      if (!contains)
-                        setState(() {
-                          AllselectedActivityList.add([
-                            AllactivityList[i][0],
-                            AllactivityList[i][1],
-                          ]);
-                        });
-                      else
-                        for (int j = 0;
-                            j < AllselectedActivityList.length;
-                            j++) {
-                          if (AllactivityList[i][0] ==
-                                  AllselectedActivityList[j][0] &&
-                              AllactivityList[i][1] ==
-                                  AllselectedActivityList[j][1]) {
-                            AllselectedActivityList.removeAt(j);
-                            break;
-                          }
-                        }
-                      setState(() {});
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color(primary),
-                        ),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 10),
-                        child: Column(
-                          children: <Widget>[
-                            Image.asset(
-                              AllactivityList[i][0],
-                              width: 60,
-                              height: 60,
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text(
-                              AllactivityList[i][1],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(secondary),
+      body: allactivityList == null
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : SafeArea(
+              child: Container(
+                child: GridView.count(
+                    primary: false,
+                    padding: const EdgeInsets.all(10),
+                    crossAxisSpacing: 3,
+                    mainAxisSpacing: 3,
+                    crossAxisCount: 3,
+                    children: allactivityList
+                        .map(
+                          (activity) => Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 2, vertical: 3),
+                            child: InkWell(
+                              onTap: () {
+                                if (activity[2] == 'false') {
+                                  setState(() {
+                                    for (var selected in allactivityList) {
+                                      if (selected[2] == 'true')
+                                        selected[2] = 'false';
+                                    }
+                                    activity[2] = 'true';
+                                  });
+                                  selectedActivity = activity[1];
+                                } else {
+                                  setState(() => activity[2] = 'false');
+                                  selectedActivity = null;
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Color(primary),
+                                    ),
+                                    borderRadius: BorderRadius.circular(6),
+                                    color: activity[2] == 'true'
+                                        ? Color(primary)
+                                        : null),
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Image.network(
+                                        activity[0],
+                                        width: 60,
+                                        height: 60,
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        activity[1],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(secondary),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
+                          ),
+                        )
+                        .toList()),
+              ),
+            ),
     );
   }
 }
