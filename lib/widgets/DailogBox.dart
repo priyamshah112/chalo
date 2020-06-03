@@ -6,27 +6,30 @@ class DialogBox extends StatefulWidget {
   final Function button1Func, button2Func;
   final IconData icon;
   final Color iconColor;
-  const DialogBox(
-      {Key key,
-      @required this.title,
-      @required this.description,
-      @required this.buttonText1,
-      @required this.button1Func,
-      this.buttonText2,
-      this.button2Func,
-      this.icon,
-      this.iconColor})
-      : super(key: key);
+  final Color titleColor;
+  final Color btn1Color;
+  final Color btn2Color;
+  const DialogBox({
+    Key key,
+    @required this.title,
+    @required this.description,
+    @required this.buttonText1,
+    @required this.button1Func,
+    this.buttonText2,
+    this.button2Func,
+    this.icon,
+    this.iconColor,
+    this.titleColor,
+    this.btn1Color,
+    this.btn2Color,
+  }) : super(key: key);
   @override
   _DialogBoxState createState() => _DialogBoxState();
 }
 
 class _DialogBoxState extends State<DialogBox> {
-  
-
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
@@ -36,7 +39,8 @@ class _DialogBoxState extends State<DialogBox> {
               padding: const EdgeInsets.all(20.0),
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.8,
-                padding: EdgeInsets.only(top: widget.icon == null ? 30.0 : 60),
+                padding: EdgeInsets.only(
+                    top: widget.icon == null ? 30.0 : 60, left: 10, right: 10),
                 margin: EdgeInsets.only(top: widget.icon == null ? 0.0 : 60),
                 decoration: new BoxDecoration(
                   color: Colors.white,
@@ -50,7 +54,9 @@ class _DialogBoxState extends State<DialogBox> {
                       widget.title,
                       style: TextStyle(
                         fontSize: 24.0,
+                        color: widget.titleColor,
                         fontWeight: FontWeight.w700,
+                        fontFamily: bodyText,
                       ),
                     ),
                     widget.description != ""
@@ -65,6 +71,7 @@ class _DialogBoxState extends State<DialogBox> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 16.0,
+                                      fontFamily: bodyText,
                                     ),
                                   ))
                             ],
@@ -83,24 +90,27 @@ class _DialogBoxState extends State<DialogBox> {
                                   children: <Widget>[
                                     Expanded(
                                       child: FlatButton(
+                                        splashColor: Color(background1),
                                         onPressed: widget.button1Func,
                                         child: Text(
                                           widget.buttonText1,
                                           style: TextStyle(
-                                              color: widget.buttonText2 == null
-                                                  ? Color(primary)
-                                                  : Colors.red),
+                                            color: widget.buttonText2 == null
+                                                ? Color(primary)
+                                                : widget.btn1Color,
+                                          ),
                                         ),
                                       ),
                                     ),
                                     widget.buttonText2 != null
                                         ? Expanded(
                                             child: FlatButton(
+                                              splashColor: Color(background1),
                                               onPressed: widget.button2Func,
                                               child: Text(
                                                 widget.buttonText2,
                                                 style: TextStyle(
-                                                    color: Colors.green),
+                                                    color: widget.btn2Color),
                                               ),
                                             ),
                                           )
@@ -137,4 +147,3 @@ class _DialogBoxState extends State<DialogBox> {
     );
   }
 }
-

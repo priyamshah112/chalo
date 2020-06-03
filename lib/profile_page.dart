@@ -16,6 +16,8 @@ import 'package:chaloapp/global_colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 
+import 'followers.dart';
+
 class ProfilePage extends StatefulWidget {
   final User user;
   ProfilePage({this.user});
@@ -293,7 +295,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) =>
-                                                        Following(),
+                                                        Follower(),
                                                   ),
                                                 );
                                               },

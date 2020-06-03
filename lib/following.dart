@@ -1,4 +1,5 @@
 import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:like_button/like_button.dart';
@@ -30,8 +31,6 @@ class Following extends StatefulWidget {
 List<List<String>> ExplorepostList;
 
 class _FollowingState extends State<Following> {
-  int likeCount = 9;
-  bool isLikeTap = false;
   bool _search = false;
 
   Widget appbar() {
@@ -100,115 +99,60 @@ class _FollowingState extends State<Following> {
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
-        "Beach BBQ",
-        'images/post/1.png',
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium posuere tellus, ut congue lectus dignissim eu",
-        "30 min ago",
-        "19",
-        "20"
+        "10",
       ],
       [
         "images/bgcover.jpg",
         "Ali Asgar",
-        "Camping",
-        'images/post/2.jpeg',
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium posuere tellus, ut congue lectus dignissim eu",
-        "2 day ago",
-        "25",
-        "40"
-      ],
-      [
-        "images/bgcover.jpg",
-        "Sohail Luhar",
-        "Cycling",
-        'images/post/3.png',
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium posuere tellus, ut congue lectus dignissim eu",
-        '2 PM',
-        "15",
-        "19"
-      ],
-      [
-        "images/bgcover.jpg",
-        "Harsh Gupta",
-        "Fishing",
-        'images/post/4.png',
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium posuere tellus, ut congue lectus dignissim eu",
-        '2 PM',
-        "98",
-        "89"
-      ],
-      [
-        "images/bgcover.jpg",
-        "Mohammad Athania",
-        "Hiking",
-        'images/post/5.png',
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium posuere tellus, ut congue lectus dignissim eu",
-        '2 PM',
-        "34",
-        "54"
-      ],
-      [
-        "images/bgcover.jpg",
-        "Abdul Quadir Ansari",
-        "Long Drive",
-        'images/post/6.png',
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium posuere tellus, ut congue lectus dignissim eu",
-        '2 PM',
-        "64",
-        "44"
+        "3",
       ],
       [
         "images/bgcover.jpg",
         "Sohil Luhar",
-        "Cricket",
-        'images/post/8.png',
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium posuere tellus, ut congue lectus dignissim eu",
-        '2 PM',
-        "19",
-        "20"
+        "8",
       ],
       [
         "images/bgcover.jpg",
-        "Abdul Quadir Ansari",
-        "Running",
-        'images/post/9.png',
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium posuere tellus, ut congue lectus dignissim eu",
-        '2 PM',
+        "Harsh Gupta",
+        "1",
+      ],
+      [
+        "images/bgcover.jpg",
+        "Mohammad Athania",
         "9",
-        "23"
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
-        "Skiing",
-        'images/post/10.jpg',
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium posuere tellus, ut congue lectus dignissim eu",
-        '2 PM',
-        "10",
-        "3"
+        "6",
+      ],
+      [
+        "images/bgcover.jpg",
+        "Sohil Luhar",
+        "4",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
-        "Walking",
-        'images/post/11.jpg',
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium posuere tellus, ut congue lectus dignissim eu",
-        '2 PM',
-        "19",
-        "20"
+        "6",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
-        "City Tour",
-        'images/post/12.jpg',
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium posuere tellus, ut congue lectus dignissim eu",
-        '2 PM',
-        "5",
-        "10"
+        "3",
+      ],
+      [
+        "images/bgcover.jpg",
+        "Abdul Quadir Ansari",
+        "1",
+      ],
+      [
+        "images/bgcover.jpg",
+        "Abdul Quadir Ansari",
+        "1",
       ],
     ];
-    bool isFollowing = true;
+
     return Scaffold(
       appBar: appbar(),
       body: SafeArea(
@@ -238,7 +182,7 @@ class _FollowingState extends State<Following> {
                               Text(
                                 ExplorepostList[i][1],
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.normal,
                                   color: Color(secondary),
                                 ),
                               ),
@@ -253,7 +197,7 @@ class _FollowingState extends State<Following> {
                                     width: 5,
                                   ),
                                   Text(
-                                    ExplorepostList[i][2],
+                                    "${ExplorepostList[i][2]} activties done",
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontFamily: bodyText,
@@ -268,24 +212,22 @@ class _FollowingState extends State<Following> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Container(
-                                width: isFollowing ? 100 : 100,
+                                width: 100,
                                 height: 27,
-                                child: RaisedButton(
+                                child: OutlineButton(
                                   onPressed: () {
-                                    setState(() {
-                                      if (isFollowing) {
-                                        isFollowing = false;
-                                      } else if (isFollowing == false) {
-                                        isFollowing = true;
-                                      }
-                                    });
-                                    print(isFollowing);
+                                    _showDialog(context);
                                   },
+                                  borderSide: BorderSide(
+                                    color: Color(primary), //Color of the border
+                                    style:
+                                        BorderStyle.solid, //Style of the border
+                                    width: 0.9, //width of the border
+                                  ),
                                   color: Color(primary),
-                                  textColor: Colors.white,
-                                  elevation: 0,
+                                  textColor: Color(primary),
                                   child: Text(
-                                    isFollowing ? "Following" : "Requested",
+                                    "Unfollow",
                                     style: TextStyle(
                                       fontFamily: bodyText,
                                     ),
@@ -304,5 +246,29 @@ class _FollowingState extends State<Following> {
         ),
       ),
     );
+  }
+
+  void _showDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (ctx) => DialogBox(
+            title: 'Unfollow',
+            titleColor: Color(primary),
+            description:
+                "Are you sure you want to unfollow Abdul Quadir Ansari.",
+            buttonText1: "Cancel",
+            btn1Color: Color(primary),
+            button1Func: () =>
+                Navigator.of(context, rootNavigator: true).pop(false),
+            buttonText2: "Unfollow",
+            btn2Color: Colors.red,
+            button2Func: () async {
+              Navigator.of(context, rootNavigator: true).pop(true);
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          Following())); // To close the dialog
+            }));
   }
 }

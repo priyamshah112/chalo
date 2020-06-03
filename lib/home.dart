@@ -224,10 +224,12 @@ class _MainMapState extends State<MainMap> {
         builder: (ctx) => DialogBox(
             title: 'Warning',
             description: "Are you sure you want to Sign out ?",
+            btn2Color: Colors.red,
             buttonText1: "No",
             button1Func: () =>
                 Navigator.of(context, rootNavigator: true).pop(false),
             buttonText2: "Yes",
+            btn1Color: Color(primary),
             button2Func: () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
               await AuthService().signOut(prefs.getString('type'));
