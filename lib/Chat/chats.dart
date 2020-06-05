@@ -154,20 +154,22 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                     if (!planSnap.hasData)
                                       return Center(
                                           child: CircularProgressIndicator());
-                                    return Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 15),
-                                      margin: EdgeInsets.symmetric(vertical: 4),
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: Color(primary),
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(6)),
-                                      child: FadeAnimation(
-                                        index - 0.8,
-                                        ListTile(
+                                    return FadeAnimation(
+                                      index - 8.0,
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 0),
+                                        margin:
+                                            EdgeInsets.symmetric(vertical: 4),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Color(primary),
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(6)),
+                                        child: ListTile(
                                             onTap: () => Navigator.push(
                                                   context,
                                                   MaterialPageRoute(

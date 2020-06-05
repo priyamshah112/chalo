@@ -512,7 +512,7 @@ class _AddActivityState extends State<AddActivity> {
                             height: 50,
                             margin: EdgeInsets.symmetric(horizontal: 30),
                             child: FlatButton(
-                              color: Color(secondary),
+                              color: Color(primary),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 30.0, vertical: 10.0),
                               shape: RoundedRectangleBorder(

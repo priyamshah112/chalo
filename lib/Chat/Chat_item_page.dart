@@ -2,10 +2,12 @@ import 'package:chaloapp/data/Send_menu_items.dart';
 import 'package:chaloapp/data/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../Animation/FadeAnimation.dart';
 import '../common/global_colors.dart';
+import 'chat_info.dart';
 
 class ChatItemPage extends StatefulWidget {
   final String planId, chatTitle;
@@ -74,9 +76,15 @@ class _ChatItemPageState extends State<ChatItemPage> {
           ),
           actions: <Widget>[
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => ChatInfo()),
+                );
+              },
               icon: Icon(
-                Icons.menu,
+                Icons.info_outline,
                 color: Colors.white,
               ),
             ),
@@ -146,7 +154,7 @@ class _ChatItemPageState extends State<ChatItemPage> {
                                         );
                                       }),
                                 )),
-                      SizedBox(height: 10),
+//                      SizedBox(height: 10),
                       MessageInput(chatDoc: userSnap.data['group_chatdoc'])
                     ]);
                   });
@@ -303,12 +311,12 @@ class _MessageInputState extends State<MessageInput> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      margin: EdgeInsets.symmetric(horizontal: 10),
+      padding: EdgeInsets.symmetric(vertical: 7, horizontal: 12),
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
       decoration: BoxDecoration(
         color: Color(form1),
         borderRadius: BorderRadius.all(
-          Radius.circular(10),
+          Radius.circular(35),
         ),
       ),
       child: Row(
@@ -351,7 +359,7 @@ class _MessageInputState extends State<MessageInput> {
           IconButton(
             icon: Icon(
               Icons.send,
-              color: _empty ? Colors.grey : Color(primary),
+              color: _empty ? Color(secondary) : Color(primary),
             ),
             onPressed: () => _empty ? null : _send(context),
           ),
@@ -417,7 +425,8 @@ class _MessageInputState extends State<MessageInput> {
                     physics: NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       return ListTile(
-                        contentPadding: const EdgeInsets.only(top: 10),
+                        contentPadding:
+                            const EdgeInsets.only(top: 10, left: 15),
                         leading: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
