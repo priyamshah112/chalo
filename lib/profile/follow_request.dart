@@ -1,13 +1,14 @@
-import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:like_button/like_button.dart';
 import 'package:toast/toast.dart';
 
-import 'Animation/FadeAnimation.dart';
+import '../Animation/FadeAnimation.dart';
 
-class Following extends StatefulWidget {
+class FollowReq extends StatefulWidget {
 //  final String dp;
 //  final String name;
 //  final String time;
@@ -25,14 +26,13 @@ class Following extends StatefulWidget {
 //    @required this.activityName,
 //  }) : super(key: key);
   @override
-  _FollowingState createState() => _FollowingState();
+  _FollowReqState createState() => _FollowReqState();
 }
 
 List<List<String>> ExplorepostList;
 
-class _FollowingState extends State<Following> {
+class _FollowReqState extends State<FollowReq> {
   bool _search = false;
-
   Widget appbar() {
     return _search
         ? AppBar(
@@ -71,7 +71,7 @@ class _FollowingState extends State<Following> {
             backgroundColor: Color(primary),
             title: Center(
               child: Text(
-                "Followings",
+                "Follow Requests",
                 style: TextStyle(
 //              color: Color(secondary),
                     ),
@@ -94,71 +94,87 @@ class _FollowingState extends State<Following> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    // TODO: implement initState
+    super.initState();
     ExplorepostList = [
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "10",
+        "true",
       ],
       [
         "images/bgcover.jpg",
         "Ali Asgar",
         "3",
+        "false",
       ],
       [
         "images/bgcover.jpg",
         "Sohil Luhar",
         "8",
+        "false",
       ],
       [
         "images/bgcover.jpg",
         "Harsh Gupta",
         "1",
+        "true",
       ],
       [
         "images/bgcover.jpg",
         "Mohammad Athania",
         "9",
+        "false",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "6",
+        "false",
       ],
       [
         "images/bgcover.jpg",
         "Sohil Luhar",
         "4",
+        "false",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "6",
+        "false",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "3",
+        "false",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "1",
+        "false",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "1",
+        "false",
       ],
     ];
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: appbar(),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
@@ -174,8 +190,8 @@ class _FollowingState extends State<Following> {
                               ExplorepostList[i][0],
                             ),
                           ),
-                          contentPadding:
-                              EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                          contentPadding: EdgeInsets.only(
+                              top: 8, left: 15, right: 5, bottom: 8),
                           title: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
@@ -197,7 +213,7 @@ class _FollowingState extends State<Following> {
                                     width: 5,
                                   ),
                                   Text(
-                                    "${ExplorepostList[i][2]} activties done",
+                                    "${ExplorepostList[i][2]} activities done",
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontFamily: bodyText,
@@ -208,33 +224,57 @@ class _FollowingState extends State<Following> {
                               ),
                             ],
                           ),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                width: 100,
-                                height: 27,
-                                child: OutlineButton(
-                                  onPressed: () {
-                                    _showDialog(context);
-                                  },
-                                  borderSide: BorderSide(
-                                    color: Color(primary), //Color of the border
-                                    style:
-                                        BorderStyle.solid, //Style of the border
-                                    width: 0.9, //width of the border
-                                  ),
-                                  color: Color(primary),
-                                  textColor: Color(primary),
-                                  child: Text(
-                                    "Unfollow",
-                                    style: TextStyle(
-                                      fontFamily: bodyText,
-                                    ),
+                          trailing: FittedBox(
+                            fit: BoxFit.fill,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                        width: 100,
+                                        height: 27,
+                                        child: OutlineButton(
+                                          onPressed: () {
+                                            followbtn();
+                                            setState(() {
+                                              ExplorepostList[i][3] == "true"
+                                                  ? ExplorepostList[i][3] ==
+                                                      "false"
+                                                  : ExplorepostList[i][3] ==
+                                                      "true";
+                                            });
+                                            print(ExplorepostList[i][3]);
+                                          },
+                                          borderSide: BorderSide(
+                                            color: Color(
+                                                primary), //Color of the border
+                                            style: BorderStyle
+                                                .solid, //Style of the border
+                                            width: 0.9, //width of the border
+                                          ),
+                                          color: Color(primary),
+                                          textColor: Color(primary),
+                                          child: Text(
+                                            ExplorepostList[i][3] == "true"
+                                                ? "Accept"
+                                                : "Following",
+                                            style: TextStyle(
+                                              fontFamily: bodyText,
+                                            ),
+                                          ),
+                                        )),
+                                  ],
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.delete,
+                                    color: Colors.redAccent.shade200,
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -248,27 +288,19 @@ class _FollowingState extends State<Following> {
     );
   }
 
-  void _showDialog(BuildContext context) {
+  void followbtn() {
     showDialog(
-        context: context,
-        builder: (ctx) => DialogBox(
-            title: 'Unfollow',
-            titleColor: Color(primary),
-            description:
-                "Are you sure you want to unfollow Abdul Quadir Ansari.",
-            buttonText1: "Cancel",
-            btn1Color: Color(primary),
-            button1Func: () =>
-                Navigator.of(context, rootNavigator: true).pop(false),
-            buttonText2: "Unfollow",
-            btn2Color: Colors.red,
-            button2Func: () async {
-              Navigator.of(context, rootNavigator: true).pop(true);
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          Following())); // To close the dialog
-            }));
+      context: context,
+      builder: (ctx) => DialogBox(
+        title: 'Follow',
+        titleColor: Color(primary),
+        description: "Are you sure you want to follow this user",
+        buttonText1: "Done",
+        btn1Color: Color(primary),
+        button1Func: () {
+          Navigator.of(context).pop();
+        },
+      ),
+    );
   }
 }

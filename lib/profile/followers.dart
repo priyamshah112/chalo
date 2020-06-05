@@ -1,4 +1,4 @@
-import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
 
@@ -6,9 +6,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:like_button/like_button.dart';
 import 'package:toast/toast.dart';
 
-import 'Animation/FadeAnimation.dart';
+import '../Animation/FadeAnimation.dart';
 
-class FollowReq extends StatefulWidget {
+class Follower extends StatefulWidget {
 //  final String dp;
 //  final String name;
 //  final String time;
@@ -26,12 +26,12 @@ class FollowReq extends StatefulWidget {
 //    @required this.activityName,
 //  }) : super(key: key);
   @override
-  _FollowReqState createState() => _FollowReqState();
+  _FollowerState createState() => _FollowerState();
 }
 
 List<List<String>> ExplorepostList;
 
-class _FollowReqState extends State<FollowReq> {
+class _FollowerState extends State<Follower> {
   bool _search = false;
   Widget appbar() {
     return _search
@@ -71,7 +71,7 @@ class _FollowReqState extends State<FollowReq> {
             backgroundColor: Color(primary),
             title: Center(
               child: Text(
-                "Follow Requests",
+                "Followers",
                 style: TextStyle(
 //              color: Color(secondary),
                     ),
@@ -103,11 +103,15 @@ class _FollowReqState extends State<FollowReq> {
         "Abdul Quadir Ansari",
         "10",
         "true",
+        "false",
+        "false",
       ],
       [
         "images/bgcover.jpg",
         "Ali Asgar",
         "3",
+        "false",
+        "true",
         "false",
       ],
       [
@@ -115,54 +119,72 @@ class _FollowReqState extends State<FollowReq> {
         "Sohil Luhar",
         "8",
         "false",
+        "false",
+        "true",
       ],
       [
         "images/bgcover.jpg",
         "Harsh Gupta",
         "1",
         "true",
+        "false",
+        "false",
       ],
       [
         "images/bgcover.jpg",
         "Mohammad Athania",
         "9",
         "false",
+        "false",
+        "true",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "6",
         "false",
+        "false",
+        "true",
       ],
       [
         "images/bgcover.jpg",
         "Sohil Luhar",
         "4",
         "false",
+        "false",
+        "true",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "6",
         "false",
+        "false",
+        "true",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "3",
         "false",
+        "false",
+        "true",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "1",
         "false",
+        "false",
+        "true",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "1",
         "false",
+        "false",
+        "true",
       ],
     ];
   }
@@ -233,38 +255,83 @@ class _FollowReqState extends State<FollowReq> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Container(
-                                        width: 100,
-                                        height: 27,
-                                        child: OutlineButton(
-                                          onPressed: () {
-                                            followbtn();
-                                            setState(() {
-                                              ExplorepostList[i][3] == "true"
-                                                  ? ExplorepostList[i][3] ==
-                                                      "false"
-                                                  : ExplorepostList[i][3] ==
+                                      width: 100,
+                                      height: 27,
+                                      child: ExplorepostList[i][3] == "true"
+                                          ? OutlineButton(
+                                              onPressed: () {
+                                                followbtn();
+                                                setState(() {
+                                                  ExplorepostList[i][4] =
                                                       "true";
-                                            });
-                                            print(ExplorepostList[i][3]);
-                                          },
-                                          borderSide: BorderSide(
-                                            color: Color(
-                                                primary), //Color of the border
-                                            style: BorderStyle
-                                                .solid, //Style of the border
-                                            width: 0.9, //width of the border
-                                          ),
-                                          color: Color(primary),
-                                          textColor: Color(primary),
-                                          child: Text(
-                                            ExplorepostList[i][3] == "true"
-                                                ? "Accept"
-                                                : "Following",
-                                            style: TextStyle(
-                                              fontFamily: bodyText,
-                                            ),
-                                          ),
-                                        )),
+                                                  ExplorepostList[i][3] =
+                                                      "false";
+                                                  ExplorepostList[i][5] =
+                                                      "false";
+                                                  print(ExplorepostList[i][3]);
+                                                });
+                                                print(ExplorepostList[i][3]);
+                                              },
+                                              borderSide: BorderSide(
+                                                color: Color(
+                                                    primary), //Color of the border
+                                                style: BorderStyle
+                                                    .solid, //Style of the border
+                                                width:
+                                                    0.9, //width of the border
+                                              ),
+                                              color: Color(primary),
+                                              textColor: Color(primary),
+                                              child: Text(
+                                                "follow",
+                                                style: TextStyle(
+                                                  fontFamily: bodyText,
+                                                ),
+                                              ),
+                                            )
+                                          : ExplorepostList[i][4] == "true"
+                                              ? FlatButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      ExplorepostList[i][3] =
+                                                          "true";
+                                                      ExplorepostList[i][4] =
+                                                          "false";
+                                                      ExplorepostList[i][5] =
+                                                          "false";
+                                                    });
+                                                  },
+                                                  color: Color(primary),
+                                                  textColor: Colors.white,
+                                                  child: Text(
+                                                    "Requested",
+                                                    style: TextStyle(
+                                                      fontFamily: bodyText,
+                                                    ),
+                                                  ),
+                                                )
+                                              : FlatButton(
+                                                  onPressed: () {
+                                                    unfollow();
+                                                    setState(() {
+                                                      ExplorepostList[i][4] =
+                                                          "false";
+                                                      ExplorepostList[i][3] =
+                                                          "true";
+                                                      ExplorepostList[i][5] =
+                                                          "false";
+                                                    });
+                                                  },
+                                                  color: Color(primary),
+                                                  textColor: Colors.white,
+                                                  child: Text(
+                                                    "Following",
+                                                    style: TextStyle(
+                                                      fontFamily: bodyText,
+                                                    ),
+                                                  ),
+                                                ),
+                                    ),
                                   ],
                                 ),
                                 IconButton(
@@ -294,13 +361,34 @@ class _FollowReqState extends State<FollowReq> {
       builder: (ctx) => DialogBox(
         title: 'Follow',
         titleColor: Color(primary),
-        description: "Are you sure you want to follow this user",
+        description: "Your request to follow this user hase been sent",
         buttonText1: "Done",
         btn1Color: Color(primary),
         button1Func: () {
-          Navigator.of(context).pop();
+          Navigator.of(context, rootNavigator: true).pop();
         },
       ),
     );
+  }
+
+  void unfollow() {
+    showDialog(
+        context: context,
+        builder: (ctx) => DialogBox(
+            title: 'Unfollow',
+            titleColor: Color(primary),
+            description:
+                "Are you sure you want to unfollow Abdul Quadir Ansari.",
+            buttonText1: "Cancel",
+            btn1Color: Color(primary),
+            button1Func: () {
+              Navigator.of(context, rootNavigator: true).pop();
+            },
+            buttonText2: "Unfollow",
+            btn2Color: Colors.red,
+            button2Func: () async {
+              Navigator.of(context, rootNavigator: true).pop();
+              // To close the dialog
+            }));
   }
 }

@@ -2,11 +2,10 @@
 //import 'package:chaloapp/main.dart';
 //import 'package:chaloapp/widgets/DailogBox.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
-import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/common/global_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'AddActivity.dart';
-import 'Animation/FadeAnimation.dart';
+import '../Animation/FadeAnimation.dart';
 //import 'package:chaloapp/Animation/FadeAnimation.dart';
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 //import 'package:chaloapp/signup.dart';

@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'Animation/FadeAnimation.dart';
-import 'global_colors.dart';
+import '../Animation/FadeAnimation.dart';
+import '../common/global_colors.dart';
 
 class ChatItemPage extends StatefulWidget {
   final String planId, chatTitle;

@@ -10,7 +10,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:toast/toast.dart';
 import 'Activity_Detail.dart';
-import 'global_colors.dart';
+import '../common/global_colors.dart';
 //import 'package:chaloapp/Animation/FadeAnimation.dart';
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 //import 'package:chaloapp/signup.dart';

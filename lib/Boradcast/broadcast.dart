@@ -2,19 +2,19 @@
 //import 'package:chaloapp/main.dart';
 //import 'package:chaloapp/widgets/DailogBox.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
-import 'package:chaloapp/Activity_Detail.dart';
-import 'package:chaloapp/global_colors.dart';
+
+import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:toast/toast.dart';
 import 'AddActivity.dart';
-import 'Animation/FadeAnimation.dart';
+import '../Animation/FadeAnimation.dart';
 //import 'package:chaloapp/Animation/FadeAnimation.dart';
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 //import 'package:chaloapp/signup.dart';
 //import 'package:chaloapp/home.dart';
-import 'data/activity.dart';
+import '../data/activity.dart';
 
 class Broadcast extends StatefulWidget {
   @override
@@ -22,7 +22,6 @@ class Broadcast extends StatefulWidget {
 }
 
 class _BroadcastState extends State<Broadcast> {
-
   DateTime currentBackPressTime;
   Future<bool> _onWillPop(BuildContext context) {
     DateTime now = DateTime.now();
@@ -431,13 +430,13 @@ class _BroadcastState extends State<Broadcast> {
                                           ),
                                         ),
                                         onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder:
-                                                    (BuildContext context) =>
-                                                        ActivityDetails()),
-                                          );
+//                                          Navigator.push(
+//                                            context,
+//                                            MaterialPageRoute(
+//                                                builder:
+//                                                    (BuildContext context) =>
+//                                                        ActivityDetails()),
+//                                          );
                                         },
                                       ),
                                       Text(

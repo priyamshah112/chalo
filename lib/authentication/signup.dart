@@ -1,6 +1,6 @@
 import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/home.dart';
-import 'package:chaloapp/login.dart';
+import 'package:chaloapp/home/home.dart';
+import 'package:chaloapp/authentication/login.dart';
 import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:chaloapp/widgets/date_time.dart';
@@ -8,14 +8,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
-import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/common/global_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gender_selection/gender_selection.dart';
-import 'package:chaloapp/ProfileSetup.dart';
+import 'package:chaloapp/authentication/ProfileSetup.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'services/AuthService.dart';
+import '../services/AuthService.dart';
 // import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 //import 'package:flutter_localizations/flutter_localizations.dart';
 //import 'package:flutter_rounded_date_picker/rounded_picker.dart';
@@ -900,7 +900,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
         },
         verificationFailed: (AuthException e) {
           print(e.code + "\n" + e.message);
-          if(isLoading) Navigator.of(context, rootNavigator: true).pop();
+          if (isLoading) Navigator.of(context, rootNavigator: true).pop();
           showFail(context);
         },
         codeSent: (verID, [int forceResend]) async {
@@ -973,13 +973,12 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   }
 }
 
-
-  String _validateEmail(String value) {
-    Pattern pattern =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value))
-      return 'Enter Valid Email';
-    else
-      return null;
-  }
+String _validateEmail(String value) {
+  Pattern pattern =
+      r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+  RegExp regex = new RegExp(pattern);
+  if (!regex.hasMatch(value))
+    return 'Enter Valid Email';
+  else
+    return null;
+}

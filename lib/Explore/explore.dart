@@ -1,4 +1,4 @@
-import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/common/global_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:like_button/like_button.dart';
@@ -311,7 +311,7 @@ class _ExploreState extends State<Explore> {
                               size: 17,
                               color: Color(secondary),
                             ),
-                            onPressed: (){},
+                            onPressed: () {},
                           ),
                         ),
                       ],

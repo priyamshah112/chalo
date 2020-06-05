@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'data/User.dart';
+import '../data/User.dart';
 
 class ActivityList {
   static Future<List<List<String>>> getActivityList() async {

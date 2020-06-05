@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:chaloapp/edit_profile_page.dart';
-import 'package:chaloapp/follow_request.dart';
-import 'package:chaloapp/following.dart';
-import 'package:chaloapp/home.dart';
-import 'package:chaloapp/post_details.dart';
+import 'package:chaloapp/profile/edit_profile_page.dart';
+import 'package:chaloapp/profile/follow_request.dart';
+import 'package:chaloapp/profile/following.dart';
+import 'package:chaloapp/home/home.dart';
+import 'package:chaloapp/Explore/post_details.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'data/User.dart';
+import '../data/User.dart';
 
-import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/common/global_colors.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
