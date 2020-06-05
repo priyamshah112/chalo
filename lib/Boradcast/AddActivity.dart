@@ -40,17 +40,42 @@ class _AddActivityState extends State<AddActivity> {
       autovalidate: _autovalidate,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(primary),
-          elevation: 0.0,
+          centerTitle: true,
           automaticallyImplyLeading: false,
           title: Center(
             child: Text(
-              'Broadcast Activity',
+              "Broadcast Activity",
               style: TextStyle(
                 color: Colors.white,
+                fontFamily: bodyText,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: null,
+              child: Text(
+                "",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontFamily: bodyText,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+          elevation: 1.0,
         ),
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
@@ -184,69 +209,6 @@ class _AddActivityState extends State<AddActivity> {
                                   ),
                                 ),
                               ),
-                              // Text(
-                              //   "Your Activities",
-                              //   style: TextStyle(
-                              //     fontSize: 15,
-                              //     color: Color(primary),
-                              //     fontWeight: FontWeight.w600,
-                              //   ),
-                              // ),
-                              // SizedBox(
-                              //   height: 10,
-                              // ),
-                              // Container(
-                              //   height: 109,
-                              //   child: AllselectedActivityList == null
-                              //       ? Center(child: CircularProgressIndicator())
-                              //       : ListView(
-                              //           scrollDirection: Axis.horizontal,
-                              //           children: <Widget>[
-                              //             for (int i = 0;
-                              //                 i <
-                              //                     AllselectedActivityList
-                              //                         .length;
-                              //                 i++)
-                              //               Padding(
-                              //                 padding: EdgeInsets.all(2.0),
-                              //                 child: Container(
-                              //                   decoration: BoxDecoration(
-                              //                       border: Border.all(
-                              //                         color: Color(primary),
-                              //                       ),
-                              //                       borderRadius:
-                              //                           BorderRadius.circular(
-                              //                               6)),
-                              //                   width: 110,
-                              //                   child: ListTile(
-                              //                     title: Image.network(
-                              //                       AllselectedActivityList[i]
-                              //                           [0],
-                              //                       width: 60,
-                              //                       height: 60,
-                              //                     ),
-                              //                     subtitle: Container(
-                              //                       padding:
-                              //                           EdgeInsets.only(top: 7),
-                              //                       child: Text(
-                              //                         AllselectedActivityList[i]
-                              //                             [1],
-                              //                         textAlign:
-                              //                             TextAlign.center,
-                              //                         style: TextStyle(
-                              //                           fontSize: 13,
-                              //                           fontWeight:
-                              //                               FontWeight.bold,
-                              //                           color: Color(secondary),
-                              //                         ),
-                              //                       ),
-                              //                     ),
-                              //                   ),
-                              //                 ),
-                              //               ),
-                              //           ],
-                              //         ),
-                              // ),
                               SizedBox(
                                 height: 10,
                               ),
@@ -457,7 +419,7 @@ class _AddActivityState extends State<AddActivity> {
                                   visible: _showDropdown,
                                   child: SelectPeople()),
                               Text(
-                                "Privacy",
+                                "Boradcast audience",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
@@ -472,7 +434,7 @@ class _AddActivityState extends State<AddActivity> {
                                 height: 10,
                               ),
                               Text(
-                                "Select Gender",
+                                "Boradcast audience Gender",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
@@ -827,7 +789,7 @@ class _AddActivityState extends State<AddActivity> {
                 ),
               ),
               Radio(
-                value: 'Private',
+                value: 'Followers',
                 activeColor: Color(primary),
                 groupValue: type,
                 onChanged: (val) {
@@ -838,7 +800,7 @@ class _AddActivityState extends State<AddActivity> {
                 },
               ),
               Text(
-                "Private",
+                "Followers",
                 style: TextStyle(
                   color: Color(secondary),
                   fontSize: 16,

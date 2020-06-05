@@ -2,6 +2,7 @@
 //import 'package:chaloapp/main.dart';
 //import 'package:chaloapp/widgets/DailogBox.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
+import 'package:chaloapp/Boradcast/edit_activity.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -45,7 +46,13 @@ class _BroadcardActivityDetailsState extends State<BroadcardActivityDetails> {
         ),
         actions: <Widget>[
           FlatButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => EditActivity()),
+              );
+            },
             child: Text(
               "Edit",
               style: TextStyle(

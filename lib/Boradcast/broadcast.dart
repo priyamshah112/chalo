@@ -41,17 +41,19 @@ class _BroadcastState extends State<Broadcast> {
       onWillPop: () => _onWillPop(context),
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(primary),
-          elevation: 0.0,
+          centerTitle: true,
           automaticallyImplyLeading: false,
           title: Center(
             child: Text(
-              'Broadcast Activity',
+              "Broadcast Activity",
               style: TextStyle(
                 color: Colors.white,
+                fontFamily: bodyText,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
+          elevation: 1.0,
         ),
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
@@ -126,12 +128,14 @@ class _BroadcastState extends State<Broadcast> {
                           Text(
                             "Broadcasted Activities",
                             style: TextStyle(
-                                color: Color(secondary),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16),
+                              color: Color(primary),
+                              fontWeight: FontWeight.bold,
+                              fontFamily: heading,
+                              fontSize: 16,
+                            ),
                           ),
                           SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           Card(
                             margin: EdgeInsets.symmetric(vertical: 10),
@@ -143,11 +147,6 @@ class _BroadcastState extends State<Broadcast> {
                               width: MediaQuery.of(context).size.width,
                               padding: EdgeInsets.symmetric(
                                   vertical: 20, horizontal: 20),
-//                          decoration: BoxDecoration(
-//                              border: Border.all(
-//                                color: Color(primary),
-//                              ),
-//                              borderRadius: BorderRadius.circular(6)),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
