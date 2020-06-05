@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:chaloapp/edit_profile_page.dart';
+import 'package:chaloapp/follow_request.dart';
 import 'package:chaloapp/following.dart';
 import 'package:chaloapp/home.dart';
 import 'package:chaloapp/post_details.dart';
@@ -99,6 +100,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
+          centerTitle: true,
           automaticallyImplyLeading: false,
           title: Center(
             child: Text(
@@ -110,6 +112,25 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
+          leading: InkWell(
+            onTap: () {},
+            child: Icon(
+              Icons.settings,
+              color: Colors.white,
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () {},
+              child: IconButton(
+                icon: Icon(
+                  Icons.notifications,
+                  color: Colors.white,
+                ),
+                splashColor: Colors.transparent,
+              ),
+            ),
+          ],
           elevation: 1.0,
           backgroundColor: Color(primary),
         ),
@@ -120,6 +141,57 @@ class _ProfilePageState extends State<ProfilePage> {
               return [
                 SliverList(
                   delegate: SliverChildListDelegate([
+                    Padding(
+                      padding: EdgeInsets.only(top: 20, left: 20, right: 20),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 0, horizontal: 5),
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Color(primary),
+                            ),
+                            borderRadius: BorderRadius.circular(6)),
+                        child: ListTile(
+                          leading: Icon(
+                            Icons.person_add,
+                            color: Color(primary),
+                          ),
+                          contentPadding: EdgeInsets.only(
+                              top: 8, left: 5, right: 00, bottom: 8),
+                          title: Text(
+                            "You have 3 new requests",
+                            style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Color(primary),
+                            ),
+                          ),
+                          trailing: FittedBox(
+                            fit: BoxFit.fill,
+                            child: Container(
+                                width: 90,
+                                height: 27,
+                                child: RaisedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              FollowReq()),
+                                    );
+                                  },
+                                  color: Color(primary),
+                                  textColor: Colors.white,
+                                  child: Text(
+                                    "See all",
+                                    style: TextStyle(
+                                      fontFamily: bodyText,
+                                    ),
+                                  ),
+                                )),
+                          ),
+                        ),
+                      ),
+                    ),
                     Stack(
                       overflow: Overflow.visible,
                       children: <Widget>[

@@ -39,6 +39,7 @@ class _GetLocationState extends State<GetLocation> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add_location),
+        backgroundColor: Colors.teal,
         onPressed: () {
           getLocation();
           setState(() {});
@@ -91,7 +92,7 @@ class _GetLocationState extends State<GetLocation> {
           ),
         ],
         elevation: 1.0,
-//        backgroundColor: Color(),
+        backgroundColor: Colors.teal,
       ),
       body: Stack(
         fit: StackFit.expand,
