@@ -15,6 +15,7 @@ import '../Animation/FadeAnimation.dart';
 //import 'package:chaloapp/signup.dart';
 //import 'package:chaloapp/home.dart';
 import '../data/activity.dart';
+import 'Broadcast_Details.dart';
 
 class Broadcast extends StatefulWidget {
   @override
@@ -154,12 +155,23 @@ class _BroadcastState extends State<Broadcast> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      Text(
-                                        "Activity Name",
-                                        style: TextStyle(
-                                          color: Color(primary),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (BuildContext
+                                                        context) =>
+                                                    BroadcardActivityDetails()),
+                                          );
+                                        },
+                                        child: Text(
+                                          "Activity Name",
+                                          style: TextStyle(
+                                            color: Color(primary),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
                                         ),
                                       ),
                                       Text(
@@ -313,13 +325,6 @@ class _BroadcastState extends State<Broadcast> {
                                           ),
                                         ],
                                       ),
-                                      // Container(
-                                      //   child: IconButton(
-                                      //     icon: Icon(Icons.share),
-                                      //     color: Colors.green,
-                                      //     onPressed: () {},
-                                      //   ),
-                                      // ),
                                     ],
                                   ),
                                   SizedBox(
@@ -408,11 +413,6 @@ class _BroadcastState extends State<Broadcast> {
                               width: MediaQuery.of(context).size.width,
                               padding: EdgeInsets.symmetric(
                                   vertical: 20, horizontal: 20),
-//                          decoration: BoxDecoration(
-//                              border: Border.all(
-//                                color: Color(primary),
-//                              ),
-//                              borderRadius: BorderRadius.circular(6)),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
@@ -430,13 +430,13 @@ class _BroadcastState extends State<Broadcast> {
                                           ),
                                         ),
                                         onTap: () {
-//                                          Navigator.push(
-//                                            context,
-//                                            MaterialPageRoute(
-//                                                builder:
-//                                                    (BuildContext context) =>
-//                                                        ActivityDetails()),
-//                                          );
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (BuildContext
+                                                        context) =>
+                                                    BroadcardActivityDetails()),
+                                          );
                                         },
                                       ),
                                       Text(
@@ -695,13 +695,24 @@ class _BroadcastState extends State<Broadcast> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      Text(
-                                        "Activity Name",
-                                        style: TextStyle(
-                                          color: Color(primary),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
+                                      GestureDetector(
+                                        child: Text(
+                                          "Activity Name",
+                                          style: TextStyle(
+                                            color: Color(primary),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
                                         ),
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (BuildContext
+                                                        context) =>
+                                                    BroadcardActivityDetails()),
+                                          );
+                                        },
                                       ),
                                       Text(
                                         "10, May",
