@@ -103,15 +103,11 @@ class _FollowReqState extends State<FollowReq> {
         "Abdul Quadir Ansari",
         "10",
         "true",
-        "false",
-        "false",
       ],
       [
         "images/bgcover.jpg",
         "Ali Asgar",
         "3",
-        "false",
-        "true",
         "false",
       ],
       [
@@ -119,72 +115,54 @@ class _FollowReqState extends State<FollowReq> {
         "Sohil Luhar",
         "8",
         "false",
-        "false",
-        "true",
       ],
       [
         "images/bgcover.jpg",
         "Harsh Gupta",
         "1",
         "true",
-        "false",
-        "false",
       ],
       [
         "images/bgcover.jpg",
         "Mohammad Athania",
         "9",
         "false",
-        "false",
-        "true",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "6",
         "false",
-        "false",
-        "true",
       ],
       [
         "images/bgcover.jpg",
         "Sohil Luhar",
         "4",
         "false",
-        "false",
-        "true",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "6",
         "false",
-        "false",
-        "true",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "3",
         "false",
-        "false",
-        "true",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "1",
         "false",
-        "false",
-        "true",
       ],
       [
         "images/bgcover.jpg",
         "Abdul Quadir Ansari",
         "1",
         "false",
-        "false",
-        "true",
       ],
     ];
   }
@@ -261,10 +239,11 @@ class _FollowReqState extends State<FollowReq> {
                                           onPressed: () {
                                             followbtn();
                                             setState(() {
-                                              ExplorepostList[i][4] = "true";
-                                              ExplorepostList[i][3] = "false";
-                                              ExplorepostList[i][5] = "false";
-                                              print(ExplorepostList[i][3]);
+                                              ExplorepostList[i][3] == "true"
+                                                  ? ExplorepostList[i][3] ==
+                                                      "false"
+                                                  : ExplorepostList[i][3] ==
+                                                      "true";
                                             });
                                             print(ExplorepostList[i][3]);
                                           },
@@ -278,7 +257,9 @@ class _FollowReqState extends State<FollowReq> {
                                           color: Color(primary),
                                           textColor: Color(primary),
                                           child: Text(
-                                            "Accept",
+                                            ExplorepostList[i][3] == "true"
+                                                ? "Accept"
+                                                : "Following",
                                             style: TextStyle(
                                               fontFamily: bodyText,
                                             ),
@@ -317,7 +298,7 @@ class _FollowReqState extends State<FollowReq> {
         buttonText1: "Done",
         btn1Color: Color(primary),
         button1Func: () {
-          Navigator.of(context, rootNavigator: true).pop();
+          Navigator.of(context).pop();
         },
       ),
     );

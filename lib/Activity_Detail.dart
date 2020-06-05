@@ -30,6 +30,8 @@ class _ActivityDetailsState extends State<ActivityDetails> {
             'Activity Name',
             style: TextStyle(
               color: Colors.white,
+              fontFamily: bodyText,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -47,7 +49,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                 child: Column(
                   children: <Widget>[
                     SizedBox(
-                      height: 20.0,
+                      height: 10.0,
                     ),
 //                    Stack(
 //                      children: <Widget>[
@@ -100,6 +102,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                         color: Color(primary),
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18,
+                                        fontFamily: heading,
                                       ),
                                     ),
                                   ],
@@ -129,6 +132,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                               style: TextStyle(
                                                   color: Color(secondary),
                                                   fontSize: 15,
+                                                  fontFamily: bodyText,
                                                   fontWeight: FontWeight.w500),
                                             ),
                                             Text(
@@ -136,6 +140,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                               style: TextStyle(
                                                   color: Color(secondary),
                                                   fontSize: 15,
+                                                  fontFamily: bodyText,
                                                   fontWeight: FontWeight.w500),
                                             ),
                                           ],
@@ -160,6 +165,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                               style: TextStyle(
                                                   color: Color(secondary),
                                                   fontSize: 15,
+                                                  fontFamily: bodyText,
                                                   fontWeight: FontWeight.w500),
                                             ),
                                             Text(
@@ -167,6 +173,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                               style: TextStyle(
                                                   color: Color(secondary),
                                                   fontSize: 15,
+                                                  fontFamily: bodyText,
                                                   fontWeight: FontWeight.w500),
                                             ),
                                           ],
@@ -192,10 +199,11 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                           size: 25,
                                         ),
                                         Text(
-                                          " 1/6 people have confirmed",
+                                          " 1/6 people",
                                           style: TextStyle(
                                               color: Color(secondary),
                                               fontSize: 15,
+                                              fontFamily: bodyText,
                                               fontWeight: FontWeight.w500),
                                         ),
                                       ],
@@ -218,6 +226,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                               style: TextStyle(
                                                   color: Color(secondary),
                                                   fontSize: 15,
+                                                  fontFamily: bodyText,
                                                   fontWeight: FontWeight.w500),
                                             ),
                                             Text(
@@ -225,6 +234,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                               style: TextStyle(
                                                   color: Color(secondary),
                                                   fontSize: 15,
+                                                  fontFamily: bodyText,
                                                   fontWeight: FontWeight.w500),
                                             ),
                                           ],
@@ -259,6 +269,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                               style: TextStyle(
                                                   color: Color(secondary),
                                                   fontSize: 15,
+                                                  fontFamily: bodyText,
                                                   fontWeight: FontWeight.w500),
                                             ),
                                           ),
@@ -274,9 +285,11 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                           child: Text(
                                             "View Map",
                                             style: TextStyle(
-                                                color: Color(primary),
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500),
+                                              color: Color(primary),
+                                              fontSize: 15,
+                                              fontFamily: bodyText,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -287,81 +300,143 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                 SizedBox(
                                   height: 5,
                                 ),
-                                SizedBox(
-                                  height: 5,
-                                ),
+
                                 //loop start
                               ],
                             ),
                           ),
+                          elevation: 0,
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FlatButton(
+                            onPressed: () {},
+                            color: Color(primary),
+                            textColor: Colors.white,
+                            child: Text(
+                              "Join Activity",
+                              style: TextStyle(
+                                fontFamily: bodyText,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: FlatButton(
+                            highlightColor: Colors.transparent,
+                            child: Text(
+                              'Propose a new time',
+                              style: TextStyle(
+                                color: Color(primary),
+                              ),
+                            ),
+                            onPressed: () {},
+                          ),
+                        ),
+                        SizedBox(
+                          height: 5,
                         ),
                         Text(
-                          "Participants List",
+                          "Participants",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
                             color: Color(primary),
+                            fontFamily: heading,
                           ),
+                        ),
+                        SizedBox(
+                          height: 5,
                         ),
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             Card(
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                side: BorderSide(
+                                  width: 1,
+                                  color: Color(primary),
+                                ),
+                              ),
                               child: ListTile(
                                 leading: CircleAvatar(
                                   backgroundImage:
                                       AssetImage("images/bgcover.jpg"),
                                 ),
-                                title: Text('Name'),
+                                title: Text(
+                                  'Name',
+                                  style: TextStyle(
+                                      fontFamily: bodyText,
+                                      fontWeight: FontWeight.w400),
+                                ),
                                 subtitle: Text('1 Actvity Done'),
-                                trailing: OutlineButton(
-                                  onPressed: () {},
-                                  child: Text(
-                                    "Follow",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
+                                trailing: Container(
+                                  width: 100,
+                                  height: 27,
+                                  child: OutlineButton(
+                                    onPressed: () {},
+                                    borderSide: BorderSide(
+                                      color:
+                                          Color(primary), //Color of the border
+                                      style: BorderStyle
+                                          .solid, //Style of the border
+                                      width: 0.9, //width of the border
                                     ),
-                                  ),
-                                  textColor: Colors.green,
-                                  shape: new RoundedRectangleBorder(
-                                    borderRadius:
-                                        new BorderRadius.circular(10.0),
-                                  ),
-                                  borderSide: BorderSide(color: Colors.green),
-                                  highlightedBorderColor: Colors.green,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 30,
+                                    color: Color(primary),
+                                    textColor: Color(primary),
+                                    child: Text(
+                                      "follow",
+                                      style: TextStyle(
+                                        fontFamily: bodyText,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                             Card(
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                side: BorderSide(
+                                  width: 1,
+                                  color: Color(primary),
+                                ),
+                              ),
                               child: ListTile(
                                 leading: CircleAvatar(
                                   backgroundImage:
                                       AssetImage("images/bgcover.jpg"),
                                 ),
-                                title: Text('Name'),
+                                title: Text(
+                                  'Name',
+                                  style: TextStyle(
+                                      fontFamily: bodyText,
+                                      fontWeight: FontWeight.w400),
+                                ),
                                 subtitle: Text('1 Actvity Done'),
-                                trailing: OutlineButton(
-                                  onPressed: () {},
-                                  child: Text(
-                                    "Follow",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
+                                trailing: Container(
+                                  width: 100,
+                                  height: 27,
+                                  child: OutlineButton(
+                                    onPressed: () {},
+                                    borderSide: BorderSide(
+                                      color:
+                                          Color(primary), //Color of the border
+                                      style: BorderStyle
+                                          .solid, //Style of the border
+                                      width: 0.9, //width of the border
                                     ),
-                                  ),
-                                  textColor: Colors.green,
-                                  shape: new RoundedRectangleBorder(
-                                    borderRadius:
-                                        new BorderRadius.circular(10.0),
-                                  ),
-                                  borderSide: BorderSide(color: Colors.green),
-                                  highlightedBorderColor: Colors.green,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 30,
+                                    color: Color(primary),
+                                    textColor: Color(primary),
+                                    child: Text(
+                                      "follow",
+                                      style: TextStyle(
+                                        fontFamily: bodyText,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
