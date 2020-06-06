@@ -2,19 +2,20 @@
 //import 'package:chaloapp/main.dart';
 //import 'package:chaloapp/widgets/DailogBox.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
-import 'package:chaloapp/Activity_Detail.dart';
-import 'package:chaloapp/global_colors.dart';
+
+import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:toast/toast.dart';
 import 'AddActivity.dart';
-import 'Animation/FadeAnimation.dart';
+import '../Animation/FadeAnimation.dart';
 //import 'package:chaloapp/Animation/FadeAnimation.dart';
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 //import 'package:chaloapp/signup.dart';
 //import 'package:chaloapp/home.dart';
-import 'data/activity.dart';
+import '../data/activity.dart';
+import 'Broadcast_Details.dart';
 
 class Broadcast extends StatefulWidget {
   @override
@@ -22,7 +23,6 @@ class Broadcast extends StatefulWidget {
 }
 
 class _BroadcastState extends State<Broadcast> {
-
   DateTime currentBackPressTime;
   Future<bool> _onWillPop(BuildContext context) {
     DateTime now = DateTime.now();
@@ -41,17 +41,19 @@ class _BroadcastState extends State<Broadcast> {
       onWillPop: () => _onWillPop(context),
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(primary),
-          elevation: 0.0,
+          centerTitle: true,
           automaticallyImplyLeading: false,
           title: Center(
             child: Text(
-              'Broadcast Activity',
+              "Broadcast Activity",
               style: TextStyle(
                 color: Colors.white,
+                fontFamily: bodyText,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
+          elevation: 1.0,
         ),
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
@@ -126,12 +128,14 @@ class _BroadcastState extends State<Broadcast> {
                           Text(
                             "Broadcasted Activities",
                             style: TextStyle(
-                                color: Color(secondary),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16),
+                              color: Color(primary),
+                              fontWeight: FontWeight.bold,
+                              fontFamily: heading,
+                              fontSize: 16,
+                            ),
                           ),
                           SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           Card(
                             margin: EdgeInsets.symmetric(vertical: 10),
@@ -143,11 +147,6 @@ class _BroadcastState extends State<Broadcast> {
                               width: MediaQuery.of(context).size.width,
                               padding: EdgeInsets.symmetric(
                                   vertical: 20, horizontal: 20),
-//                          decoration: BoxDecoration(
-//                              border: Border.all(
-//                                color: Color(primary),
-//                              ),
-//                              borderRadius: BorderRadius.circular(6)),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
@@ -155,12 +154,23 @@ class _BroadcastState extends State<Broadcast> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      Text(
-                                        "Activity Name",
-                                        style: TextStyle(
-                                          color: Color(primary),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (BuildContext
+                                                        context) =>
+                                                    BroadcardActivityDetails()),
+                                          );
+                                        },
+                                        child: Text(
+                                          "Activity Name",
+                                          style: TextStyle(
+                                            color: Color(primary),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
                                         ),
                                       ),
                                       Text(
@@ -314,13 +324,6 @@ class _BroadcastState extends State<Broadcast> {
                                           ),
                                         ],
                                       ),
-                                      // Container(
-                                      //   child: IconButton(
-                                      //     icon: Icon(Icons.share),
-                                      //     color: Colors.green,
-                                      //     onPressed: () {},
-                                      //   ),
-                                      // ),
                                     ],
                                   ),
                                   SizedBox(
@@ -409,11 +412,6 @@ class _BroadcastState extends State<Broadcast> {
                               width: MediaQuery.of(context).size.width,
                               padding: EdgeInsets.symmetric(
                                   vertical: 20, horizontal: 20),
-//                          decoration: BoxDecoration(
-//                              border: Border.all(
-//                                color: Color(primary),
-//                              ),
-//                              borderRadius: BorderRadius.circular(6)),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
@@ -434,9 +432,9 @@ class _BroadcastState extends State<Broadcast> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder:
-                                                    (BuildContext context) =>
-                                                        ActivityDetails()),
+                                                builder: (BuildContext
+                                                        context) =>
+                                                    BroadcardActivityDetails()),
                                           );
                                         },
                                       ),
@@ -696,13 +694,24 @@ class _BroadcastState extends State<Broadcast> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      Text(
-                                        "Activity Name",
-                                        style: TextStyle(
-                                          color: Color(primary),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
+                                      GestureDetector(
+                                        child: Text(
+                                          "Activity Name",
+                                          style: TextStyle(
+                                            color: Color(primary),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
                                         ),
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (BuildContext
+                                                        context) =>
+                                                    BroadcardActivityDetails()),
+                                          );
+                                        },
                                       ),
                                       Text(
                                         "10, May",

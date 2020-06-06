@@ -1,5 +1,5 @@
-import 'package:chaloapp/global_colors.dart';
-import 'package:chaloapp/profile_page.dart';
+import 'package:chaloapp/common/global_colors.dart';
+import 'package:chaloapp/profile/profile_page.dart';
 import 'package:chaloapp/services/AuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,11 +8,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
 import 'package:toast/toast.dart';
-import 'login.dart';
-import 'widgets/DailogBox.dart';
-import 'package:chaloapp/broadcast.dart';
-import 'package:chaloapp/all_activities.dart';
-import 'package:chaloapp/chats.dart';
+
+import '../Activites/all_activities.dart';
+import '../Explore/explore.dart';
+import '../authentication/login.dart';
+import '../widgets/DailogBox.dart';
+import 'package:chaloapp/Boradcast/broadcast.dart';
+
+import 'package:chaloapp/Chat/chats.dart';
 
 class MainHome extends StatefulWidget {
   @override
@@ -21,7 +24,7 @@ class MainHome extends StatefulWidget {
 
 class _MainHomeState extends State<MainHome> {
   int _currentIndex = 0;
-  List tabs = [MainMap(), AllActivity(), Broadcast(), ProfilePage(), Chats()];
+  List tabs = [MainMap(), AllActivity(), Broadcast(), Explore(), Chats()];
 
   @override
   Widget build(BuildContext context) {
@@ -223,10 +226,12 @@ class _MainMapState extends State<MainMap> {
         builder: (ctx) => DialogBox(
             title: 'Warning',
             description: "Are you sure you want to Sign out ?",
+            btn2Color: Colors.red,
             buttonText1: "No",
             button1Func: () =>
                 Navigator.of(context, rootNavigator: true).pop(false),
             buttonText2: "Yes",
+            btn1Color: Color(primary),
             button2Func: () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
               await AuthService().signOut(prefs.getString('type'));

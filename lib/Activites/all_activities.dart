@@ -9,7 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:toast/toast.dart';
-import 'global_colors.dart';
+import 'Activity_Detail.dart';
+import '../common/global_colors.dart';
 //import 'package:chaloapp/Animation/FadeAnimation.dart';
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 //import 'package:chaloapp/signup.dart';
@@ -262,12 +263,22 @@ class ActivityCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       FittedBox(
-                        child: Text(
-                          name,
-                          style: TextStyle(
-                            color: Color(secondary),
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      ActivityDetails()),
+                            );
+                          },
+                          child: Text(
+                            name,
+                            style: TextStyle(
+                              color: Color(primary),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),

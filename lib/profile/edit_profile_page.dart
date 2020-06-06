@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/common/global_colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -62,7 +62,7 @@ class _EditProfileState extends State<EditProfile> {
               Icons.menu,
               color: Colors.white,
             ),
-            onPressed: (){},
+            onPressed: () {},
           ),
         ],
       ),

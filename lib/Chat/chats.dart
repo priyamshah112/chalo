@@ -1,13 +1,13 @@
-import 'package:chaloapp/Chat_item_page.dart';
+import 'package:chaloapp/Chat/Chat_item_page.dart';
 import 'package:chaloapp/data/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:toast/toast.dart';
-import 'Animation/FadeAnimation.dart';
-import 'data/chat_model.dart';
-import 'global_colors.dart';
+import '../Animation/FadeAnimation.dart';
+import '../data/chat_model.dart';
+import '../common/global_colors.dart';
 //import 'package:chaloapp/Animation/FadeAnimation.dart';
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 //import 'package:chaloapp/signup.dart';
@@ -26,7 +26,7 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
     super.initState();
     getData();
   }
-  
+
   void getData() async {
     final user = await UserData.getUser();
     setState(() {
@@ -154,20 +154,22 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                     if (!planSnap.hasData)
                                       return Center(
                                           child: CircularProgressIndicator());
-                                    return Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 15),
-                                      margin: EdgeInsets.symmetric(vertical: 4),
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: Color(primary),
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(6)),
-                                      child: FadeAnimation(
-                                        index - 0.8,
-                                        ListTile(
+                                    return FadeAnimation(
+                                      index - 8.0,
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 0),
+                                        margin:
+                                            EdgeInsets.symmetric(vertical: 4),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Color(primary),
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(6)),
+                                        child: ListTile(
                                             onTap: () => Navigator.push(
                                                   context,
                                                   MaterialPageRoute(

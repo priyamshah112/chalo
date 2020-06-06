@@ -1,4 +1,4 @@
-import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/common/global_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:like_button/like_button.dart';
@@ -84,17 +84,19 @@ class _PostItemState extends State<PostItem> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Container(
-                      width: 70,
+                      width: 90,
                       height: 25,
-                      child: RaisedButton(
-                        onPressed: () {},
-                        color: Color(primary),
-                        textColor: Colors.white,
-                        elevation: 0,
-                        child: Text(
-                          'Follow',
-                          style: TextStyle(
-                            fontFamily: bodyText,
+                      child: Center(
+                        child: RaisedButton(
+                          onPressed: () {},
+                          color: Color(primary),
+                          textColor: Colors.white,
+                          elevation: 0,
+                          child: Text(
+                            'Follow',
+                            style: TextStyle(
+                              fontFamily: bodyText,
+                            ),
                           ),
                         ),
                       ),
@@ -145,20 +147,6 @@ class _PostItemState extends State<PostItem> {
                     ),
                     SizedBox(
                       width: 15,
-                    ),
-                    Icon(
-                      FontAwesomeIcons.comment,
-                      size: 17,
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text(
-                      "100 comments",
-                      style: TextStyle(
-                        fontFamily: bodyText,
-                        fontSize: 17,
-                      ),
                     ),
                     SizedBox(
                       width: 10,

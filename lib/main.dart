@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:chaloapp/global_colors.dart';
-import 'package:chaloapp/home.dart';
+import 'package:chaloapp/common/global_colors.dart';
+import 'package:chaloapp/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'data/data.dart';
-import 'package:chaloapp/login.dart';
+import 'package:chaloapp/authentication/login.dart';
 import 'services/AuthService.dart';
 
 void main() => runApp(

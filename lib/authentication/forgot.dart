@@ -1,9 +1,9 @@
-import 'package:chaloapp/login.dart';
+import 'package:chaloapp/authentication/login.dart';
 import 'package:chaloapp/services/AuthService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
-import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/common/global_colors.dart';
 
 class ForgotPage extends StatefulWidget {
   final String email;
@@ -157,10 +157,11 @@ class _ForgotPageState extends State<ForgotPage> {
                                       .resetPassword(_emailController.text)
                                       .then((result) {
                                     if (result['success']) {
-                                      Navigator.of(context,rootNavigator: true).pop();
+                                      Navigator.of(context, rootNavigator: true)
+                                          .pop();
                                       showDialog(
-                                      context: context,
-                                      builder: (ctx) => DialogBox(
+                                          context: context,
+                                          builder: (ctx) => DialogBox(
                                               title: "Password reset",
                                               description:
                                                   "We have sent an email to your regirestered email address regarding the instruction to reset your password",
@@ -179,8 +180,8 @@ class _ForgotPageState extends State<ForgotPage> {
                                     } else {
                                       Navigator.pop(context);
                                       showDialog(
-                                      context: context,
-                                      builder: (ctx) => DialogBox(
+                                          context: context,
+                                          builder: (ctx) => DialogBox(
                                               title: "User not Found !",
                                               description: result['msg'],
                                               buttonText1: "Ok",
