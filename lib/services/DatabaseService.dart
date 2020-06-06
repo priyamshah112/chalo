@@ -65,16 +65,21 @@ class DataService {
         'street': 'Mohammad ALi Road'
       });
       if (details['broadcast_type'] == 'public')
-        await database
+        {final activity = await database
+              .collection('chalo_activity')
+              .where('name', isEqualTo: details['activity_type'])
+              .limit(1)
+              .getDocuments();
+          await database
             .collection('map_activity')
             .document(plandoc.documentID)
             .setData({
-          'activity_logo': 'url',
-          'activity_type': 'abc',
-          'date': Timestamp.now(),
-          'location': GeoPoint(52.0, 41.0),
+          'activity_logo': activity.documents[0].data['logo'],
+          'activity_type': details['activity_type'],
+          'date': details['activity_start'],
+          'location': details['location'],
           'participant_type': details['participant_type']
-        });
+        });}
       print(plandoc.documentID);
       print(groupchatdoc.documentID);
       print(locationdoc.documentID);
