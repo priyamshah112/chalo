@@ -1,7 +1,6 @@
 import 'dart:math';
-
 import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/login.dart';
+import 'package:chaloapp/authentication/login.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:chaloapp/widgets/date_time.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,10 +8,10 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
-import 'package:chaloapp/global_colors.dart';
+import 'package:chaloapp/common/global_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'activitylist.dart';
-import 'data/activity.dart';
+import '../common/add_location.dart';
+import '../data/activity.dart';
 import 'package:intl/intl.dart';
 
 class AddActivity extends StatefulWidget {
@@ -24,6 +23,7 @@ class _AddActivityState extends State<AddActivity> {
   final _formKey = GlobalKey<FormState>();
   final activityController = TextEditingController();
   String activityName, activity, note, type = 'Public';
+  TextEditingController address = TextEditingController();
   List<String> activities;
   DateTime startTime = DateTime.now().add(Duration(minutes: 29));
   DateTime endTime;
@@ -40,17 +40,42 @@ class _AddActivityState extends State<AddActivity> {
       autovalidate: _autovalidate,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(primary),
-          elevation: 0.0,
+          centerTitle: true,
           automaticallyImplyLeading: false,
           title: Center(
             child: Text(
-              'Broadcast Activity',
+              "Broadcast Activity",
               style: TextStyle(
                 color: Colors.white,
+                fontFamily: bodyText,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: null,
+              child: Text(
+                "",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontFamily: bodyText,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+          elevation: 1.0,
         ),
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
@@ -184,69 +209,6 @@ class _AddActivityState extends State<AddActivity> {
                                   ),
                                 ),
                               ),
-                              // Text(
-                              //   "Your Activities",
-                              //   style: TextStyle(
-                              //     fontSize: 15,
-                              //     color: Color(primary),
-                              //     fontWeight: FontWeight.w600,
-                              //   ),
-                              // ),
-                              // SizedBox(
-                              //   height: 10,
-                              // ),
-                              // Container(
-                              //   height: 109,
-                              //   child: AllselectedActivityList == null
-                              //       ? Center(child: CircularProgressIndicator())
-                              //       : ListView(
-                              //           scrollDirection: Axis.horizontal,
-                              //           children: <Widget>[
-                              //             for (int i = 0;
-                              //                 i <
-                              //                     AllselectedActivityList
-                              //                         .length;
-                              //                 i++)
-                              //               Padding(
-                              //                 padding: EdgeInsets.all(2.0),
-                              //                 child: Container(
-                              //                   decoration: BoxDecoration(
-                              //                       border: Border.all(
-                              //                         color: Color(primary),
-                              //                       ),
-                              //                       borderRadius:
-                              //                           BorderRadius.circular(
-                              //                               6)),
-                              //                   width: 110,
-                              //                   child: ListTile(
-                              //                     title: Image.network(
-                              //                       AllselectedActivityList[i]
-                              //                           [0],
-                              //                       width: 60,
-                              //                       height: 60,
-                              //                     ),
-                              //                     subtitle: Container(
-                              //                       padding:
-                              //                           EdgeInsets.only(top: 7),
-                              //                       child: Text(
-                              //                         AllselectedActivityList[i]
-                              //                             [1],
-                              //                         textAlign:
-                              //                             TextAlign.center,
-                              //                         style: TextStyle(
-                              //                           fontSize: 13,
-                              //                           fontWeight:
-                              //                               FontWeight.bold,
-                              //                           color: Color(secondary),
-                              //                         ),
-                              //                       ),
-                              //                     ),
-                              //                   ),
-                              //                 ),
-                              //               ),
-                              //           ],
-                              //         ),
-                              // ),
                               SizedBox(
                                 height: 10,
                               ),
@@ -262,6 +224,7 @@ class _AddActivityState extends State<AddActivity> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 1.0, vertical: 10.0),
                                 child: TextField(
+                                  controller: address,
                                   keyboardType: TextInputType.text,
                                   autofocus: false,
                                   decoration: InputDecoration(
@@ -280,14 +243,18 @@ class _AddActivityState extends State<AddActivity> {
                                           Radius.circular(10.0),
                                         ),
                                         child: InkWell(
-                                          onTap: () {
-                                            Navigator.push(
+                                          onTap: () async {
+                                            var x = await Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    ViewActivity(),
+                                                    GetLocation(),
                                               ),
                                             );
+                                            if (x != null) {
+                                              address.value =
+                                                  TextEditingValue(text: x);
+                                            }
                                           },
                                           child: Icon(
                                             Icons.location_on,
@@ -297,7 +264,7 @@ class _AddActivityState extends State<AddActivity> {
                                       ),
                                     ),
                                     contentPadding: const EdgeInsets.only(
-                                        left: 30.0,
+                                        left: 10.0,
                                         bottom: 18.0,
                                         top: 18.0,
                                         right: 30.0),
@@ -452,7 +419,7 @@ class _AddActivityState extends State<AddActivity> {
                                   visible: _showDropdown,
                                   child: SelectPeople()),
                               Text(
-                                "Privacy",
+                                "Boradcast audience",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
@@ -467,7 +434,7 @@ class _AddActivityState extends State<AddActivity> {
                                 height: 10,
                               ),
                               Text(
-                                "Select Gender",
+                                "Boradcast audience Gender",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
@@ -545,7 +512,7 @@ class _AddActivityState extends State<AddActivity> {
                             height: 50,
                             margin: EdgeInsets.symmetric(horizontal: 30),
                             child: FlatButton(
-                              color: Color(secondary),
+                              color: Color(primary),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 30.0, vertical: 10.0),
                               shape: RoundedRectangleBorder(
@@ -822,7 +789,7 @@ class _AddActivityState extends State<AddActivity> {
                 ),
               ),
               Radio(
-                value: 'Private',
+                value: 'Followers',
                 activeColor: Color(primary),
                 groupValue: type,
                 onChanged: (val) {
@@ -833,7 +800,7 @@ class _AddActivityState extends State<AddActivity> {
                 },
               ),
               Text(
-                "Private",
+                "Followers",
                 style: TextStyle(
                   color: Color(secondary),
                   fontSize: 16,
