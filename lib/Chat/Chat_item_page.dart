@@ -145,6 +145,7 @@ class _ChatItemPageState extends State<ChatItemPage> {
                                               ),
                                               if (displayDate(messages[index]
                                                       ['timestamp']) &&
+                                                  index > 0 &&
                                                   msgs > 1)
                                                 MessageDate(
                                                     messages: messages,
