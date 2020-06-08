@@ -1,7 +1,8 @@
+import 'package:chaloapp/Activites/Activity_Detail.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/profile/profile_page.dart';
 import 'package:chaloapp/services/AuthService.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -127,20 +128,28 @@ class _MainMapState extends State<MainMap> {
           fit: StackFit.expand,
           children: <Widget>[
             Container(
-              child: FlutterMap(
-                options: new MapOptions(
-                    center: new LatLng(19.0760, 72.8777), minZoom: 10.0),
-                layers: [
-                  new TileLayerOptions(
-                      urlTemplate:
-                          "https://api.mapbox.com/styles/v1/abdulquadir123/ck9kbtkmm0ngc1ipif8vq6qbv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw",
-                      additionalOptions: {
-                        'accessToken':
-                            'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw',
-                        'id': 'mapbox.mapbox-streets-v8'
-                      }),
-                ],
-              ),
+              child: StreamBuilder<Object>(
+                  stream:
+                      Firestore.instance.collection('map_activity').snapshots(),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    return FlutterMap(
+                      options: MapOptions(
+                          center: LatLng(19.0760, 72.8777), minZoom: 10.0),
+                      layers: [
+                        TileLayerOptions(
+                            urlTemplate:
+                                "https://api.mapbox.com/styles/v1/abdulquadir123/ck9kbtkmm0ngc1ipif8vq6qbv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw",
+                            additionalOptions: {
+                              'accessToken':
+                                  'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw',
+                              'id': 'mapbox.mapbox-streets-v8'
+                            }),
+                        if (snapshot.hasData)
+                          MarkerLayerOptions(
+                              markers: getMarkers(snapshot.data.documents))
+                      ],
+                    );
+                  }),
             ),
             Positioned(
                 top: 60.0,
@@ -242,5 +251,176 @@ class _MainMapState extends State<MainMap> {
                   MaterialPageRoute(
                       builder: (context) => HomePage())); // To close the dialog
             }));
+  }
+
+  List<Marker> getMarkers(List<DocumentSnapshot> documents) {
+    int count = documents.length;
+    return List<Marker>.generate(
+      count,
+      (index) => Marker(
+        width: 60.0,
+        height: 60.0,
+        point: new LatLng(documents[index].data['location'].latitude,
+            documents[index].data['location'].longitude),
+        builder: (ctx) => new IconButton(
+          icon: Image.network(documents[index].data['activity_logo']),
+          onPressed: () {
+            _showModal();
+            print("marker pressed");
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showModal() {
+    Future<void> future = showModalBottomSheet<void>(
+      context: context,
+      elevation: 0.0,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          margin: EdgeInsets.only(top: 5, left: 15, right: 15, bottom: 90),
+          width: MediaQuery.of(context).size.width - 40,
+          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: Colors.teal,
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(6)),
+          height: 200,
+          child: Card(
+            elevation: 0.0,
+            child: Column(
+              children: <Widget>[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      width: 55.0,
+                      height: 55.0,
+                      child: CircleAvatar(
+//                        foregroundColor: Color(primary),
+//                        backgroundColor: Color(secondary),
+                        backgroundImage: AssetImage('images/bgcover.jpg'),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10.0,
+                    ),
+                    Expanded(
+                      flex: 5,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          FittedBox(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          ActivityDetails()),
+                                );
+                              },
+                              child: Text(
+                                "Activity name",
+                                style: TextStyle(
+                                  color: Colors.teal,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: <Widget>[
+                              Icon(
+                                FontAwesomeIcons.trophy,
+                                color: Colors.amberAccent,
+                                size: 15,
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(" 0 activities Done"),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        child: IconButton(
+                          icon: Icon(Icons.share),
+                          color: Colors.green,
+                          onPressed: () {},
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("Male, Mumbai"),
+                    Text("0.00 km away"),
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Divider(
+                  thickness: 1,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      "activity knwkjw",
+                      style: TextStyle(
+                        color: Colors.teal,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+//                    Text(
+//                      DateFormat('d, MMM').format(start),
+//                      style: TextStyle(
+//                        color: Color(primary),
+//                        fontWeight: FontWeight.bold,
+//                        fontSize: 18,
+//                      ),
+//                    ),
+                  ],
+                ),
+//                  SizedBox(
+//                    height: 20,
+//                  ),
+//                Row(
+//                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                  children: <Widget>[
+//                    IconText(
+//                        text: DateFormat('hh:mm').format(start),
+//                        icon: Icons.timer),
+//                    IconText(text: count.toString(), icon: Icons.people),
+//                    IconText(text: 'Mumbai', icon: Icons.location_on)
+//                  ],
+//                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+//    future.then((void value) => _closeModal(value));
   }
 }

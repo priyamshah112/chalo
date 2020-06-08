@@ -1,5 +1,7 @@
+import 'package:chaloapp/Activites/Activity_Detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_search_flutter/mapbox_search_flutter.dart';
@@ -120,6 +122,21 @@ class _GetLocationState extends State<GetLocation> {
                 ),
                 new MarkerLayerOptions(
                   markers: [
+//                    new Marker(
+//                      width: 80.0,
+//                      height: 80.0,
+//                      point: new LatLng(
+//                          position1 == null ? 19.0760 : position1.latitude,
+//                          position1 == null ? 72.8777 : position1.longitude),
+//                      builder: (ctx) => new Container(
+//                        child: Icon(
+//                          Icons.location_on,
+////                          color: Color(secondary),
+//                          size: 45.0,
+//                        ),
+//                      ),
+//                    ),
+
                     new Marker(
                       width: 80.0,
                       height: 80.0,
