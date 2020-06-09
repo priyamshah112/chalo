@@ -1,4 +1,5 @@
 import 'package:chaloapp/common/global_colors.dart';
+import 'package:chaloapp/main.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
 
@@ -44,100 +45,14 @@ class _SettingState extends State<Setting> {
     return Future.value(true);
   }
 
+  bool isSwitched1 = false;
+  bool isSwitched2 = false;
+  bool isSwitched3 = false;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    ExplorepostList = [
-      [
-        "images/bgcover.jpg",
-        "Abdul Quadir Ansari",
-        "10",
-        "true",
-        "false",
-        "false",
-      ],
-      [
-        "images/bgcover.jpg",
-        "Ali Asgar",
-        "3",
-        "false",
-        "true",
-        "false",
-      ],
-      [
-        "images/bgcover.jpg",
-        "Sohil Luhar",
-        "8",
-        "false",
-        "false",
-        "true",
-      ],
-      [
-        "images/bgcover.jpg",
-        "Harsh Gupta",
-        "1",
-        "true",
-        "false",
-        "false",
-      ],
-      [
-        "images/bgcover.jpg",
-        "Mohammad Athania",
-        "9",
-        "false",
-        "false",
-        "true",
-      ],
-      [
-        "images/bgcover.jpg",
-        "Abdul Quadir Ansari",
-        "6",
-        "false",
-        "false",
-        "true",
-      ],
-      [
-        "images/bgcover.jpg",
-        "Sohil Luhar",
-        "4",
-        "false",
-        "false",
-        "true",
-      ],
-      [
-        "images/bgcover.jpg",
-        "Abdul Quadir Ansari",
-        "6",
-        "false",
-        "false",
-        "true",
-      ],
-      [
-        "images/bgcover.jpg",
-        "Abdul Quadir Ansari",
-        "3",
-        "false",
-        "false",
-        "true",
-      ],
-      [
-        "images/bgcover.jpg",
-        "Abdul Quadir Ansari",
-        "1",
-        "false",
-        "false",
-        "true",
-      ],
-      [
-        "images/bgcover.jpg",
-        "Abdul Quadir Ansari",
-        "1",
-        "false",
-        "false",
-        "true",
-      ],
-    ];
   }
 
   @override
@@ -187,8 +102,105 @@ class _SettingState extends State<Setting> {
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                Text(
+                  "Notification Preferences",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color(primary),
+                    fontFamily: heading,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      "Notification for my broadcasts",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color(secondary),
+                        fontFamily: bodyText,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    Center(
+                      child: Switch(
+                        value: isSwitched1,
+                        onChanged: (value) {
+                          setState(() {
+                            isSwitched1 = value;
+                            print(isSwitched1);
+                          });
+                        },
+                        activeTrackColor: Color(primary),
+                        activeColor: Colors.white,
+                      ),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      "Notifications for my Invites",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color(secondary),
+                        fontFamily: bodyText,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    Center(
+                      child: Switch(
+                        value: isSwitched2,
+                        onChanged: (value) {
+                          setState(() {
+                            isSwitched2 = value;
+                            print(isSwitched2);
+                          });
+                        },
+                        activeTrackColor: Color(primary),
+                        activeColor: Colors.white,
+                      ),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      "Notification for my broadcasts",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color(secondary),
+                        fontFamily: bodyText,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    Center(
+                      child: Switch(
+                        value: isSwitched3,
+                        onChanged: (value) {
+                          setState(() {
+                            isSwitched3 = value;
+                            print(isSwitched3);
+                          });
+                        },
+                        activeTrackColor: Color(primary),
+                        activeColor: Colors.white,
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                ),
                 ButtonWidget(
                   title: "Invite Friends",
                   buttonFunc: () {},
