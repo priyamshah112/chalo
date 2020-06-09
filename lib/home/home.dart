@@ -278,10 +278,11 @@ class _MainMapState extends State<MainMap> {
       context: context,
       elevation: 0.0,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return Container(
           margin: EdgeInsets.only(top: 5, left: 15, right: 15, bottom: 90),
-          width: MediaQuery.of(context).size.width - 40,
+          width: MediaQuery.of(context).size.width,
           padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
           decoration: BoxDecoration(
               color: Colors.white,
@@ -290,7 +291,7 @@ class _MainMapState extends State<MainMap> {
                 width: 1,
               ),
               borderRadius: BorderRadius.circular(6)),
-          height: 200,
+          height: 337,
           child: Card(
             elevation: 0.0,
             child: Column(
@@ -400,11 +401,19 @@ class _MainMapState extends State<MainMap> {
 //                        fontSize: 18,
 //                      ),
 //                    ),
+                    Text(
+                      "2 May",
+                      style: TextStyle(
+                        color: Color(primary),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                   ],
                 ),
-//                  SizedBox(
-//                    height: 20,
-//                  ),
+                SizedBox(
+                  height: 20,
+                ),
 //                Row(
 //                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //                  children: <Widget>[
@@ -415,6 +424,49 @@ class _MainMapState extends State<MainMap> {
 //                    IconText(text: 'Mumbai', icon: Icons.location_on)
 //                  ],
 //                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    IconText(text: "3:20 PM", icon: Icons.timer),
+                    IconText(text: "5/10", icon: Icons.people),
+                    IconText(text: 'Mumbai', icon: Icons.location_on)
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Divider(
+                  thickness: 1,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: FlatButton(
+                    onPressed: () {},
+                    color: Color(primary),
+                    textColor: Colors.white,
+                    child: Text(
+                      "Join Activity",
+                      style: TextStyle(
+                        fontFamily: bodyText,
+                      ),
+                    ),
+                  ),
+                ),
+                Center(
+                  child: FlatButton(
+                    highlightColor: Colors.transparent,
+                    child: Text(
+                      'Propose a new time',
+                      style: TextStyle(
+                        color: Color(primary),
+                      ),
+                    ),
+                    onPressed: () {},
+                  ),
+                ),
               ],
             ),
           ),

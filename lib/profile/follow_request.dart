@@ -170,6 +170,7 @@ class _FollowReqState extends State<FollowReq> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: appbar(),
       body: SafeArea(
         child: SingleChildScrollView(

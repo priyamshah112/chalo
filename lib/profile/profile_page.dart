@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:chaloapp/Settings/setting.dart';
 import 'package:chaloapp/profile/edit_profile_page.dart';
 import 'package:chaloapp/profile/follow_request.dart';
 import 'package:chaloapp/profile/following.dart';
@@ -11,9 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../data/User.dart';
-
 import 'package:chaloapp/common/global_colors.dart';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 
@@ -113,7 +112,12 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           leading: InkWell(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (BuildContext context) => Setting()),
+              );
+            },
             child: Icon(
               Icons.settings,
               color: Colors.white,
@@ -1347,6 +1351,7 @@ class _allActivityState extends State<allActivity> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: InkWell(
           onTap: () {
