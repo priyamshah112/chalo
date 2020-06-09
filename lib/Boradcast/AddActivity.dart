@@ -43,14 +43,12 @@ class _AddActivityState extends State<AddActivity> {
         appBar: AppBar(
           centerTitle: true,
           automaticallyImplyLeading: false,
-          title: Center(
-            child: Text(
-              "Broadcast Activity",
-              style: TextStyle(
-                color: Colors.white,
-                fontFamily: bodyText,
-                fontWeight: FontWeight.bold,
-              ),
+          title: Text(
+            "Broadcast Activity",
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: bodyText,
+              fontWeight: FontWeight.bold,
             ),
           ),
           leading: InkWell(
@@ -62,20 +60,6 @@ class _AddActivityState extends State<AddActivity> {
               color: Colors.white,
             ),
           ),
-          actions: <Widget>[
-            FlatButton(
-              onPressed: null,
-              child: Text(
-                "",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 17,
-                  fontFamily: bodyText,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
           elevation: 1.0,
         ),
         backgroundColor: Colors.white,
@@ -537,6 +521,7 @@ class _AddActivityState extends State<AddActivity> {
                                     'description': note,
                                     'group_chat': null,
                                     'location_id': null,
+                                    'address':location,
                                     'location': GeoPoint(activityLocation.latitude, activityLocation.longitude),
                                     'map_status': type == 'Public'
                                         ? 'active'

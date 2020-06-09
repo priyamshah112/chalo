@@ -156,11 +156,15 @@ class _AllActivityState extends State<AllActivity> {
                   SizedBox(
                     height: 10,
                   ),
-                  Expanded(child: Activities()),
+                  Expanded(
+                      child: Activities(
+                    stream: Firestore.instance
+                        .collection('plan')
+                        .where('broadcast_type', isEqualTo: "public")
+                        .snapshots(),
+                  )),
                 ],
               ),
-              // SizedBox(height: 20.0),
-              // Expanded(child: Activities())
             ),
           )),
     );
@@ -181,6 +185,8 @@ class _AllActivityState extends State<AllActivity> {
 }
 
 class Activities extends StatefulWidget {
+  final Stream stream;
+  Activities({@required this.stream});
   @override
   _ActivitiesState createState() => _ActivitiesState();
 }
@@ -189,10 +195,7 @@ class _ActivitiesState extends State<Activities> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: Firestore.instance
-            .collection('plan')
-            .where('broadcast_type', isEqualTo: "public")
-            .snapshots(),
+        stream: widget.stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData ||
               snapshot.connectionState == ConnectionState.waiting)
@@ -202,77 +205,61 @@ class _ActivitiesState extends State<Activities> {
           return ListView.builder(
               itemCount: count,
               itemBuilder: (context, index) {
-                DateTime start = DateTime.fromMillisecondsSinceEpoch(
-                    plans[index]['activity_start'].seconds * 1000);
-                return ActivityCard(
-                  name: plans[index]['admin_name'],
-                  start: start,
-                  count: plans[index]['max_participant'],
-                  activity: plans[index]['activity_name'],
-                );
+                return ActivityCard(planDoc: plans[index]);
               });
         });
   }
 }
 
 class ActivityCard extends StatelessWidget {
-  final String name, gender, activity;
-  final int count;
-  final DateTime start;
-  const ActivityCard({
-    Key key,
-    this.name,
-    this.gender,
-    this.activity,
-    this.count,
-    this.start,
-  }) : super(key: key);
+  final DocumentSnapshot planDoc;
+  const ActivityCard({Key key, this.planDoc}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final start = DateTime.fromMillisecondsSinceEpoch(
+        planDoc['activity_start'].seconds * 1000);
     return Card(
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        decoration: BoxDecoration(
-            border: Border.all(
-              color: Color(primary),
-            ),
-            borderRadius: BorderRadius.circular(6)),
-        child: Column(
-          children: <Widget>[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  width: 55.0,
-                  height: 55.0,
-                  child: CircleAvatar(
-                    foregroundColor: Color(primary),
-                    backgroundColor: Color(secondary),
-                    backgroundImage: AssetImage('images/bgcover.jpg'),
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  ActivityDetails(planRef: planDoc.reference)),
+        ),
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+          decoration: BoxDecoration(
+              border: Border.all(
+                color: Color(primary),
+              ),
+              borderRadius: BorderRadius.circular(6)),
+          child: Column(
+            children: <Widget>[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    width: 55.0,
+                    height: 55.0,
+                    child: CircleAvatar(
+                      foregroundColor: Color(primary),
+                      backgroundColor: Color(secondary),
+                      backgroundImage: AssetImage('images/bgcover.jpg'),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  width: 10.0,
-                ),
-                Expanded(
-                  flex: 5,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      FittedBox(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      ActivityDetails()),
-                            );
-                          },
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  Expanded(
+                    flex: 5,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        FittedBox(
                           child: Text(
-                            name,
+                            planDoc['admin_name'],
                             style: TextStyle(
                               color: Color(primary),
                               fontSize: 18,
@@ -280,87 +267,90 @@ class ActivityCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Icon(
-                            FontAwesomeIcons.trophy,
-                            color: Colors.amberAccent,
-                            size: 15,
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text(" 0 activities Done"),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    child: IconButton(
-                      icon: Icon(Icons.share),
-                      color: Colors.green,
-                      onPressed: () {},
+                        Row(
+                          children: <Widget>[
+                            Icon(
+                              FontAwesomeIcons.trophy,
+                              color: Colors.amberAccent,
+                              size: 15,
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(" 0 activities Done"),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text("Male, Mumbai"),
-                Text("0.00 km away"),
-              ],
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Divider(
-              thickness: 1,
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  activity,
-                  style: TextStyle(
-                    color: Color(primary),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                  Expanded(
+                    child: Container(
+                      child: IconButton(
+                        icon: Icon(Icons.share),
+                        color: Colors.green,
+                        onPressed: () {},
+                      ),
+                    ),
                   ),
-                ),
-                Text(
-                  DateFormat('d, MMM').format(start),
-                  style: TextStyle(
-                    color: Color(primary),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                ],
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Male, Mumbai"),
+                  Text("0.00 km away"),
+                ],
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Divider(
+                thickness: 1,
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    planDoc['activity_name'],
+                    style: TextStyle(
+                      color: Color(primary),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconText(
-                    text: DateFormat('hh:mm').format(start), icon: Icons.timer),
-                IconText(text: count.toString(), icon: Icons.people),
-                IconText(text: 'Mumbai', icon: Icons.location_on)
-              ],
-            ),
-          ],
+                  Text(
+                    DateFormat('d, MMM').format(start),
+                    style: TextStyle(
+                      color: Color(primary),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  IconText(
+                      text: DateFormat('hh:mm a').format(start),
+                      icon: Icons.timer),
+                  IconText(
+                      text: planDoc['max_participant'].toString(),
+                      icon: Icons.people),
+                  IconText(text: 'Mumbai', icon: Icons.location_on)
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

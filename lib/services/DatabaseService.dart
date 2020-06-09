@@ -58,19 +58,16 @@ class DataService {
       DocumentReference locationdoc =
           database.collection('location').document(plandoc.documentID);
       await locationdoc.setData({
-        'city': 'Mumbai',
-        'country': 'India',
-        'pincode': '400060',
-        'point': GeoPoint(52.0, 41.0),
-        'street': 'Mohammad ALi Road'
+        'address': details['address'],
+        'location': details['location'],
       });
-      if (details['broadcast_type'] == 'public')
-        {final activity = await database
-              .collection('chalo_activity')
-              .where('name', isEqualTo: details['activity_type'])
-              .limit(1)
-              .getDocuments();
-          await database
+      if (details['broadcast_type'] == 'public') {
+        final activity = await database
+            .collection('chalo_activity')
+            .where('name', isEqualTo: details['activity_type'])
+            .limit(1)
+            .getDocuments();
+        await database
             .collection('map_activity')
             .document(plandoc.documentID)
             .setData({
@@ -79,7 +76,8 @@ class DataService {
           'date': details['activity_start'],
           'location': details['location'],
           'participant_type': details['participant_type']
-        });}
+        });
+      }
       print(plandoc.documentID);
       print(groupchatdoc.documentID);
       print(locationdoc.documentID);
@@ -90,11 +88,11 @@ class DataService {
           'plan_id': plandoc.documentID
         });
       });
-      await database
-          .collection('user_plans')
-          .document(details['admin_id'])
-          .updateData({
-        'current_plans': FieldValue.arrayUnion([plandoc.documentID])
+      await database.runTransaction((transaction) async {
+        await transaction.update(
+            database.collection('user_plans').document(details['admin_id']), {
+          'current_plans': FieldValue.arrayUnion([plandoc.documentID])
+        });
       });
     } catch (e) {
       print(e.toString());
@@ -104,18 +102,20 @@ class DataService {
   Future<DocumentSnapshot> getUserDoc(String email) async {
     DocumentSnapshot userDoc;
     CollectionReference users = database.collection('users');
-    await users.getDocuments().then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((doc) async {
-        if (email == doc.data['email']) {
-          userDoc = doc;
-          String userToken = await CloudMessaging.getToken();
-          if (!doc.data.containsKey('token') || doc.data['token'] != userToken)
-            database.runTransaction((transaction) async {
-              final docRef = users.document(email);
-              transaction.update(docRef, {'token': userToken});
-            });
-        }
-      });
+    await users
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .getDocuments()
+        .then((QuerySnapshot snapshot) async {
+      if (snapshot.documents.length == 0) return null;
+      userDoc = snapshot.documents[0];
+      String userToken = await CloudMessaging.getToken();
+      if (!userDoc.data.containsKey('token') ||
+          userDoc.data['token'] != userToken)
+        database.runTransaction((transaction) async {
+          final docRef = users.document(email);
+          transaction.update(docRef, {'token': userToken});
+        });
     });
     return userDoc;
   }
@@ -175,5 +175,33 @@ class DataService {
       batch.updateData(ref, {'messenger_id': tokens});
     }
     batch.commit();
+  }
+
+  Future<bool> requestJoin(DocumentReference planRef, String email) async {
+    try {
+      await database.runTransaction((transaction) async {
+        await transaction.update(planRef, {
+          'pending_participant_id': FieldValue.arrayUnion([email])
+        });
+      });
+      return true;
+    } catch (e) {
+      print(e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> cancelRequest(DocumentReference planRef, String email) async {
+    try {
+      await database.runTransaction((transaction) async {
+        await transaction.update(planRef, {
+          'pending_participant_id': FieldValue.arrayRemove([email])
+        });
+      });
+      return true;
+    } catch (e) {
+      print(e.toString());
+      return false;
+    }
   }
 }
