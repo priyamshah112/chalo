@@ -1,3 +1,6 @@
+import 'package:chaloapp/Settings/contactus.dart';
+import 'package:chaloapp/Settings/help.dart';
+import 'package:chaloapp/Settings/terms_and_conditions.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/main.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
@@ -10,22 +13,6 @@ import 'package:toast/toast.dart';
 import '../Animation/FadeAnimation.dart';
 
 class Setting extends StatefulWidget {
-//  final String dp;
-//  final String name;
-//  final String time;
-//  final String img;
-//  final String caption;
-//  final String activityName;
-//
-//  Explore({
-//    Key key,
-//    @required this.dp,
-//    @required this.name,
-//    @required this.time,
-//    @required this.img,
-//    @required this.caption,
-//    @required this.activityName,
-//  }) : super(key: key);
   @override
   _SettingState createState() => _SettingState();
 }
@@ -34,16 +21,6 @@ List<List<String>> ExplorepostList;
 
 class _SettingState extends State<Setting> {
   DateTime currentBackPressTime;
-  Future<bool> _onWillPop(BuildContext context) {
-    DateTime now = DateTime.now();
-    if (currentBackPressTime == null ||
-        now.difference(currentBackPressTime) > Duration(seconds: 1)) {
-      currentBackPressTime = now;
-      Toast.show("Press back again to exit", context);
-      return Future.value(false);
-    }
-    return Future.value(true);
-  }
 
   bool isSwitched1 = false;
   bool isSwitched2 = false;
@@ -207,15 +184,36 @@ class _SettingState extends State<Setting> {
                 ),
                 ButtonWidget(
                   title: "Help",
-                  buttonFunc: () {},
+                  buttonFunc: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Help(),
+                      ),
+                    );
+                  },
                 ),
                 ButtonWidget(
                   title: "Contact Us",
-                  buttonFunc: () {},
+                  buttonFunc: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ContactUs(),
+                      ),
+                    );
+                  },
                 ),
                 ButtonWidget(
                   title: "Terms and Conditions",
-                  buttonFunc: () {},
+                  buttonFunc: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TnC(),
+                      ),
+                    );
+                  },
                 ),
                 ButtonWidget(
                   title: "Privacy Policy",
