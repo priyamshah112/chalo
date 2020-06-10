@@ -128,6 +128,7 @@ class _ProfilePageState extends State<ProfilePage> {
             FlatButton(
               onPressed: () {},
               child: IconButton(
+                onPressed: () {},
                 icon: Icon(
                   Icons.notifications,
                   color: Colors.white,

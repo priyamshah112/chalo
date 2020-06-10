@@ -269,6 +269,7 @@ class _FollowReqState extends State<FollowReq> {
                                   ],
                                 ),
                                 IconButton(
+                                  onPressed: (){},
                                   icon: Icon(
                                     Icons.delete,
                                     color: Colors.redAccent.shade200,

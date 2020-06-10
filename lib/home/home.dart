@@ -476,3 +476,17 @@ class _MainMapState extends State<MainMap> {
 //    future.then((void value) => _closeModal(value));
   }
 }
+
+List<Marker> getMarkers(List<DocumentSnapshot> documents) {
+  int count = documents.length;
+  return List<Marker>.generate(
+      count,
+      (index) => Marker(
+          width: 60.0,
+          height: 60.0,
+          point: new LatLng(documents[index].data['location'].latitude,
+              documents[index].data['location'].longitude),
+          builder: (ctx) => new IconButton(
+              icon: Image.network(documents[index].data['activity_logo']),
+              onPressed: () {})));
+}

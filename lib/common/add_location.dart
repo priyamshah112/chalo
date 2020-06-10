@@ -1,12 +1,11 @@
-import 'package:chaloapp/Activites/Activity_Detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:latlong/latlong.dart';
+import 'global_colors.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:mapbox_search_flutter/mapbox_search_flutter.dart';
-import 'package:latlong/latlong.dart';
-import 'package:chaloapp/common/global_colors.dart';
+import 'package:mapbox_search/mapbox_search.dart';
+import '../widgets/Mapbox_Search.dart';
 
 const kApiKey =
     'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw';
@@ -18,34 +17,55 @@ class GetLocation extends StatefulWidget {
 }
 
 class _GetLocationState extends State<GetLocation> {
-  String mapSearchValue = null;
-  String mapSearchValue1 = null;
-  Position position1;
-  TextEditingController locationval = TextEditingController();
-  getLocation() async {
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    final coordinates = new Coordinates(position.latitude, position.longitude);
-    var addresses =
-        await Geocoder.local.findAddressesFromCoordinates(coordinates);
-    var first = addresses.first;
-    setState(() {
-      position1 = position;
-      mapSearchValue = first.addressLine;
-    });
-    print("${first.featureName} : ${first.addressLine}");
+  String mapSearchValue;
+  bool istap = false;
+  Position position = Position(latitude: null, longitude: null);
+  TextEditingController locationTextController = TextEditingController();
+  void getUserLocation() async {
+    try {
+      Position userPosition = await Geolocator()
+          .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      final coordinates =
+          new Coordinates(userPosition.latitude, userPosition.longitude);
+      var addresses =
+          await Geocoder.local.findAddressesFromCoordinates(coordinates);
+      var first = addresses.first;
+      setState(() {
+        position = userPosition;
+        mapSearchValue = first.addressLine;
+        isSelected = true;
+        locationTextController.text = mapSearchValue;
+        LatLng latlog = new LatLng(position.latitude, position.longitude);
+        _mapController.move(latlog, 12);
+      });
+      print("${first.featureName} : ${first.addressLine}");
+    } catch (e) {
+      print(e.toString());
+    }
   }
+
+  void getLocation(String address) async {
+    List<Address> results =
+        await Geocoder.local.findAddressesFromQuery(address);
+    Coordinates coordinates = results.first.coordinates;
+    setState(() {
+      position = Position(
+          latitude: coordinates.latitude, longitude: coordinates.longitude);
+      print('${coordinates.latitude} ${coordinates.longitude}');
+      LatLng latlog = new LatLng(coordinates.latitude, coordinates.longitude);
+      _mapController.move(latlog, 12);
+    });
+  }
+
+  final _mapController = MapController();
+  bool isSelected = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add_location),
-        backgroundColor: Colors.teal,
-        onPressed: () {
-          getLocation();
-          setState(() {});
-        },
+        onPressed: getUserLocation,
+        child: Icon(Icons.gps_fixed),
       ),
       appBar: AppBar(
         centerTitle: true,
@@ -62,13 +82,11 @@ class _GetLocationState extends State<GetLocation> {
         ),
         leading: InkWell(
           onTap: () {
-            Navigator.pop(context);
-
-            locationval.value = TextEditingValue(text: mapSearchValue);
-            locationval.selection = TextSelection.fromPosition(
-                TextPosition(offset: locationval.text.length));
-
-            setState(() {});
+            Navigator.pop(context, null);
+            // locationval.value = TextEditingValue(text: mapSearchValue);
+            // locationval.selection = TextSelection.fromPosition(
+            //     TextPosition(offset: locationval.text.length));
+            // setState(() {});
           },
           child: Icon(
             Icons.arrow_back,
@@ -78,9 +96,11 @@ class _GetLocationState extends State<GetLocation> {
         actions: <Widget>[
           FlatButton(
             onPressed: () {
-              String temp = mapSearchValue;
-              mapSearchValue = null;
-              Navigator.pop(context, temp != null ? temp : mapSearchValue1);
+              Navigator.pop(
+                  context,
+                  mapSearchValue == null
+                      ? null
+                      : {'location': mapSearchValue, 'position': position});
             },
             child: Text(
               "Done",
@@ -94,7 +114,6 @@ class _GetLocationState extends State<GetLocation> {
           ),
         ],
         elevation: 1.0,
-        backgroundColor: Colors.teal,
       ),
       body: Stack(
         fit: StackFit.expand,
@@ -104,11 +123,11 @@ class _GetLocationState extends State<GetLocation> {
               color: Colors.white,
             ),
             child: FlutterMap(
+              mapController: _mapController,
               options: new MapOptions(
                   interactive: true,
-                  center: new LatLng(
-                      position1 == null ? 19.0760 : position1.latitude,
-                      position1 == null ? 72.8777 : position1.longitude),
+                  center: new LatLng(position.latitude ?? 19.0760,
+                      position.longitude ?? 72.8777),
                   minZoom: 10.0),
               layers: [
                 new TileLayerOptions(
@@ -122,31 +141,15 @@ class _GetLocationState extends State<GetLocation> {
                 ),
                 new MarkerLayerOptions(
                   markers: [
-//                    new Marker(
-//                      width: 80.0,
-//                      height: 80.0,
-//                      point: new LatLng(
-//                          position1 == null ? 19.0760 : position1.latitude,
-//                          position1 == null ? 72.8777 : position1.longitude),
-//                      builder: (ctx) => new Container(
-//                        child: Icon(
-//                          Icons.location_on,
-////                          color: Color(secondary),
-//                          size: 45.0,
-//                        ),
-//                      ),
-//                    ),
-
                     new Marker(
                       width: 80.0,
                       height: 80.0,
-                      point: new LatLng(
-                          position1 == null ? 19.0760 : position1.latitude,
-                          position1 == null ? 72.8777 : position1.longitude),
+                      point: new LatLng(position.latitude ?? 19.0760,
+                          position.longitude ?? 72.8777),
                       builder: (ctx) => new Container(
                         child: Icon(
                           Icons.location_on,
-//                          color: Color(secondary),
+                          color: Colors.teal,
                           size: 45.0,
                         ),
                       ),
@@ -160,63 +163,44 @@ class _GetLocationState extends State<GetLocation> {
             top: 20.0,
             left: 15.0,
             right: 15.0,
-            child: mapSearchValue != null
+            child: isSelected
                 ? Container(
-                    padding: EdgeInsets.symmetric(horizontal: 5),
-                    width: MediaQuery.of(context).size.width,
-                    child: Container(
-                      height: 53,
-                      padding: EdgeInsets.only(left: 0, right: 0, top: 5),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey,
-                              offset: Offset(1.0, 1.0),
-                              blurRadius: 10,
-                              spreadRadius: 2)
-                        ],
-                      ),
-                      child: Container(
-                        child: Center(
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: TextField(
-                                  onTap: () {
-                                    if (mapSearchValue != null) {
-                                      locationval.value = TextEditingValue(
-                                          text: mapSearchValue);
-                                    }
-                                  },
-                                  controller: locationval,
-                                  keyboardType: TextInputType.text,
-                                  decoration: InputDecoration(
-                                    hintText: mapSearchValue,
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 10.0, vertical: 13.0),
-                                  ),
-//                                    enabled: false,
-                                  cursorColor: Colors.black,
-//                                    controller: _textEditingController,
-                                  style: TextStyle(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.04,
-                                  ),
+                    padding: const EdgeInsets.only(top: 15, bottom: 10.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black, blurRadius: 0, spreadRadius: 0)
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Center(
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: TextField(
+                                controller: locationTextController,
+                                onChanged: (value) => mapSearchValue = value,
+                                style: TextStyle(
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.04,
                                 ),
+                                decoration:
+                                    InputDecoration(border: InputBorder.none),
                               ),
-                              IconButton(
-                                  icon: Icon(Icons.delete),
-                                  onPressed: () {
-                                    setState(() {
-                                      mapSearchValue = null;
-                                    });
-                                  }),
-                            ],
-                          ),
+                            ),
+                            SizedBox(width: 15),
+                            GestureDetector(
+                                onTap: () {
+                                  setState(() => isSelected = false);
+                                },
+                                child: Icon(
+                                  Icons.clear,
+                                  color: Colors.teal,
+                                ))
+                          ],
                         ),
                       ),
                     ),
@@ -224,13 +208,15 @@ class _GetLocationState extends State<GetLocation> {
                 : MapBoxPlaceSearchWidget(
                     apiKey: kApiKey,
                     searchHint: 'Search here',
+                    height: 500,
+                    country: 'in',
                     limit: 15,
                     onSelected: (place) {
                       setState(() {
                         MapBoxPlace temp = place;
-                        mapSearchValue1 = temp.placeName;
-                        print("search value  : ${mapSearchValue1}");
-                        print("gps val : ${mapSearchValue}");
+                        mapSearchValue = temp.placeName;
+                        getLocation(mapSearchValue);
+                        print("search value  : $mapSearchValue");
                       });
                     },
                     context: context,
