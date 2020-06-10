@@ -72,8 +72,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
               ),
             ),
             backgroundColor: Colors.white,
-            body: 
-            SingleChildScrollView(
+            body: SingleChildScrollView(
               child: FadeAnimation(
                 1,
                 Container(
@@ -84,139 +83,13 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                     ),
                     child: Column(
                       children: <Widget>[
-                        Card(
-                          margin: EdgeInsets.only(top: 20, bottom: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            side: BorderSide(color: Color(primary), width: 1),
-                          ),
-                          child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 20, horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(
-                                      planDoc['activity_name'],
-                                      style: TextStyle(
-                                        color: Color(primary),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        fontFamily: heading,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Detail(
-                                        icon: Icons.timer,
-                                        detailHeading: 'Start Time',
-                                        detailText: DateFormat('hh:mm a')
-                                            .format(start)),
-                                    Detail(
-                                        icon: Icons.timer,
-                                        detailHeading: 'End Time',
-                                        detailText:
-                                            DateFormat('hh:mm a').format(end))
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Detail(
-                                        icon: Icons.people,
-                                        detailHeading: 'Participants',
-                                        detailText:
-                                            '${planDoc['participants_id'].length}/${planDoc['max_participant']}'),
-                                    Detail(
-                                        icon: Icons.calendar_today,
-                                        detailHeading: 'Date',
-                                        detailText: DateFormat('d, MMM yy')
-                                            .format(start))
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Container(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.55,
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.location_on,
-                                            color: Color(secondary),
-                                            size: 25,
-                                          ),
-                                          Flexible(
-                                            child: Text(
-                                              planDoc['address'],
-                                              style: TextStyle(
-                                                  color: Color(secondary),
-                                                  fontSize: 15,
-                                                  fontFamily: bodyText,
-                                                  fontWeight: FontWeight.w500),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: <Widget>[
-                                        InkWell(
-                                          onTap: () {},
-                                          child: Text(
-                                            "View Map",
-                                            style: TextStyle(
-                                              color: Color(primary),
-                                              fontSize: 15,
-                                              fontFamily: bodyText,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-
-                                //loop start
-                              ],
-                            ),
-                          ),
-                          elevation: 0,
-                        ),
+                        ActivityDetailCard(
+                            planDoc: planDoc, start: start, end: end),
                         isLoading
                             ? Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: CircularProgressIndicator(),
-                            )
+                                padding: const EdgeInsets.all(10.0),
+                                child: CircularProgressIndicator(),
+                              )
                             : Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
@@ -301,77 +174,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                 ],
                               ),
                         SizedBox(height: 10),
-                        Text(
-                          "Participants",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Color(primary),
-                            fontFamily: heading,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Expanded(
-                          child: ListView.builder(
-                              itemCount: planDoc['participants_id'].length,
-                              itemBuilder: (context, index) => FutureBuilder(
-                                  future: DataService().getUserDoc(
-                                      planDoc['participants_id'][index]),
-                                  builder: (context, snapshot) {
-                                    return Card(
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5),
-                                        side: BorderSide(
-                                          width: 1,
-                                          color: Color(primary),
-                                        ),
-                                      ),
-                                      child: !snapshot.hasData
-                                          ? Container()
-                                          : ListTile(
-                                              leading: CircleAvatar(
-                                                backgroundImage: AssetImage(
-                                                    "images/bgcover.jpg"),
-                                              ),
-                                              title: Text(
-                                                '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
-                                                style: TextStyle(
-                                                    fontFamily: bodyText,
-                                                    fontSize: 15,
-                                                    fontWeight:
-                                                        FontWeight.w400),
-                                              ),
-                                              subtitle:
-                                                  Text('1 Actvity Done'),
-                                              trailing: Container(
-                                                width: 100,
-                                                height: 27,
-                                                child: OutlineButton(
-                                                  onPressed: () {},
-                                                  borderSide: BorderSide(
-                                                    color: Color(
-                                                        primary), //Color of the border
-                                                    style: BorderStyle
-                                                        .solid, //Style of the border
-                                                    width:
-                                                        0.9, //width of the border
-                                                  ),
-                                                  color: Color(primary),
-                                                  textColor: Color(primary),
-                                                  child: Text(
-                                                    "follow",
-                                                    style: TextStyle(
-                                                      fontFamily: bodyText,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                    );
-                                  })),
-                        ),
+                        ParticipantList(planDoc: planDoc),
                       ],
                     ),
                   ),
@@ -380,6 +183,238 @@ class _ActivityDetailsState extends State<ActivityDetails> {
             ),
           );
         });
+  }
+}
+
+class ParticipantList extends StatelessWidget {
+  const ParticipantList({
+    Key key,
+    @required this.planDoc,
+  }) : super(key: key);
+
+  final DocumentSnapshot planDoc;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+          child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            "Participants",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Color(primary),
+              fontFamily: heading,
+            ),
+          ),
+          SizedBox(height: 5),
+          Expanded(
+            child: ListView.builder(
+                itemCount: planDoc['participants_id'].length,
+                itemBuilder: (context, index) =>
+                    FutureBuilder(
+                        future: DataService().getUserDoc(
+                            planDoc['participants_id']
+                                [index]),
+                        builder: (context, snapshot) {
+                          return Card(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(5),
+                              side: BorderSide(
+                                width: 1,
+                                color: Color(primary),
+                              ),
+                            ),
+                            child: !snapshot.hasData
+                                ? Container()
+                                : ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundImage: AssetImage(
+                                          "images/bgcover.jpg"),
+                                    ),
+                                    title: Text(
+                                      '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                                      style: TextStyle(
+                                          fontFamily:
+                                              bodyText,
+                                          fontSize: 15,
+                                          fontWeight:
+                                              FontWeight
+                                                  .w400),
+                                    ),
+                                    subtitle: Text(
+                                        '1 Actvity Done'),
+                                    trailing: Container(
+                                      width: 100,
+                                      height: 27,
+                                      child: OutlineButton(
+                                        onPressed: () {},
+                                        borderSide:
+                                            BorderSide(
+                                          color: Color(
+                                              primary), //Color of the border
+                                          style: BorderStyle
+                                              .solid, //Style of the border
+                                          width:
+                                              0.9, //width of the border
+                                        ),
+                                        color: Color(primary),
+                                        textColor:
+                                            Color(primary),
+                                        child: Text(
+                                          "follow",
+                                          style: TextStyle(
+                                            fontFamily:
+                                                bodyText,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                          );
+                        })),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ActivityDetailCard extends StatelessWidget {
+  const ActivityDetailCard({
+    Key key,
+    @required this.planDoc,
+    @required this.start,
+    @required this.end,
+  }) : super(key: key);
+
+  final DocumentSnapshot planDoc;
+  final DateTime start;
+  final DateTime end;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.only(top: 20, bottom: 10),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        side: BorderSide(color: Color(primary), width: 1),
+      ),
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  planDoc['activity_name'],
+                  style: TextStyle(
+                    color: Color(primary),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    fontFamily: heading,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Detail(
+                    icon: Icons.timer,
+                    detailHeading: 'Start Time',
+                    detailText: DateFormat('hh:mm a').format(start)),
+                Detail(
+                    icon: Icons.timer,
+                    detailHeading: 'End Time',
+                    detailText: DateFormat('hh:mm a').format(end))
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Detail(
+                    icon: Icons.people,
+                    detailHeading: 'Participants',
+                    detailText:
+                        '${planDoc['participants_id'].length}/${planDoc['max_participant']}'),
+                Detail(
+                    icon: Icons.calendar_today,
+                    detailHeading: 'Date',
+                    detailText: DateFormat('d, MMM yy').format(start))
+              ],
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.55,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.location_on,
+                        color: Color(secondary),
+                        size: 25,
+                      ),
+                      Flexible(
+                        child: Text(
+                          planDoc['address'],
+                          style: TextStyle(
+                              color: Color(secondary),
+                              fontSize: 15,
+                              fontFamily: bodyText,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    InkWell(
+                      onTap: () {},
+                      child: Text(
+                        "View Map",
+                        style: TextStyle(
+                          color: Color(primary),
+                          fontSize: 15,
+                          fontFamily: bodyText,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 5,
+            ),
+
+            //loop start
+          ],
+        ),
+      ),
+      elevation: 0,
+    );
   }
 }
 

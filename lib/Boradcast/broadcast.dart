@@ -150,10 +150,17 @@ class _BroadcastState extends State<Broadcast> {
                         )
                       : Expanded(
                           child: Activities(
-                              stream: Firestore.instance
-                                  .collection('plan')
-                                  .where('admin_id', isEqualTo: email)
-                                  .snapshots())),
+                          stream: Firestore.instance
+                              .collection('plan')
+                              .where('admin_id', isEqualTo: email)
+                              .snapshots(),
+                          onTapGoto: (planRef) => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    BroadcardActivityDetails(planRef: planRef)),
+                          ),
+                        )),
                 ],
               ),
             ),

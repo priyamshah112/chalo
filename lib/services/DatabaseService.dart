@@ -204,4 +204,36 @@ class DataService {
       return false;
     }
   }
+
+  Future joinActivity(bool accept, String planId, String userEmail, String token) async {
+    try {
+      final planRef = database.collection('plan').document(planId);
+      final batch = database.batch();
+      batch.updateData(planRef, {
+        'pending_participant_id': FieldValue.arrayRemove([userEmail])
+      });
+      if (accept) {
+        batch.updateData(planRef, {
+          'participants_id': FieldValue.arrayUnion([userEmail])
+        });
+        final userRef = database.collection('user_plans').document(userEmail);
+        batch.updateData(userRef, {
+          'current_plans': FieldValue.arrayUnion([planId])
+        });
+        final groupchatSnap =
+            await database.collection('group_chat').document(planId).get();
+        print(groupchatSnap.data);
+        Map messengers = groupchatSnap.data['messenger_id'];
+        messengers[userEmail] = token;
+        batch.updateData(groupchatSnap.reference, {'messenger_id': messengers});
+      } else {
+        batch.updateData(planRef, {
+          'blocked_participant_id': FieldValue.arrayUnion([userEmail])
+        });
+      }
+      await batch.commit();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 }
