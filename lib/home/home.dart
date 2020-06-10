@@ -1,7 +1,7 @@
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/profile/profile_page.dart';
 import 'package:chaloapp/services/AuthService.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -127,20 +127,28 @@ class _MainMapState extends State<MainMap> {
           fit: StackFit.expand,
           children: <Widget>[
             Container(
-              child: FlutterMap(
-                options: new MapOptions(
-                    center: new LatLng(19.0760, 72.8777), minZoom: 10.0),
-                layers: [
-                  new TileLayerOptions(
-                      urlTemplate:
-                          "https://api.mapbox.com/styles/v1/abdulquadir123/ck9kbtkmm0ngc1ipif8vq6qbv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw",
-                      additionalOptions: {
-                        'accessToken':
-                            'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw',
-                        'id': 'mapbox.mapbox-streets-v8'
-                      }),
-                ],
-              ),
+              child: StreamBuilder<Object>(
+                  stream:
+                      Firestore.instance.collection('map_activity').snapshots(),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    return FlutterMap(
+                      options: MapOptions(
+                          center: LatLng(19.0760, 72.8777), minZoom: 10.0),
+                      layers: [
+                        TileLayerOptions(
+                            urlTemplate:
+                                "https://api.mapbox.com/styles/v1/abdulquadir123/ck9kbtkmm0ngc1ipif8vq6qbv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw",
+                            additionalOptions: {
+                              'accessToken':
+                                  'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw',
+                              'id': 'mapbox.mapbox-streets-v8'
+                            }),
+                        if (snapshot.hasData)
+                          MarkerLayerOptions(
+                              markers: getMarkers(snapshot.data.documents))
+                      ],
+                    );
+                  }),
             ),
             Positioned(
                 top: 60.0,
@@ -243,4 +251,18 @@ class _MainMapState extends State<MainMap> {
                       builder: (context) => HomePage())); // To close the dialog
             }));
   }
+}
+
+List<Marker> getMarkers(List<DocumentSnapshot> documents) {
+  int count = documents.length;
+  return List<Marker>.generate(
+      count,
+      (index) => Marker(
+          width: 60.0,
+          height: 60.0,
+          point: new LatLng(documents[index].data['location'].latitude,
+              documents[index].data['location'].longitude),
+          builder: (ctx) => new IconButton(
+              icon: Image.network(documents[index].data['activity_logo']),
+              onPressed: () {})));
 }

@@ -53,6 +53,7 @@ class _ChatInfoState extends State<ChatInfo> {
 //              );
             },
             child: IconButton(
+              onPressed: (){},
               icon: Icon(
                 Icons.share,
                 color: Colors.white,

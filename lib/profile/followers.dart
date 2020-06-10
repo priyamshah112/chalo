@@ -335,6 +335,7 @@ class _FollowerState extends State<Follower> {
                                   ],
                                 ),
                                 IconButton(
+                                  onPressed: (){},
                                   icon: Icon(
                                     Icons.delete,
                                     color: Colors.redAccent.shade200,
