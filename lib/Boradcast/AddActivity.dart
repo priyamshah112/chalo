@@ -41,6 +41,7 @@ class _AddActivityState extends State<AddActivity> {
       autovalidate: _autovalidate,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Color(primary),
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: Center(
@@ -138,6 +139,26 @@ class _AddActivityState extends State<AddActivity> {
                                     ),
                                   ),
                                 ),
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  Text(
+                                    "Recommandations",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Color(primary),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    "See All",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Color(primary),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
                               Container(
                                 padding: EdgeInsets.symmetric(
@@ -537,7 +558,9 @@ class _AddActivityState extends State<AddActivity> {
                                     'description': note,
                                     'group_chat': null,
                                     'location_id': null,
-                                    'location': GeoPoint(activityLocation.latitude, activityLocation.longitude),
+                                    'location': GeoPoint(
+                                        activityLocation.latitude,
+                                        activityLocation.longitude),
                                     'map_status': type == 'Public'
                                         ? 'active'
                                         : 'inactive',
