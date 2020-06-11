@@ -41,17 +41,14 @@ class _AddActivityState extends State<AddActivity> {
       autovalidate: _autovalidate,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(primary),
           centerTitle: true,
           automaticallyImplyLeading: false,
-          title: Center(
-            child: Text(
-              "Broadcast Activity",
-              style: TextStyle(
-                color: Colors.white,
-                fontFamily: bodyText,
-                fontWeight: FontWeight.bold,
-              ),
+          title: Text(
+            "Broadcast Activity",
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: bodyText,
+              fontWeight: FontWeight.bold,
             ),
           ),
           leading: InkWell(
@@ -63,20 +60,6 @@ class _AddActivityState extends State<AddActivity> {
               color: Colors.white,
             ),
           ),
-          actions: <Widget>[
-            FlatButton(
-              onPressed: null,
-              child: Text(
-                "",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 17,
-                  fontFamily: bodyText,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
           elevation: 1.0,
         ),
         backgroundColor: Colors.white,
@@ -139,26 +122,6 @@ class _AddActivityState extends State<AddActivity> {
                                     ),
                                   ),
                                 ),
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  Text(
-                                    "Recommandations",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "See All",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
                               ),
                               Container(
                                 padding: EdgeInsets.symmetric(
@@ -558,6 +521,7 @@ class _AddActivityState extends State<AddActivity> {
                                     'description': note,
                                     'group_chat': null,
                                     'location_id': null,
+                                    'address': location,
                                     'location': GeoPoint(
                                         activityLocation.latitude,
                                         activityLocation.longitude),
