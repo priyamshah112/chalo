@@ -14,6 +14,8 @@ import '../common/add_location.dart';
 import '../data/activity.dart';
 import 'package:intl/intl.dart';
 
+import 'collabration_carousel.dart';
+
 class AddActivity extends StatefulWidget {
   @override
   _AddActivityState createState() => _AddActivityState();
@@ -41,6 +43,7 @@ class _AddActivityState extends State<AddActivity> {
       autovalidate: _autovalidate,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Color(primary),
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: Text(
@@ -164,6 +167,7 @@ class _AddActivityState extends State<AddActivity> {
                                     hintText: "Select an Activity",
                                     prefixIcon: Icon(
                                       Icons.search,
+                                      color: Color(primary),
                                     ),
                                     suffixIcon: Container(
                                       decoration: BoxDecoration(
@@ -197,6 +201,8 @@ class _AddActivityState extends State<AddActivity> {
                               SizedBox(
                                 height: 10,
                               ),
+                              CollabrationCarousel(),
+                              SizedBox(height: 10.0),
                               Text(
                                 "Activity Location",
                                 style: TextStyle(

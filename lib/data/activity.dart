@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'dart:io';
 import 'package:chaloapp/authentication/ProfileSetup.dart';
 import 'package:chaloapp/home/home.dart';
@@ -38,7 +39,7 @@ class _ViewActivityState extends State<ViewActivity> {
           },
           child: Icon(
             Icons.arrow_back,
-            color: Color(secondary),
+            color: Colors.white,
           ),
         ),
         actions: <Widget>[
@@ -51,18 +52,19 @@ class _ViewActivityState extends State<ViewActivity> {
             },
             child: Text(
               "Done",
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(color: Colors.white),
             ),
           ),
         ],
         title: Text(
           "All Activities",
           style: TextStyle(
-            color: Color(secondary),
+            color: Colors.white,
           ),
         ),
-        elevation: 0.0,
-        backgroundColor: Colors.white,
+        elevation: 1.0,
+        centerTitle: true,
+        backgroundColor: Color(primary),
       ),
       body: allactivityList == null
           ? Center(
