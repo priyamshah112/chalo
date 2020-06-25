@@ -12,9 +12,10 @@ import 'services/AuthService.dart';
 void main() => runApp(
       MaterialApp(
         theme: ThemeData(
-            primaryColor: Color(primary),
-            accentColor: Color(primary),
-            cursorColor: Color(primary)),
+          primaryColor: Color(primary),
+          accentColor: Color(primary),
+          cursorColor: Color(primary),
+        ),
         debugShowCheckedModeBanner: false,
         home: SplashScreen(),
       ),

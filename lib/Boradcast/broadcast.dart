@@ -62,6 +62,7 @@ class _BroadcastState extends State<Broadcast> {
       onWillPop: () => _onWillPop(context),
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Color(primary),
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: Center(

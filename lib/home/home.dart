@@ -1,3 +1,4 @@
+import 'package:chaloapp/Activites/Activity_Detail.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/profile/profile_page.dart';
 import 'package:chaloapp/services/AuthService.dart';
@@ -254,6 +255,229 @@ class _MainMapState extends State<MainMap> {
                   MaterialPageRoute(
                       builder: (context) => HomePage())); // To close the dialog
             }));
+  }
+
+  List<Marker> getMarkers(List<DocumentSnapshot> documents) {
+    int count = documents.length;
+    return List<Marker>.generate(
+      count,
+      (index) => Marker(
+        width: 60.0,
+        height: 60.0,
+        point: new LatLng(documents[index].data['location'].latitude,
+            documents[index].data['location'].longitude),
+        builder: (ctx) => new IconButton(
+          icon: Image.network(documents[index].data['activity_logo']),
+          onPressed: () {
+            _showModal();
+            print("marker pressed");
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showModal() {
+    Future<void> future = showModalBottomSheet<void>(
+      context: context,
+      elevation: 0.0,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Container(
+          margin: EdgeInsets.only(top: 5, left: 15, right: 15, bottom: 90),
+          width: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: Colors.teal,
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(6)),
+          height: 337,
+          child: Card(
+            elevation: 0.0,
+            child: Column(
+              children: <Widget>[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      width: 55.0,
+                      height: 55.0,
+                      child: CircleAvatar(
+//                        foregroundColor: Color(primary),
+//                        backgroundColor: Color(secondary),
+                        backgroundImage: AssetImage('images/bgcover.jpg'),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10.0,
+                    ),
+                    Expanded(
+                      flex: 5,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          FittedBox(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          ActivityDetails()),
+                                );
+                              },
+                              child: Text(
+                                "Activity name",
+                                style: TextStyle(
+                                  color: Colors.teal,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: <Widget>[
+                              Icon(
+                                FontAwesomeIcons.trophy,
+                                color: Colors.amberAccent,
+                                size: 15,
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(" 0 activities Done"),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        child: IconButton(
+                          icon: Icon(Icons.share),
+                          color: Colors.green,
+                          onPressed: () {},
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("Male, Mumbai"),
+                    Text("0.00 km away"),
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Divider(
+                  thickness: 1,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      "activity knwkjw",
+                      style: TextStyle(
+                        color: Colors.teal,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+//                    Text(
+//                      DateFormat('d, MMM').format(start),
+//                      style: TextStyle(
+//                        color: Color(primary),
+//                        fontWeight: FontWeight.bold,
+//                        fontSize: 18,
+//                      ),
+//                    ),
+                    Text(
+                      "2 May",
+                      style: TextStyle(
+                        color: Color(primary),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+//                Row(
+//                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                  children: <Widget>[
+//                    IconText(
+//                        text: DateFormat('hh:mm').format(start),
+//                        icon: Icons.timer),
+//                    IconText(text: count.toString(), icon: Icons.people),
+//                    IconText(text: 'Mumbai', icon: Icons.location_on)
+//                  ],
+//                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    IconText(text: "3:20 PM", icon: Icons.timer),
+                    IconText(text: "5/10", icon: Icons.people),
+                    IconText(text: 'Mumbai', icon: Icons.location_on)
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Divider(
+                  thickness: 1,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: FlatButton(
+                    onPressed: () {},
+                    color: Color(primary),
+                    textColor: Colors.white,
+                    child: Text(
+                      "Join Activity",
+                      style: TextStyle(
+                        fontFamily: bodyText,
+                      ),
+                    ),
+                  ),
+                ),
+                Center(
+                  child: FlatButton(
+                    highlightColor: Colors.transparent,
+                    child: Text(
+                      'Propose a new time',
+                      style: TextStyle(
+                        color: Color(primary),
+                      ),
+                    ),
+                    onPressed: () {},
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+//    future.then((void value) => _closeModal(value));
   }
 }
 

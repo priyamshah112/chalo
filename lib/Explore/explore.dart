@@ -198,7 +198,7 @@ class _ExploreState extends State<Explore> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Container(
-                                width: 70,
+                                width: 90,
                                 height: 25,
                                 child: RaisedButton(
                                   onPressed: () {},

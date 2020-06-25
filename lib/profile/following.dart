@@ -154,6 +154,7 @@ class _FollowingState extends State<Following> {
     ];
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: appbar(),
       body: SafeArea(
         child: SingleChildScrollView(

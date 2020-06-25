@@ -192,6 +192,7 @@ class _FollowerState extends State<Follower> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: appbar(),
       body: SafeArea(
         child: SingleChildScrollView(

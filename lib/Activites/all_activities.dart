@@ -389,7 +389,7 @@ class IconText extends StatelessWidget {
       children: <Widget>[
         Icon(
           icon,
-          color: Color(secondary),
+          color: Color(primary),
           size: 20,
         ),
         SizedBox(width: 3.0),
