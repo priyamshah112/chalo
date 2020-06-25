@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:chaloapp/profile/edit_profile_page.dart';
 import 'package:chaloapp/profile/follow_request.dart';
 import 'package:chaloapp/profile/following.dart';
 import 'package:chaloapp/home/home.dart';
 import 'package:chaloapp/Explore/post_details.dart';
+import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,10 +31,16 @@ class ProfilePage extends StatefulWidget {
 List<List<String>> selectedActivityList;
 List<List<String>> activityList;
 List<List<String>> postList;
-final String username = "Abdul Quadir Ansari";
+String username;
 final String userDp = "images/bgcover.jpg";
 
 class _ProfilePageState extends State<ProfilePage> {
+  Future<Map<String, dynamic>> getData() async {
+    final user = await UserData.getUser();
+    final userDoc = await DataService().getUserDoc(user['email']);
+    return userDoc.data;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -111,890 +119,949 @@ class _ProfilePageState extends State<ProfilePage> {
         elevation: 1.0,
         backgroundColor: Color(primary),
       ),
-      body: DefaultTabController(
-        length: 3,
-        child: NestedScrollView(
-          headerSliverBuilder: (context, _) {
-            return [
-              SliverList(
-                delegate: SliverChildListDelegate([
-                  Padding(
-                    padding: EdgeInsets.only(top: 20, left: 20, right: 20),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Color(primary),
-                          ),
-                          borderRadius: BorderRadius.circular(6)),
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.person_add,
-                          color: Color(primary),
-                        ),
-                        contentPadding: EdgeInsets.only(
-                            top: 8, left: 5, right: 00, bottom: 8),
-                        title: Text(
-                          "You have 3 new requests",
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Color(primary),
-                          ),
-                        ),
-                        trailing: FittedBox(
-                          fit: BoxFit.fill,
-                          child: Container(
-                              width: 90,
-                              height: 27,
-                              child: RaisedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            FollowReq()),
-                                  );
-                                },
-                                color: Color(primary),
-                                textColor: Colors.white,
-                                child: Text(
-                                  "See all",
-                                  style: TextStyle(
-                                    fontFamily: bodyText,
+      body: FutureBuilder(
+          future: getData(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData)
+              return Center(child: CircularProgressIndicator());
+            return FadeAnimation(
+              1.5,
+              DefaultTabController(
+                length: 3,
+                child: NestedScrollView(
+                  headerSliverBuilder: (context, _) {
+                    return [
+                      SliverList(
+                        delegate: SliverChildListDelegate([
+                          Padding(
+                            padding:
+                                EdgeInsets.only(top: 20, left: 20, right: 20),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 5),
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Color(primary),
                                   ),
-                                ),
-                              )),
-                        ),
-                      ),
-                    ),
-                  ),
-                  ProfileCard(username: 'Abdul Quadir Ansari'),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 20),
-                    child: TextField(
-                      keyboardType: TextInputType.text,
-                      autofocus: false,
-                      //obscureText: true,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Search users",
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Color(primary),
-                        ),
-                        contentPadding: const EdgeInsets.only(
-                            left: 30.0, bottom: 15.0, top: 15.0, right: 0.0),
-                        filled: true,
-                        fillColor: Color(form1),
-                        hintStyle: TextStyle(
-                          fontFamily: bodyText,
-                          color: Color(formHint),
-                        ),
-                      ),
-                    ),
-                  ),
-                ]),
-              ),
-            ];
-          },
-          body: Column(
-            children: <Widget>[
-              TabBar(
-                labelColor: Color(primary),
-                unselectedLabelColor: Color(secondary),
-                indicatorSize: TabBarIndicatorSize.label,
-                indicator: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(5),
-                        topRight: Radius.circular(5)),
-                    color: Color(background1)),
-                tabs: [
-                  Tab(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Activity",
-                        style: TextStyle(
-                          fontFamily: heading,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "About",
-                        style: TextStyle(
-                          fontFamily: heading,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Post",
-                        style: TextStyle(
-                          fontFamily: heading,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    //Activity Tab
-                    SingleChildScrollView(
-                      child: Container(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Text(
-                                "Activity Preferences",
-                                style: TextStyle(
-                                  fontSize: 15,
+                                  borderRadius: BorderRadius.circular(6)),
+                              child: ListTile(
+                                leading: Icon(
+                                  Icons.person_add,
                                   color: Color(primary),
-                                  fontFamily: heading,
-                                  fontWeight: FontWeight.w600,
                                 ),
-                              ),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Select Activities",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontFamily: heading,
-                                      color: Color(secondary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                contentPadding: EdgeInsets.only(
+                                    top: 8, left: 5, right: 00, bottom: 8),
+                                title: Text(
+                                  "You have 3 new requests",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    color: Color(primary),
                                   ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  allActivity()));
-                                    },
-                                    child: Text(
-                                      "View all",
-                                      style: TextStyle(
-                                        fontSize: 15,
+                                ),
+                                trailing: FittedBox(
+                                  fit: BoxFit.fill,
+                                  child: Container(
+                                      width: 90,
+                                      height: 27,
+                                      child: RaisedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        FollowReq()),
+                                          );
+                                        },
                                         color: Color(primary),
-                                        fontFamily: heading,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Container(
-                                height: 107,
-                                child: ListView(
-                                  scrollDirection: Axis.horizontal,
-                                  children: <Widget>[
-                                    for (int i = 0;
-                                        i < activityList.length;
-                                        i++)
-                                      Padding(
-                                        padding: EdgeInsets.all(2.0),
-                                        child: InkWell(
-                                          onTap: () {
-                                            activityList[i][2] = 'true';
-                                            for (int j = 0;
-                                                j < selectedActivityList.length;
-                                                j++) {
-                                              if (activityList[i][0] ==
-                                                      selectedActivityList[j]
-                                                          [0] &&
-                                                  activityList[i][1] ==
-                                                      selectedActivityList[j]
-                                                          [1]) {
-                                                activityList[i][2] = 'false';
-                                                break;
-                                              }
-                                            }
-                                            print(activityList[i][2]);
-                                            if (activityList[i][2] == 'true')
-                                              setState(() {
-                                                selectedActivityList.add([
-                                                  activityList[i][0],
-                                                  activityList[i][1],
-                                                ]);
-                                              });
-                                            else
-                                              for (int j = 0;
-                                                  j <
-                                                      selectedActivityList
-                                                          .length;
-                                                  j++) {
-                                                if (activityList[i][0] ==
-                                                        selectedActivityList[j]
-                                                            [0] &&
-                                                    activityList[i][1] ==
-                                                        selectedActivityList[j]
-                                                            [1]) {
-                                                  selectedActivityList
-                                                      .removeAt(j);
-                                                  break;
-                                                }
-                                              }
-                                            setState(() {});
-                                          },
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: Color(primary),
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(6)),
-                                            width: 110,
-                                            child: Stack(
-                                              children: <Widget>[
-                                                activityList[i][2] == 'true'
-                                                    ? Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(6),
-                                                          color: Colors
-                                                              .green.shade100,
-                                                        ),
-                                                      )
-                                                    : Text(''),
-                                                ListTile(
-                                                  title: Image.asset(
-                                                    activityList[i][0],
-                                                    width: 60,
-                                                    height: 60,
-                                                  ),
-                                                  subtitle: Container(
-                                                    padding:
-                                                        EdgeInsets.only(top: 7),
-                                                    child: Text(
-                                                      activityList[i][1],
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 13,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontFamily: bodyText,
-                                                        color: Color(secondary),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                        textColor: Colors.white,
+                                        child: Text(
+                                          "See all",
+                                          style: TextStyle(
+                                            fontFamily: bodyText,
                                           ),
                                         ),
-                                      ),
-                                  ],
+                                      )),
                                 ),
                               ),
-                              selectedActivityList.length != 0
-                                  ? Container(
-                                      margin:
-                                          EdgeInsets.symmetric(vertical: 10),
-                                      child: Text(
-                                        "Your Activities",
+                            ),
+                          ),
+                          ProfileCard(username: '${snapshot.data['first_name']} ${snapshot.data['last_name']}'),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 20),
+                            child: TextField(
+                              keyboardType: TextInputType.text,
+                              autofocus: false,
+                              //obscureText: true,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: "Search users",
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Color(primary),
+                                ),
+                                contentPadding: const EdgeInsets.only(
+                                    left: 30.0,
+                                    bottom: 15.0,
+                                    top: 15.0,
+                                    right: 0.0),
+                                filled: true,
+                                fillColor: Color(form1),
+                                hintStyle: TextStyle(
+                                  fontFamily: bodyText,
+                                  color: Color(formHint),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ];
+                  },
+                  body: Column(
+                    children: <Widget>[
+                      TabBar(
+                        labelColor: Color(primary),
+                        unselectedLabelColor: Color(secondary),
+                        indicatorSize: TabBarIndicatorSize.label,
+                        indicator: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(5),
+                                topRight: Radius.circular(5)),
+                            color: Color(background1)),
+                        tabs: [
+                          Tab(
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Activity",
+                                style: TextStyle(
+                                  fontFamily: heading,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Tab(
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                "About",
+                                style: TextStyle(
+                                  fontFamily: heading,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Tab(
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Post",
+                                style: TextStyle(
+                                  fontFamily: heading,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            //Activity Tab
+                            SingleChildScrollView(
+                              child: Container(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      SizedBox(
+                                        height: 20.0,
+                                      ),
+                                      Text(
+                                        "Activity Preferences",
                                         style: TextStyle(
                                           fontSize: 15,
-                                          color: Color(secondary),
+                                          color: Color(primary),
                                           fontFamily: heading,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                    )
-                                  : Text(""),
-                              selectedActivityList.length != 0
-                                  ? Container(
-                                      margin: EdgeInsets.only(bottom: 20),
-                                      height: 107,
-                                      child: ListView(
-                                        scrollDirection: Axis.horizontal,
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
-                                          for (int i = 0;
-                                              i < selectedActivityList.length;
-                                              i++)
-                                            Padding(
-                                              padding: EdgeInsets.all(2.0),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                      color: Color(primary),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            6)),
-                                                width: 110,
-                                                child: ListTile(
-                                                  title: Image.asset(
-                                                    selectedActivityList[i][0],
-                                                    width: 60,
-                                                    height: 60,
-                                                  ),
-                                                  subtitle: Container(
-                                                    padding:
-                                                        EdgeInsets.only(top: 7),
-                                                    child: Text(
-                                                      selectedActivityList[i]
-                                                          [1],
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 13,
-                                                        fontFamily: bodyText,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Color(secondary),
-                                                      ),
+                                          Text(
+                                            "Select Activities",
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontFamily: heading,
+                                              color: Color(secondary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          allActivity()));
+                                            },
+                                            child: Text(
+                                              "View all",
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                color: Color(primary),
+                                                fontFamily: heading,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Container(
+                                        height: 107,
+                                        child: ListView(
+                                          scrollDirection: Axis.horizontal,
+                                          children: <Widget>[
+                                            for (int i = 0;
+                                                i < activityList.length;
+                                                i++)
+                                              Padding(
+                                                padding: EdgeInsets.all(2.0),
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    activityList[i][2] = 'true';
+                                                    for (int j = 0;
+                                                        j <
+                                                            selectedActivityList
+                                                                .length;
+                                                        j++) {
+                                                      if (activityList[i][0] ==
+                                                              selectedActivityList[
+                                                                  j][0] &&
+                                                          activityList[i][1] ==
+                                                              selectedActivityList[
+                                                                  j][1]) {
+                                                        activityList[i][2] =
+                                                            'false';
+                                                        break;
+                                                      }
+                                                    }
+                                                    print(activityList[i][2]);
+                                                    if (activityList[i][2] ==
+                                                        'true')
+                                                      setState(() {
+                                                        selectedActivityList
+                                                            .add([
+                                                          activityList[i][0],
+                                                          activityList[i][1],
+                                                        ]);
+                                                      });
+                                                    else
+                                                      for (int j = 0;
+                                                          j <
+                                                              selectedActivityList
+                                                                  .length;
+                                                          j++) {
+                                                        if (activityList[i]
+                                                                    [0] ==
+                                                                selectedActivityList[
+                                                                    j][0] &&
+                                                            activityList[i]
+                                                                    [1] ==
+                                                                selectedActivityList[
+                                                                    j][1]) {
+                                                          selectedActivityList
+                                                              .removeAt(j);
+                                                          break;
+                                                        }
+                                                      }
+                                                    setState(() {});
+                                                  },
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                          color: Color(primary),
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(6)),
+                                                    width: 110,
+                                                    child: Stack(
+                                                      children: <Widget>[
+                                                        activityList[i][2] ==
+                                                                'true'
+                                                            ? Container(
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              6),
+                                                                  color: Colors
+                                                                      .green
+                                                                      .shade100,
+                                                                ),
+                                                              )
+                                                            : Text(''),
+                                                        ListTile(
+                                                          title: Image.asset(
+                                                            activityList[i][0],
+                                                            width: 60,
+                                                            height: 60,
+                                                          ),
+                                                          subtitle: Container(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    top: 7),
+                                                            child: Text(
+                                                              activityList[i]
+                                                                  [1],
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style: TextStyle(
+                                                                fontSize: 13,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontFamily:
+                                                                    bodyText,
+                                                                color: Color(
+                                                                    secondary),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    )
-                                  : Container(),
-                              Text(
-                                "Invite Recieve Radius",
-                                style: TextStyle(
-                                  color: Color(primary),
-                                  fontFamily: heading,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              Container(
-                                margin: EdgeInsets.symmetric(vertical: 10),
-                                decoration: ShapeDecoration(
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      width: 1.0,
-                                      style: BorderStyle.solid,
-                                      color: Color(primary),
-                                    ),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5.0)),
-                                  ),
-                                ),
-                                child: SelectRadius(),
-                                padding: EdgeInsets.symmetric(horizontal: 15),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    //About Tab
-                    SingleChildScrollView(
-                      child: Container(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Text(
-                                "About Me",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontFamily: heading,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                "Hello! I’m Abdul Quadir Ansari. Web Developer specializing in front end development. Experienced with all stages of the development cycle for dynamic web projects. Well-versed in numerous programming languages including JavaScript, SQL, and C. Strong background in project management and customer relations.also I am good at wordpress.",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontFamily: bodyText,
-                                  color: Color(secondary),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Divider(
-                                thickness: 1,
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Job Title",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Web Developer",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Languages",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "English",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Gender",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Male",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Contact",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "+91 7738413265",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Email",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "abdulquadir.a@somaiya.edu",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Birth Date",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "24/04/2000",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Country",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "India",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "State",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Maharashtra",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "City",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Mumbai",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Divider(
-                                thickness: 1,
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                "Social Information",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontFamily: heading,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Facebook",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "facebook.com",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Instagram",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "instagram.com",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Linkedin",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "linkedin.com",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Twitter",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "twitter.com",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Website/blog",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "abdulquadir.co",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    //Post Tab
-                    ListView(
-                      children: <Widget>[
-                        Container(
-                          child: Wrap(
-                            children: <Widget>[
-                              for (int i = 0; i < postList.length; i++)
-                                Container(
-                                  height: MediaQuery.of(context).size.width / 3,
-                                  width: MediaQuery.of(context).size.width / 3,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(postList[i][0]),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              PostItem(
-                                            dp: userDp,
-                                            name: username,
-                                            img: postList[i][0],
-                                            activityName: postList[i][1],
-                                            caption: postList[i][2],
-                                            time: postList[i][3],
+                                      selectedActivityList.length != 0
+                                          ? Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 10),
+                                              child: Text(
+                                                "Your Activities",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Color(secondary),
+                                                  fontFamily: heading,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            )
+                                          : Text(""),
+                                      selectedActivityList.length != 0
+                                          ? Container(
+                                              margin:
+                                                  EdgeInsets.only(bottom: 20),
+                                              height: 107,
+                                              child: ListView(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                children: <Widget>[
+                                                  for (int i = 0;
+                                                      i <
+                                                          selectedActivityList
+                                                              .length;
+                                                      i++)
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsets.all(2.0),
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                                border:
+                                                                    Border.all(
+                                                                  color: Color(
+                                                                      primary),
+                                                                ),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            6)),
+                                                        width: 110,
+                                                        child: ListTile(
+                                                          title: Image.asset(
+                                                            selectedActivityList[
+                                                                i][0],
+                                                            width: 60,
+                                                            height: 60,
+                                                          ),
+                                                          subtitle: Container(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    top: 7),
+                                                            child: Text(
+                                                              selectedActivityList[
+                                                                  i][1],
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style: TextStyle(
+                                                                fontSize: 13,
+                                                                fontFamily:
+                                                                    bodyText,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Color(
+                                                                    secondary),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            )
+                                          : Container(),
+                                      Text(
+                                        "Invite Recieve Radius",
+                                        style: TextStyle(
+                                          color: Color(primary),
+                                          fontFamily: heading,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Container(
+                                        margin:
+                                            EdgeInsets.symmetric(vertical: 10),
+                                        decoration: ShapeDecoration(
+                                          shape: RoundedRectangleBorder(
+                                            side: BorderSide(
+                                              width: 1.0,
+                                              style: BorderStyle.solid,
+                                              color: Color(primary),
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(5.0)),
                                           ),
                                         ),
-                                      );
-                                    },
+                                        child: SelectRadius(),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 15),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                            ],
-                          ),
+                              ),
+                            ),
+                            //About Tab
+                            SingleChildScrollView(
+                              child: Container(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      SizedBox(
+                                        height: 20.0,
+                                      ),
+                                      Text(
+                                        "About Me",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Color(primary),
+                                          fontFamily: heading,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        "Hello! I’m Abdul Quadir Ansari. Web Developer specializing in front end development. Experienced with all stages of the development cycle for dynamic web projects. Well-versed in numerous programming languages including JavaScript, SQL, and C. Strong background in project management and customer relations.also I am good at wordpress.",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontFamily: bodyText,
+                                          color: Color(secondary),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Divider(
+                                        thickness: 1,
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Job Title",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "Web Developer",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Languages",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "English",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Gender",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "Male",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Contact",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "+91 7738413265",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Email",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "abdulquadir.a@somaiya.edu",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Birth Date",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "24/04/2000",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Country",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "India",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "State",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "Maharashtra",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "City",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "Mumbai",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Divider(
+                                        thickness: 1,
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Text(
+                                        "Social Information",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Color(primary),
+                                          fontFamily: heading,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Facebook",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "facebook.com",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Instagram",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "instagram.com",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Linkedin",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "linkedin.com",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Twitter",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "twitter.com",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            "Website/blog",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: heading,
+                                              color: Color(primary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "abdulquadir.co",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontFamily: bodyText,
+                                              color: Color(secondary),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            //Post Tab
+                            ListView(
+                              children: <Widget>[
+                                Container(
+                                  child: Wrap(
+                                    children: <Widget>[
+                                      for (int i = 0; i < postList.length; i++)
+                                        Container(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              3,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              3,
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: AssetImage(postList[i][0]),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          child: InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (BuildContext context) =>
+                                                          PostItem(
+                                                    dp: userDp,
+                                                    name: username,
+                                                    img: postList[i][0],
+                                                    activityName: postList[i]
+                                                        [1],
+                                                    caption: postList[i][2],
+                                                    time: postList[i][3],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            );
+          }),
     );
   }
 
@@ -1066,9 +1133,9 @@ class ProfileCard extends StatefulWidget {
 class _ProfileCardState extends State<ProfileCard> {
   File _image;
   Future getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    var image = await ImagePicker().getImage(source: ImageSource.gallery);
     setState(() {
-      _image = image;
+      _image = File(image.path);
       print("Image Path $_image");
     });
   }

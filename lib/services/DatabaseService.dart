@@ -205,7 +205,8 @@ class DataService {
     }
   }
 
-  Future joinActivity(bool accept, String planId, String userEmail, String token) async {
+  Future joinActivity(
+      bool accept, String planId, String userEmail, String token) async {
     try {
       final planRef = database.collection('plan').document(planId);
       final batch = database.batch();
@@ -216,16 +217,24 @@ class DataService {
         batch.updateData(planRef, {
           'participants_id': FieldValue.arrayUnion([userEmail])
         });
-        final userRef = database.collection('user_plans').document(userEmail);
-        batch.updateData(userRef, {
+        final userplanRef =
+            database.collection('user_plans').document(userEmail);
+        batch.updateData(userplanRef, {
           'current_plans': FieldValue.arrayUnion([planId])
         });
         final groupchatSnap =
             await database.collection('group_chat').document(planId).get();
-        print(groupchatSnap.data);
         Map messengers = groupchatSnap.data['messenger_id'];
         messengers[userEmail] = token;
         batch.updateData(groupchatSnap.reference, {'messenger_id': messengers});
+        await database
+            .collection('users')
+            .document(userEmail)
+            .collection('activity_notifications')
+            .add({
+          'msg': 'You have been accepted in an Activity',
+          'created_at': Timestamp.now()
+        });
       } else {
         batch.updateData(planRef, {
           'blocked_participant_id': FieldValue.arrayUnion([userEmail])
@@ -235,5 +244,16 @@ class DataService {
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  Future<List<DocumentSnapshot>> getNotification() async {
+    final user = await UserData.getUser();
+    final notifications = await database
+        .collection('users')
+        .document(user['email'])
+        .collection('activity_notifications')
+        .orderBy('created_at', descending: true)
+        .getDocuments();
+    return notifications.documents.length == 0 ? null : notifications.documents;
   }
 }

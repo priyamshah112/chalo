@@ -17,6 +17,8 @@ import 'package:chaloapp/Boradcast/broadcast.dart';
 
 import 'package:chaloapp/Chat/chats.dart';
 
+import 'notification.dart';
+
 class MainHome extends StatefulWidget {
   @override
   _MainHomeState createState() => _MainHomeState();
@@ -114,12 +116,14 @@ class _MainMapState extends State<MainMap> {
       key: _scaffoldKey,
       floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.white,
-          child: Icon(Icons.person, color: Colors.black),
+          child: Icon(Icons.notifications, color: Color(primary)),
           onPressed: () async {
-            _scaffoldKey.currentState.showSnackBar(SnackBar(
-              content: Text('user: $user\n email: $email'),
-              duration: Duration(seconds: 2),
-            ));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => NotificationList()));
+            // _scaffoldKey.currentState.showSnackBar(SnackBar(
+            //   content: Text('user: $user\n email: $email'),
+            //   duration: Duration(seconds: 2),
+            // ));
           }),
       body: WillPopScope(
         onWillPop: () => _onWillPop(context),

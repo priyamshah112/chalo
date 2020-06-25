@@ -41,9 +41,13 @@ class _BroadcastState extends State<Broadcast> {
   String email;
 
   Future getdata() async {
-    final user = await UserData.getUser();
-    await Future.delayed(Duration(seconds: 1));
-    setState(() => email = user['email']);
+    try {
+      final user = await UserData.getUser();
+      await Future.delayed(Duration(seconds: 1));
+      setState(() => email = user['email']);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
