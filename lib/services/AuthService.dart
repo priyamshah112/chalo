@@ -31,7 +31,7 @@ class AuthService {
       FirebaseUser user = await credsSignIn(credential);
       final userDoc = await DataService().getUserDoc(user.email);
       if (userDoc != null) {
-        await UserData().setData(userDoc.data, 'google');
+        await UserData().setData(userDoc.data);
         DataService().updateToken(true);
         return {
           "success": true,
@@ -44,6 +44,7 @@ class AuthService {
         return {"success": false, 'msg': 'Unregistered Email'};
       }
     } catch (e) {
+      googleSignIn.signOut();
       print(e.toString());
       return {"success": false, 'msg': e.toString()};
     }
@@ -53,10 +54,9 @@ class AuthService {
     DocumentSnapshot doc;
     print('Signing in...');
     try {
-      
       await auth.signInWithEmailAndPassword(email: email, password: password);
       doc = await DataService().getUserDoc(email);
-      await UserData().setData(doc.data, 'email');
+      await UserData().setData(doc.data);
       DataService().updateToken(true);
       return {"success": true, 'email': email, 'password': password};
     } catch (e) {
@@ -75,11 +75,11 @@ class AuthService {
     return user;
   }
 
-  Future<bool> signOut(String type) async {
+  Future<bool> signOut() async {
     DataService().updateToken(false);
     try {
-      if (type != 'email') GoogleSignIn().signOut();
       await UserData().deleteData();
+      await GoogleSignIn().signOut();
       await auth.signOut();
       return true;
     } catch (e) {

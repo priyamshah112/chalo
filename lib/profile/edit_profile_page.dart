@@ -6,48 +6,71 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
 
 class EditProfile extends StatefulWidget {
+  final String name,
+      profilePic,
+      job,
+      about,
+      lang,
+      city,
+      state,
+      country,
+      fb,
+      twitter,
+      insta,
+      linkedin,
+      web,
+      gender;
+
+  const EditProfile(
+      {Key key,
+      @required this.name,
+      @required this.gender,
+      this.profilePic,
+      this.job,
+      this.about,
+      this.lang,
+      this.city,
+      this.state,
+      this.country,
+      this.fb,
+      this.twitter,
+      this.insta,
+      this.linkedin,
+      this.web})
+      : super(key: key);
+
   @override
   _EditProfileState createState() => _EditProfileState();
 }
 
 class _EditProfileState extends State<EditProfile> {
-  File _image;
-
-  DateTime picked;
+  String _gender = 'Selecct Gender';
   bool proposeTime = false;
 
-  Future<DateTime> _presentDatePicker(
-      BuildContext context, DateTime date) async {
-    picked = await showDatePicker(
-        context: context,
-        firstDate: DateTime(1900),
-        initialDate: picked == null ? DateTime.now() : picked,
-        lastDate: DateTime.now());
-    return picked;
+  File _image;
+  Future getImage() async {
+    try {
+      var image = await ImagePicker().getImage(source: ImageSource.gallery);
+      setState(() {
+        _image = File(image.path);
+      });
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
-  List<String> GenderList = [
-    "Male",
-    "Female",
-    "Other",
-  ];
-  String gender = "Select Gender";
+  @override
+  void initState() {
+    super.initState();
+    _gender = widget.gender;
+  }
 
   @override
   Widget build(BuildContext context) {
-    Future getImage() async {
-      var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-      setState(() {
-        _image = image;
-        print("Image Path $_image");
-      });
-    }
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -77,9 +100,7 @@ class _EditProfileState extends State<EditProfile> {
               children: <Widget>[
                 Center(
                   child: GestureDetector(
-                    onTap: () {
-                      getImage();
-                    },
+                    onTap: getImage,
                     child: Container(
                       decoration: BoxDecoration(
                         border: Border.all(
@@ -89,26 +110,42 @@ class _EditProfileState extends State<EditProfile> {
                         borderRadius: BorderRadius.circular(100),
                       ),
                       margin: EdgeInsets.only(top: 20),
-                      width: 65.0,
-                      height: 65.0,
-                      child: CircleAvatar(
-                        foregroundColor: Color(primary),
-                        backgroundColor: Color(background1),
-                        child: ClipOval(
-                          child: SizedBox(
-                            height: 65,
-                            width: 65,
-                            child: (_image != null)
-                                ? Image.file(
-                                    _image,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset(
-                                    "images/bgcover.jpg",
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
-                        ),
+                      width: 70.0,
+                      height: 70.0,
+                      child: Stack(
+                        overflow: Overflow.visible,
+                        children: <Widget>[
+                          CircleAvatar(
+                              radius: 35,
+                              foregroundColor: Color(primary),
+                              backgroundColor: Color(background1),
+                              backgroundImage: _image != null
+                                  ? FileImage(
+                                      _image,
+                                    )
+                                  : widget.profilePic != null
+                                      ? NetworkImage(
+                                          widget.profilePic,
+                                        )
+                                      : null,
+                              child: _image == null && widget.profilePic == null
+                                  ? Icon(
+                                      Icons.account_circle,
+                                      size: 60,
+                                    )
+                                  : null),
+                          Positioned(
+                              bottom: -5,
+                              right: -7,
+                              child: CircleAvatar(
+                                  backgroundColor: Color(primary),
+                                  radius: 13,
+                                  child: Icon(
+                                    Icons.add_a_photo,
+                                    color: Colors.white,
+                                    size: 18,
+                                  )))
+                        ],
                       ),
                     ),
                   ),
@@ -133,7 +170,7 @@ class _EditProfileState extends State<EditProfile> {
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: "Tell me about yours....",
+                      hintText: "Tell us about yourself....",
                       contentPadding: const EdgeInsets.only(
                           left: 30.0, bottom: 18.0, top: 18.0, right: 30.0),
                       filled: true,
@@ -147,11 +184,12 @@ class _EditProfileState extends State<EditProfile> {
                 Container(
                   padding:
                       EdgeInsets.symmetric(horizontal: 1.0, vertical: 10.0),
-                  child: TextField(
+                  child: TextFormField(
+                    initialValue: widget.name,
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: "e.g. Eldon Keck",
+                      hintText: "Your Good Name",
                       prefixIcon: Icon(
                         Icons.person,
                         color: Color(primary),
@@ -164,63 +202,7 @@ class _EditProfileState extends State<EditProfile> {
                         color: Color(formHint),
                         fontFamily: bodyText,
                       ),
-                      labelText: "Enter Full Name",
-                      labelStyle: TextStyle(
-                        color: Color(formHint),
-                        fontFamily: bodyText,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 1.0, vertical: 10.0),
-                  child: TextField(
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: "e.g. example@email.com",
-                      prefixIcon: Icon(
-                        Icons.email,
-                        color: Color(primary),
-                      ),
-                      contentPadding: const EdgeInsets.only(
-                          left: 30.0, bottom: 18.0, top: 18.0, right: 0.0),
-                      filled: true,
-                      fillColor: Color(form1),
-                      hintStyle: TextStyle(
-                        color: Color(formHint),
-                        fontFamily: bodyText,
-                      ),
-                      labelText: "Email Address",
-                      labelStyle: TextStyle(
-                        color: Color(formHint),
-                        fontFamily: bodyText,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 1.0, vertical: 10.0),
-                  child: TextField(
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: "e.g. +91 12345 67890",
-                      prefixIcon: Icon(
-                        Icons.phone,
-                        color: Color(primary),
-                      ),
-                      contentPadding: const EdgeInsets.only(
-                          left: 30.0, bottom: 18.0, top: 18.0, right: 0.0),
-                      filled: true,
-                      fillColor: Color(form1),
-                      hintStyle: TextStyle(
-                        color: Color(formHint),
-                        fontFamily: bodyText,
-                      ),
-                      labelText: "Enter Contact Number",
+                      labelText: "Full Name",
                       labelStyle: TextStyle(
                         color: Color(formHint),
                         fontFamily: bodyText,
@@ -248,7 +230,7 @@ class _EditProfileState extends State<EditProfile> {
                         color: Color(formHint),
                         fontFamily: bodyText,
                       ),
-                      labelText: "Enter Job Title",
+                      labelText: "Job Title",
                       labelStyle: TextStyle(
                         color: Color(formHint),
                         fontFamily: bodyText,
@@ -265,7 +247,7 @@ class _EditProfileState extends State<EditProfile> {
                       border: InputBorder.none,
                       hintText: "e.g. English",
                       prefixIcon: Icon(
-                        Icons.language,
+                        Icons.translate,
                         color: Color(primary),
                       ),
                       contentPadding: const EdgeInsets.only(
@@ -276,53 +258,12 @@ class _EditProfileState extends State<EditProfile> {
                         color: Color(formHint),
                         fontFamily: bodyText,
                       ),
-                      labelText: "Enter Language",
+                      labelText: "Language",
                       labelStyle: TextStyle(
                         color: Color(formHint),
                         fontFamily: bodyText,
                       ),
                     ),
-                  ),
-                ),
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 1.0, vertical: 10.0),
-                  child: DateTimeField(
-                    format: DateFormat('d/MM/y'),
-                    onShowPicker: _presentDatePicker,
-                    validator: (value) {
-                      String date = DateTime.now().toString().substring(0, 10);
-                      if (value == null)
-                        return "Select Date";
-                      else if (value.toString().substring(0, 10) == date) {
-                        print(value.toString());
-                        return "Select Valid Date";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.datetime,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Color(form1),
-                      contentPadding: const EdgeInsets.only(
-                          left: 30.0, bottom: 18.0, top: 18.0, right: 30.0),
-                      border: InputBorder.none,
-                      prefixIcon: Icon(
-                        FontAwesomeIcons.calendar,
-                        color: Color(primary),
-                      ),
-                      hintText: "Date of Birth",
-                      hintStyle: TextStyle(
-                        color: Color(formHint),
-                        fontFamily: bodyText,
-                      ),
-                      labelText: "Date of Birth",
-                      labelStyle: TextStyle(
-                        color: Color(formHint),
-                        fontFamily: bodyText,
-                      ),
-                    ),
-                    autofocus: false,
                   ),
                 ),
                 Container(
@@ -360,44 +301,42 @@ class _EditProfileState extends State<EditProfile> {
                       color: Color(form1),
                       margin: EdgeInsets.symmetric(vertical: 10),
                       child: DropdownButton(
-                        icon: Icon(Icons.arrow_downward),
+                        icon: Icon(Icons.keyboard_arrow_down),
                         iconEnabledColor: Color(primary),
-                        items: [
-                          for (int i = 0; i < GenderList.length; i++)
-                            DropdownMenuItem(
-                              value: GenderList[i],
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    GenderList[i],
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Color(secondary),
+                        items: ['Male', 'Female', 'Others']
+                            .map(
+                              (gender) => DropdownMenuItem(
+                                value: gender,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                      gender,
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Color(secondary),
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Icon(
-                                    GenderList[i] == gender
-                                        ? Icons.check
-                                        : null,
-                                  ),
-                                ],
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Icon(
+                                      _gender == gender ? Icons.check : null,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                        ],
+                            )
+                            .toList(),
                         onChanged: (value) {
                           setState(() {
-                            gender = value;
-                            print(gender);
+                            _gender = value;
                           });
                         },
                         underline: Container(),
                         hint: Text(
-                          gender,
+                          _gender,
                           style: TextStyle(
                             color: Color(secondary),
                             fontFamily: bodyText,
@@ -426,9 +365,9 @@ class _EditProfileState extends State<EditProfile> {
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: "e.g. Mumbai",
+                      hintText: "e.g. India",
                       prefixIcon: Icon(
-                        Icons.location_city,
+                        Icons.language,
                         color: Color(primary),
                       ),
                       contentPadding: const EdgeInsets.only(
@@ -439,7 +378,7 @@ class _EditProfileState extends State<EditProfile> {
                         color: Color(formHint),
                         fontFamily: bodyText,
                       ),
-                      labelText: "Enter City",
+                      labelText: "Country",
                       labelStyle: TextStyle(
                         color: Color(formHint),
                         fontFamily: bodyText,
@@ -467,7 +406,7 @@ class _EditProfileState extends State<EditProfile> {
                         color: Color(formHint),
                         fontFamily: bodyText,
                       ),
-                      labelText: "Enter State",
+                      labelText: "State",
                       labelStyle: TextStyle(
                         color: Color(formHint),
                         fontFamily: bodyText,
@@ -482,9 +421,9 @@ class _EditProfileState extends State<EditProfile> {
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: "e.g. India",
+                      hintText: "e.g. Mumbai",
                       prefixIcon: Icon(
-                        Icons.place,
+                        Icons.location_city,
                         color: Color(primary),
                       ),
                       contentPadding: const EdgeInsets.only(
@@ -495,7 +434,7 @@ class _EditProfileState extends State<EditProfile> {
                         color: Color(formHint),
                         fontFamily: bodyText,
                       ),
-                      labelText: "Enter Country",
+                      labelText: "City",
                       labelStyle: TextStyle(
                         color: Color(formHint),
                         fontFamily: bodyText,

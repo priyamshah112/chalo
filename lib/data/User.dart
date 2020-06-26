@@ -1,3 +1,5 @@
+import 'package:chaloapp/services/DatabaseService.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
@@ -49,15 +51,34 @@ class User {
 }
 
 class UserData {
-  Future setData(Map userData, String type) async {
+  Future setData(Map userData) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userInfo = await DataService().getUserInfo(userData['email']);
     prefs.setString(
         'name', userData['first_name'] + " " + userData['last_name']);
     prefs.setString('fname', userData['first_name']);
     prefs.setString('lname', userData['last_name']);
     prefs.setString('email', userData['email']);
+    prefs.setString('gender', userData['gender']);
+    prefs.setString('phone', userData['mobile_no']);
+    prefs.setString('dob', userData['dob']);
+    prefs.setString('profile_pic', userData['profile_pic']);
     prefs.setBool('verified', userData['verified']);
-    prefs.setString('type', type);
+    prefs.setString('about', userInfo['about']);
+    prefs.setString('job', userInfo['job']);
+    prefs.setString('lang', userInfo['languages']);
+    prefs.setString('country', userInfo['country']);
+    prefs.setString('state', userInfo['state']);
+    prefs.setString('city', userInfo['city']);
+    prefs.setString('facebook', userInfo['facebook_acc']);
+    prefs.setString('twitter', userInfo['twitter_acc']);
+    prefs.setString('instagram', userInfo['instagram_acc']);
+    prefs.setString('linkedin', userInfo['linkedin_acc']);
+    prefs.setString('website', userInfo['website']);
+    prefs.setInt('followers',
+        userInfo['followers_id'] == null ? 0 : userInfo['followers_id'].length);
+    prefs.setInt('following',
+        userInfo['following_id'] == null ? 0 : userInfo['following_id'].length);
   }
 
   Future deleteData() async {

@@ -120,6 +120,12 @@ class DataService {
     return userDoc;
   }
 
+  Future<Map<String, dynamic>> getUserInfo(String email) async {
+    final doc =
+        await database.collection('additional_info').document(email).get();
+    return doc.data;
+  }
+
   Future userActivities(String email, List activities) async {
     activities = List<String>.generate(
         activities.length, (index) => activities[index][1]);

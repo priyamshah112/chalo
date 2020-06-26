@@ -1,29 +1,19 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:chaloapp/profile/edit_profile_page.dart';
 import 'package:chaloapp/profile/follow_request.dart';
 import 'package:chaloapp/profile/following.dart';
-import 'package:chaloapp/home/home.dart';
 import 'package:chaloapp/Explore/post_details.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:toast/toast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../data/User.dart';
-
 import 'package:chaloapp/common/global_colors.dart';
-
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
-
 import 'followers.dart';
 
 class ProfilePage extends StatefulWidget {
-  final User user;
-  ProfilePage({this.user});
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -31,14 +21,48 @@ class ProfilePage extends StatefulWidget {
 List<List<String>> selectedActivityList;
 List<List<String>> activityList;
 List<List<String>> postList;
-String username;
-final String userDp = "images/bgcover.jpg";
 
 class _ProfilePageState extends State<ProfilePage> {
-  Future<Map<String, dynamic>> getData() async {
-    final user = await UserData.getUser();
-    final userDoc = await DataService().getUserDoc(user['email']);
-    return userDoc.data;
+  String _name,
+      _email,
+      _phone,
+      _dob,
+      _job,
+      _about,
+      _lang,
+      _city,
+      _state,
+      _country,
+      _profile_pic,
+      _fb,
+      _twitter,
+      _insta,
+      _linkedin,
+      _web,
+      _gender;
+  int _followers, _following;
+  Future<bool> getData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _name = prefs.getString('name');
+    _email = prefs.getString('email');
+    _gender = prefs.getString('gender');
+    _phone = prefs.getString('phone');
+    _dob = prefs.getString('dob');
+    _profile_pic = prefs.getString('profile_pic');
+    _about = prefs.getString('about');
+    _job = prefs.getString('job');
+    _lang = prefs.getString('lang');
+    _country = prefs.getString('country');
+    _state = prefs.getString('state');
+    _city = prefs.getString('city');
+    _fb = prefs.getString('facebook');
+    _twitter = prefs.getString('twitter');
+    _insta = prefs.getString('instagram');
+    _linkedin = prefs.getString('linkedin');
+    _web = prefs.getString('website');
+    _followers = prefs.getInt('followers');
+    _following = prefs.getInt('following');
+    return true;
   }
 
   @override
@@ -104,15 +128,16 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         actions: <Widget>[
-          FlatButton(
-            onPressed: () {},
-            child: IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.notifications,
-                color: Colors.white,
-              ),
-              splashColor: Colors.transparent,
+          IconButton(
+            tooltip: 'Edit Profile',
+            icon: Icon(
+              Icons.edit,
+            ),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) =>
+                      EditProfile(name: _name, gender: _gender)),
             ),
           ),
         ],
@@ -186,14 +211,21 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                           ),
-                          ProfileCard(username: '${snapshot.data['first_name']} ${snapshot.data['last_name']}'),
+                          ProfileCard(
+                            username: _name,
+                            gender: _gender,
+                            job: _job,
+                            lang: _lang,
+                            profilePic: _profile_pic,
+                            follower: _followers,
+                            following: _following,
+                          ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 15, horizontal: 20),
                             child: TextField(
                               keyboardType: TextInputType.text,
                               autofocus: false,
-                              //obscureText: true,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: "Search users",
@@ -562,7 +594,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 Radius.circular(5.0)),
                                           ),
                                         ),
-                                        child: SelectRadius(),
+                                        child: selectRadius(),
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 15),
                                       ),
@@ -598,265 +630,43 @@ class _ProfilePageState extends State<ProfilePage> {
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text(
-                                        "Hello! I’m Abdul Quadir Ansari. Web Developer specializing in front end development. Experienced with all stages of the development cycle for dynamic web projects. Well-versed in numerous programming languages including JavaScript, SQL, and C. Strong background in project management and customer relations.also I am good at wordpress.",
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontFamily: bodyText,
-                                          color: Color(secondary),
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                            top: 10.0, bottom: 5.0),
+                                        child: Text(
+                                          _about ?? 'Add about',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontFamily: bodyText,
+                                            color: Color(secondary),
+                                          ),
                                         ),
                                       ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
                                       Divider(
                                         thickness: 1,
                                       ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Job Title",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Web Developer",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Languages",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "English",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Gender",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Male",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Contact",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "+91 7738413265",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Email",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "abdulquadir.a@somaiya.edu",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Birth Date",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "24/04/2000",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Country",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "India",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "State",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Maharashtra",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "City",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Mumbai",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
+                                      if (_job != null)
+                                        InfoDetail(
+                                            title: 'Job Title', text: _job),
+                                      if (_lang != null)
+                                        InfoDetail(
+                                            title: 'Language', text: _lang),
+                                      InfoDetail(title: 'Email', text: _email),
+                                      InfoDetail(
+                                          title: 'Contact', text: _phone),
+                                      InfoDetail(
+                                          title: 'Gender', text: _gender),
+                                      InfoDetail(
+                                          title: 'Birth Date', text: _dob),
+                                      InfoDetail(
+                                          title: 'Country', text: 'India'),
+                                      InfoDetail(
+                                          title: 'State', text: 'Maharashtra'),
+                                      InfoDetail(title: 'City', text: 'Mumbai'),
                                       Divider(
                                         thickness: 1,
-                                      ),
-                                      SizedBox(
-                                        height: 5,
+                                        height: 20.0,
+                                        color: Color(primary),
                                       ),
                                       Text(
                                         "Social Information",
@@ -867,139 +677,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Facebook",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "facebook.com",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Instagram",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "instagram.com",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Linkedin",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "linkedin.com",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Twitter",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "twitter.com",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            "Website/blog",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: heading,
-                                              color: Color(primary),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Text(
-                                            "abdulquadir.co",
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
+                                      SizedBox(height: 5),
+                                      InfoDetail(title: 'Facebook', text: _fb),
+                                      InfoDetail(
+                                          title: 'Instagram', text: _insta),
+                                      InfoDetail(title: 'LinkedIn', text: ''),
+                                      InfoDetail(title: 'Twitter', text: ''),
+                                      InfoDetail(
+                                          title: 'Website/Blog', text: ''),
                                     ],
                                   ),
                                 ),
@@ -1035,8 +720,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   builder:
                                                       (BuildContext context) =>
                                                           PostItem(
-                                                    dp: userDp,
-                                                    name: username,
+                                                    dp: 'images/bgcover.jpg',
+                                                    name: _name,
                                                     img: postList[i][0],
                                                     activityName: postList[i]
                                                         [1],
@@ -1065,45 +750,34 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  List<String> RadiusListItems = [
-    "Less than 5 kilometers",
-    "Less than 10 kilometers",
-    "Less than 15 kilometers",
-    "Less than 20 kilometers",
-    "Less than 25 kilometers",
-    "Less than 50 kilometers",
-    "Less than 100 kilometers"
-  ];
-  String radius = "Less than 5 kilometers";
-  DropdownButton SelectRadius() => DropdownButton<String>(
-        items: [
-          for (int i = 0; i < RadiusListItems.length; i++)
-            DropdownMenuItem(
-              value: RadiusListItems[i],
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    RadiusListItems[i],
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Color(secondary),
-                    ),
+  int _radius = 5;
+  DropdownButton selectRadius() => DropdownButton<int>(
+        items: [5, 10, 15, 20, 25, 50, 100]
+            .map((radius) => DropdownMenuItem<int>(
+                  value: radius,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        'Less than $radius kilometers',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Color(secondary),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Icon(
+                        _radius == radius ? Icons.check : null,
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Icon(
-                    RadiusListItems[i] == radius ? Icons.check : null,
-                  ),
-                ],
-              ),
-            ),
-        ],
+                ))
+            .toList(),
         onChanged: (value) {
           setState(() {
-            radius = value;
-            print(radius);
+            _radius = value;
           });
         },
         icon: Icon(Icons.arrow_downward),
@@ -1111,7 +785,7 @@ class _ProfilePageState extends State<ProfilePage> {
         iconEnabledColor: Color(primary),
         underline: Container(),
         hint: Text(
-          radius,
+          'Less than $_radius kilometers',
           style: TextStyle(
             color: Colors.black,
             fontFamily: bodyText,
@@ -1122,125 +796,148 @@ class _ProfilePageState extends State<ProfilePage> {
       );
 }
 
+class InfoDetail extends StatelessWidget {
+  const InfoDetail({Key key, @required this.title, @required this.text})
+      : super(key: key);
+  final String title, text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 13,
+              fontFamily: heading,
+              color: Color(primary),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 13,
+              fontFamily: bodyText,
+              color: Color(secondary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class ProfileCard extends StatefulWidget {
-  const ProfileCard({Key key, @required this.username}) : super(key: key);
-  final String username;
+  const ProfileCard(
+      {Key key,
+      @required this.username,
+      @required this.gender,
+      @required this.follower,
+      @required this.following,
+      this.job,
+      this.lang,
+      this.profilePic})
+      : super(key: key);
+  final String username, job, lang, gender, profilePic;
+  final int follower, following;
 
   @override
   _ProfileCardState createState() => _ProfileCardState();
 }
 
 class _ProfileCardState extends State<ProfileCard> {
-  File _image;
-  Future getImage() async {
-    var image = await ImagePicker().getImage(source: ImageSource.gallery);
-    setState(() {
-      _image = File(image.path);
-      print("Image Path $_image");
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       overflow: Overflow.visible,
       children: <Widget>[
-        Container(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 20,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(
-                  height: 40,
-                ),
-                Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0)),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color(primary),
-                        ),
-                        borderRadius: BorderRadius.circular(6)),
-                    child: Column(
-                      children: <Widget>[
-                        SizedBox(
-                          height: 15.0,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(
-                              widget.username,
-                              style: TextStyle(
-                                color: Color(primary),
-                                fontSize: 18,
-                                fontFamily: heading,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.edit,
-                                size: 18,
-                              ),
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: 20,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              SizedBox(
+                height: 40,
+              ),
+              Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Color(primary),
+                      ),
+                      borderRadius: BorderRadius.circular(6)),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 15.0,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            widget.username,
+                            style: TextStyle(
                               color: Color(primary),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          EditProfile()),
-                                );
-                              },
+                              fontSize: 18,
+                              fontFamily: heading,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                Icon(
-                                  FontAwesomeIcons.trophy,
-                                  color: Colors.amberAccent,
-                                  size: 12,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  " 0 activities Done",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: bodyText,
-                                    color: Color(secondary),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              "Male, 22",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: bodyText,
-                                color: Color(secondary),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Icon(
+                                FontAwesomeIcons.trophy,
+                                color: Colors.amberAccent,
+                                size: 12,
                               ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                " 0 activities Done",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: bodyText,
+                                  color: Color(secondary),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            "${widget.gender}, 22",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontFamily: bodyText,
+                              color: Color(secondary),
                             ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          if (widget.job != null)
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
@@ -1253,7 +950,7 @@ class _ProfileCardState extends State<ProfileCard> {
                                   ),
                                 ),
                                 Text(
-                                  "Web Developer",
+                                  widget.job,
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontFamily: bodyText,
@@ -1261,6 +958,8 @@ class _ProfileCardState extends State<ProfileCard> {
                                 ),
                               ],
                             ),
+                          Spacer(),
+                          if (widget.lang != null)
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
@@ -1273,7 +972,7 @@ class _ProfileCardState extends State<ProfileCard> {
                                   ),
                                 ),
                                 Text(
-                                  "English",
+                                  widget.lang,
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontFamily: bodyText,
@@ -1281,93 +980,95 @@ class _ProfileCardState extends State<ProfileCard> {
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                        Divider(
-                          thickness: 1,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            InkWell(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 5),
-                                child: Text(
-                                  "0 Followers",
-                                  style: TextStyle(
-                                    fontFamily: bodyText,
-                                    color: Color(primary),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                  ),
+                        ],
+                      ),
+                      Divider(
+                        thickness: 1,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          InkWell(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 5),
+                              child: Text(
+                                "${widget.follower} Followers",
+                                style: TextStyle(
+                                  fontFamily: bodyText,
+                                  color: Color(primary),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
                                 ),
                               ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Follower(),
-                                  ),
-                                );
-                              },
-                              splashColor: Color(background1),
                             ),
-                            InkWell(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 5),
-                                child: Text(
-                                  "0 Following",
-                                  style: TextStyle(
-                                    color: Color(primary),
-                                    fontFamily: bodyText,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                  ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Follower(),
+                                ),
+                              );
+                            },
+                            splashColor: Color(background1),
+                          ),
+                          InkWell(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 5),
+                              child: Text(
+                                "${widget.following} Following",
+                                style: TextStyle(
+                                  color: Color(primary),
+                                  fontFamily: bodyText,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
                                 ),
                               ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Following(),
-                                  ),
-                                );
-                              },
-                              splashColor: Color(background1),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Following(),
+                                ),
+                              );
+                            },
+                            splashColor: Color(background1),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         Center(
-          child: GestureDetector(
-            onTap: () {
-              getImage();
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 1.5,
-                    color: Color(primary),
-                  ),
-                  shape: BoxShape.circle),
-              margin: EdgeInsets.only(top: 20),
-              width: 55.0,
-              height: 55.0,
-              child: CircleAvatar(
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border.all(
+                  width: 1.5,
+                  color: Color(primary),
+                ),
+                shape: BoxShape.circle),
+            margin: EdgeInsets.only(top: 20),
+            width: 55.0,
+            height: 55.0,
+            child: CircleAvatar(
+                radius: 27.5,
                 foregroundColor: Color(primary),
                 backgroundColor: Color(background1),
-                backgroundImage: AssetImage('images/bgcover.jpg'),
-              ),
-            ),
+                backgroundImage: widget.profilePic != null
+                    ? NetworkImage(widget.profilePic)
+                    : null,
+                child: widget.profilePic == null
+                    ? Icon(
+                        Icons.account_circle,
+                        size: 50,
+                      )
+                    : null),
           ),
         ),
       ],

@@ -246,8 +246,7 @@ class _MainMapState extends State<MainMap> {
             buttonText2: "Yes",
             btn1Color: Color(primary),
             button2Func: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              await AuthService().signOut(prefs.getString('type'));
+              await AuthService().signOut();
               print("Signed out");
               Navigator.of(context, rootNavigator: true).pop(true);
               Navigator.pushReplacement(
@@ -278,7 +277,7 @@ class _MainMapState extends State<MainMap> {
   }
 
   void _showModal() {
-    Future<void> future = showModalBottomSheet<void>(
+    showModalBottomSheet<void>(
       context: context,
       elevation: 0.0,
       backgroundColor: Colors.transparent,
@@ -327,7 +326,7 @@ class _MainMapState extends State<MainMap> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (BuildContext context) =>
-                                          ActivityDetails()),
+                                          Chats()),
                                 );
                               },
                               child: Text(
