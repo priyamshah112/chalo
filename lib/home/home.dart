@@ -2,6 +2,7 @@ import 'package:chaloapp/Activites/Activity_Detail.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/profile/profile_page.dart';
 import 'package:chaloapp/services/AuthService.dart';
+import 'package:chaloapp/services/dynamicLinking.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -28,6 +29,12 @@ class MainHome extends StatefulWidget {
 class _MainHomeState extends State<MainHome> {
   int _currentIndex = 0;
   List tabs = [MainMap(), AllActivity(), Broadcast(), Explore(), Chats()];
+
+  @override
+  void initState() {
+    DynamicLinkService.retrieveDynamicLink(context);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

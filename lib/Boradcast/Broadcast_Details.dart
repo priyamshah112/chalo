@@ -159,8 +159,12 @@ class _JoinRequestListState extends State<JoinRequestList> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               ProfileCard(
-                                  username:
-                                      '${snapshot.data['first_name']} ${snapshot.data['last_name']}'),
+                                username:
+                                    '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                                gender: snapshot.data['gender'],
+                                follower: 0,
+                                following: 0,
+                              ),
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 20),

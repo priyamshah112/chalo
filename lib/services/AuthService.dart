@@ -3,6 +3,7 @@ import 'package:chaloapp/services/Hashing.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'DatabaseService.dart';
 
@@ -49,6 +50,57 @@ class AuthService {
       return {"success": false, 'msg': e.toString()};
     }
   }
+
+  // Future facebookSignIn() async {
+  //   final facebookLogin = FacebookLogin();
+  //   facebookLogin.loginBehavior = FacebookLoginBehavior.webOnly;
+  //   final result = await facebookLogin
+  //       .logInWithReadPermissions(['email', 'public_profile']);
+  //   switch (result.status) {
+  //     case FacebookLoginStatus.loggedIn:
+  //       String token = result.accessToken.token;
+  //       print(result.accessToken.isValid());
+  //       // Response graphResponse = await get(
+  //       //     'https://graph.facebook.com/v7.0/me?fields=name,first_name,last_name,email,picture.height(200)&access_token=$token');
+  //       // Map profile = jsonDecode(graphResponse.body);
+  //       // print('profile: $profile');
+  //       // final userDoc = await DatabaseService().getUserDoc(profile['email']);
+  //       // if (userDoc == null) {
+  //         await facebookLogin.logOut();
+  //         return {"success": false, 'msg': 'Unregistered Email or password'};
+  //       // }
+  //       try {
+  //         final user = (await _auth.signInWithCredential(
+  //                 FacebookAuthProvider.getCredential(
+  //                     accessToken: result.accessToken.token)))
+  //             .user;
+  //         await UserData.setData(userDoc.data);
+  //         return {'success': true, 'user': user};
+  //       } catch (e) {
+  //         print(e.toString());
+  //         if (e.code == 'ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL') {
+  //           return {
+  //             'success': false,
+  //             'msg':
+  //                 'Unable to perform Facebook Signin. Try other Signin Methods'
+  //           };
+  //         }
+  //         return {
+  //           'success': false,
+  //           'msg': 'Something went wrong. Try again later'
+  //         };
+  //       }
+  //       break;
+  //     case FacebookLoginStatus.cancelledByUser:
+  //       return {'success': false, 'msg': 'Login was Cancelled'};
+  //       break;
+  //     case FacebookLoginStatus.error:
+  //       return {'success': false, 'msg': result.errorMessage};
+  //       break;
+  //     default:
+  //   }
+  // }
+
 
   Future<Map> signIn(email, password) async {
     DocumentSnapshot doc;
@@ -136,4 +188,6 @@ class AuthService {
       print(e.toString());
     }
   }
+
+  get(String s) {}
 }

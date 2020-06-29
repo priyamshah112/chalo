@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:chaloapp/Activites/Activity_Detail.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/home/home.dart';
+import 'package:chaloapp/services/dynamicLinking.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return prefs.getBool('onBoarding');
   }
 
-  void checkUser() async {
+  void checkUser(DocumentReference ref) async {
     await Future.delayed(Duration(seconds: 2));
     _showOnBoarding().then((show) async {
       if (show)
@@ -48,7 +52,11 @@ class _SplashScreenState extends State<SplashScreen> {
         bool loggedIn = await AuthService().isUserLoggedIn();
         if (verified && loggedIn) {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => MainHome()));
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ref != null
+                      ? ActivityDetails(planRef: ref)
+                      : MainHome()));
         } else
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => HomePage()));
@@ -59,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     configOneSignal();
-    checkUser();
+    DynamicLinkService.retrieveDynamicLink(context).then((ref) => checkUser(ref));
     super.initState();
   }
 
@@ -67,10 +75,11 @@ class _SplashScreenState extends State<SplashScreen> {
     // //Remove this method to stop OneSignal Debugging
     // OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
 
-    await OneSignal.shared.init("cca66cd9-2af7-478f-b9d0-9b798db42679", iOSSettings: {
-      OSiOSSettings.autoPrompt: false,
-      OSiOSSettings.inAppLaunchUrl: true
-    });
+    await OneSignal.shared.init("cca66cd9-2af7-478f-b9d0-9b798db42679",
+        iOSSettings: {
+          OSiOSSettings.autoPrompt: false,
+          OSiOSSettings.inAppLaunchUrl: true
+        });
     OneSignal.shared
         .setInFocusDisplayType(OSNotificationDisplayType.notification);
 
