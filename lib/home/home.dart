@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
 import 'package:toast/toast.dart';
-
+import 'package:chaloapp/data/User.dart';
 import '../Activites/all_activities.dart';
 import '../Explore/explore.dart';
 import '../authentication/login.dart';
@@ -28,12 +28,36 @@ class MainHome extends StatefulWidget {
 
 class _MainHomeState extends State<MainHome> {
   int _currentIndex = 0;
-  List tabs = [MainMap(), AllActivity(), Broadcast(), Explore(), Chats()];
-
+  List tabs;
   @override
   void initState() {
-    DynamicLinkService.retrieveDynamicLink(context);
     super.initState();
+    DynamicLinkService.retrieveDynamicLink(context);
+    tabs = [
+      MainMap(onBack: _onWillPop),
+      AllActivity(onBack: onBack),
+      Broadcast(onBack: onBack),
+      Explore(onBack: onBack),
+      Chats(onBack: onBack)
+    ];
+  }
+
+  Future<bool> onBack() async {
+    setState(() => _currentIndex = 0);
+    return Future.value(false);
+  }
+
+  DateTime currentBackPressTime;
+  Future<bool> _onWillPop(BuildContext context) {
+    DateTime now = DateTime.now();
+    if (currentBackPressTime == null ||
+        now.difference(currentBackPressTime) > Duration(seconds: 1)) {
+      currentBackPressTime = now;
+      Toast.show("Press back again to exit", context);
+      return Future.value(false);
+    }
+    Followers.discard();
+    return Future.value(true);
   }
 
   @override
@@ -95,31 +119,31 @@ class _MainHomeState extends State<MainHome> {
 }
 
 class MainMap extends StatefulWidget {
+  final Future<bool> Function(BuildContext context) onBack;
+  MainMap({@required this.onBack});
   @override
   _MainMapState createState() => _MainMapState();
 }
 
 class _MainMapState extends State<MainMap> {
-  String user, email;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  void _getData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      user = prefs.getString('name');
-      email = prefs.getString('email');
-    });
-  }
+  // void _getData() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     user = prefs.getString('name');
+  //     email = prefs.getString('email');
+  //   });
+  // }
 
   @override
   void initState() {
-    user = email = "";
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    _getData();
+    // _getData();
     return Scaffold(
       key: _scaffoldKey,
       floatingActionButton: FloatingActionButton(
@@ -134,7 +158,7 @@ class _MainMapState extends State<MainMap> {
             // ));
           }),
       body: WillPopScope(
-        onWillPop: () => _onWillPop(context),
+        onWillPop: () => widget.onBack(context),
         child: Stack(
           fit: StackFit.expand,
           children: <Widget>[
@@ -145,7 +169,7 @@ class _MainMapState extends State<MainMap> {
                   builder: (context, AsyncSnapshot snapshot) {
                     return FlutterMap(
                       options: MapOptions(
-                          center: LatLng(19.0760, 72.8777), minZoom: 10.0),
+                          center: LatLng(19.0760, 72.8777), zoom: 13),
                       layers: [
                         TileLayerOptions(
                             urlTemplate:
@@ -226,18 +250,6 @@ class _MainMapState extends State<MainMap> {
         ),
       ),
     );
-  }
-
-  DateTime currentBackPressTime;
-  Future<bool> _onWillPop(BuildContext context) {
-    DateTime now = DateTime.now();
-    if (currentBackPressTime == null ||
-        now.difference(currentBackPressTime) > Duration(seconds: 1)) {
-      currentBackPressTime = now;
-      Toast.show("Press back again to exit", context);
-      return Future.value(false);
-    }
-    return Future.value(true);
   }
 
   void signOut(BuildContext context) {
@@ -329,12 +341,12 @@ class _MainMapState extends State<MainMap> {
                           FittedBox(
                             child: GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          Chats()),
-                                );
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //       builder: (BuildContext context) =>
+                                //           Chats(onBack: onack,)),
+                                // );
                               },
                               child: Text(
                                 "Activity name",

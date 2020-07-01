@@ -5,6 +5,7 @@
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/home/home.dart';
+import 'package:chaloapp/profile/profile_page.dart';
 import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -32,12 +33,12 @@ class _ActivityDetailsState extends State<ActivityDetails> {
 
   Future<Map<String, dynamic>> getData() async {
     // try {
-      final snapshot = await widget.planRef.get();
-      final user = await UserData.getUser();
-      snapshot.data['pending_participant_id'].contains(user['email'])
-          ? setState(() => requestSent = true)
-          : setState(() => requestSent = false);
-      return {'doc': snapshot, 'email': user['email']};
+    final snapshot = await widget.planRef.get();
+    final user = await UserData.getUser();
+    snapshot.data['pending_participant_id'].contains(user['email'])
+        ? setState(() => requestSent = true)
+        : setState(() => requestSent = false);
+    return {'doc': snapshot, 'email': user['email']};
     // } catch (e) {
     //   print(e.toString());
     //   return null;
@@ -72,6 +73,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                   child: Center(child: CircularProgressIndicator()));
             final planDoc = snapshot.data['doc'];
             final email = snapshot.data['email'];
+            final List participants = planDoc['participants_id'];
             final start = DateTime.fromMillisecondsSinceEpoch(
                 planDoc['activity_start'].seconds * 1000);
             final end = DateTime.fromMillisecondsSinceEpoch(
@@ -94,6 +96,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
               ),
               backgroundColor: Colors.white,
               body: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
                 child: FadeAnimation(
                   1,
                   Container(
@@ -106,7 +109,8 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                         children: <Widget>[
                           ActivityDetailCard(
                               planDoc: planDoc, start: start, end: end),
-                          isLoading
+                          if(!participants.contains(email))
+                          isLoading 
                               ? Padding(
                                   padding: const EdgeInsets.all(10.0),
                                   child: CircularProgressIndicator(),
@@ -142,7 +146,9 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                                 setState(
                                                     () => isLoading = true);
                                                 await DataService().requestJoin(
-                                                    widget.planRef, email);
+                                                    widget.planRef,
+                                                    email,
+                                                    true);
                                                 await Future.delayed(
                                                     Duration(seconds: 1));
                                                 setState(() {
@@ -164,8 +170,8 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                     requestSent
                                         ? FlatButton(
                                             onPressed: () async {
-                                              await DataService().cancelRequest(
-                                                  widget.planRef, email);
+                                              await DataService().requestJoin(
+                                                  widget.planRef, email, false);
                                               setState(
                                                   () => requestSent = false);
                                             },
@@ -199,7 +205,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                   ],
                                 ),
                           SizedBox(height: 10),
-                          ParticipantList(planDoc: planDoc),
+                          ParticipantList(planDoc: planDoc, current: email),
                         ],
                       ),
                     ),
@@ -213,88 +219,97 @@ class _ActivityDetailsState extends State<ActivityDetails> {
 }
 
 class ParticipantList extends StatelessWidget {
-  const ParticipantList({
-    Key key,
-    @required this.planDoc,
-  }) : super(key: key);
+  const ParticipantList({Key key, @required this.planDoc, @required this.current})
+      : super(key: key);
 
   final DocumentSnapshot planDoc;
-
+  final String current;
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-            "Participants",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Color(primary),
-              fontFamily: heading,
-            ),
+    final List participants = planDoc['participants_id'] as List;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Text(
+          "Participants",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Color(primary),
+            fontFamily: heading,
           ),
-          SizedBox(height: 5),
-          Expanded(
-            child: ListView.builder(
-                itemCount: planDoc['participants_id'].length,
-                itemBuilder: (context, index) => FutureBuilder(
-                    future: DataService()
-                        .getUserDoc(planDoc['participants_id'][index]),
-                    builder: (context, snapshot) {
-                      return Card(
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: BorderSide(
-                            width: 1,
-                            color: Color(primary),
+        ),
+        SizedBox(height: 5),
+        ...participants.map(
+          (participant) => FutureBuilder(
+              future: DataService().getUserDoc(participant),
+              builder: (context, snapshot) {
+                return Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                    side: BorderSide(
+                      color: Color(primary),
+                    ),
+                  ),
+                  child: !snapshot.hasData
+                      ? Container()
+                      : ListTile(
+                          onTap: participant == current
+                              ? null
+                              : () => showDialog(
+                                  context: context,
+                                  builder: (ctx) => Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            ProfileCard(
+                                              email: snapshot.data['email'],
+                                              username:
+                                                  '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                                              gender: snapshot.data['gender'],
+                                              follower: 0,
+                                              following: 0,
+                                              showFollow: true,
+                                            )
+                                          ])),
+                          leading: CircleAvatar(
+                            backgroundImage: AssetImage("images/bgcover.jpg"),
                           ),
+                          title: Text(
+                            '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                            style: TextStyle(
+                                fontFamily: bodyText,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w400),
+                          ),
+                          subtitle: Text('1 Actvity Done'),
+                          // trailing: Container(
+                          //   width: 100,
+                          //   height: 27,
+                          //   child: OutlineButton(
+                          //     onPressed: () {},
+                          //     borderSide: BorderSide(
+                          //       color: Color(primary), //Color of the border
+                          //       style: BorderStyle.solid, //Style of the border
+                          //       width: 0.9, //width of the border
+                          //     ),
+                          //     color: Color(primary),
+                          //     textColor: Color(primary),
+                          //     child: Text(
+                          //       "follow",
+                          //       style: TextStyle(
+                          //         fontFamily: bodyText,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                         ),
-                        child: !snapshot.hasData
-                            ? Container()
-                            : ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage:
-                                      AssetImage("images/bgcover.jpg"),
-                                ),
-                                title: Text(
-                                  '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
-                                  style: TextStyle(
-                                      fontFamily: bodyText,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                                subtitle: Text('1 Actvity Done'),
-                                trailing: Container(
-                                  width: 100,
-                                  height: 27,
-                                  child: OutlineButton(
-                                    onPressed: () {},
-                                    borderSide: BorderSide(
-                                      color:
-                                          Color(primary), //Color of the border
-                                      style: BorderStyle
-                                          .solid, //Style of the border
-                                      width: 0.9, //width of the border
-                                    ),
-                                    color: Color(primary),
-                                    textColor: Color(primary),
-                                    child: Text(
-                                      "follow",
-                                      style: TextStyle(
-                                        fontFamily: bodyText,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                      );
-                    })),
-          ),
-        ],
-      ),
+                );
+              }),
+        ),
+      ],
     );
   }
 }
@@ -321,7 +336,7 @@ class ActivityDetailCard extends StatelessWidget {
       ),
       child: Container(
         width: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        padding: EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[

@@ -13,10 +13,13 @@ class DataService {
       'password': Hashing.encrypt(user.password),
       'dob': user.birthDate,
       'gender': user.gender,
-      'mobile_no': "",
+      'mobile_no': null,
       'uid': user.uid,
       'timestamp': Timestamp.now(),
-      'verified': false
+      'verified': false,
+      'photo_url': null,
+      'followers': 0,
+      'following': 0
     });
     await database.collection('user_plans').document(user.email).setData({
       'cancelled_plans': [],
@@ -35,8 +38,10 @@ class DataService {
       'punctuality': 0
     });
     await database.collection('additional_info').document(user.email).setData({
-      'folloing_id': [],
+      'follwoing_id': [],
       'followers_id': [],
+      'follow_requests': [],
+      'follow_requested': [],
       'facebook_acc': "",
       'instagram_acc': "",
       'profile_pic': "",
@@ -183,11 +188,20 @@ class DataService {
     batch.commit();
   }
 
-  Future<bool> requestJoin(DocumentReference planRef, String email) async {
+  Future<bool> requestJoin(
+      DocumentReference planRef, String email, bool join) async {
     try {
       await database.runTransaction((transaction) async {
         await transaction.update(planRef, {
-          'pending_participant_id': FieldValue.arrayUnion([email])
+          'pending_participant_id': join
+              ? FieldValue.arrayUnion([email])
+              : FieldValue.arrayRemove([email])
+        });
+        await transaction
+            .update(database.collection('user_plans').document(email), {
+          'requested_plans': join
+              ? FieldValue.arrayUnion([planRef.documentID])
+              : FieldValue.arrayRemove([planRef.documentID])
         });
       });
       return true;
@@ -197,13 +211,27 @@ class DataService {
     }
   }
 
-  Future<bool> cancelRequest(DocumentReference planRef, String email) async {
+  Future<bool> requestFollow(String email, bool follow) async {
+    final user = await UserData.getUser();
+    final current = user['email'];
+    final userRef1 = database.collection('additional_info').document(email);
+    final userRef2 = database.collection('additional_info').document(current);
     try {
       await database.runTransaction((transaction) async {
-        await transaction.update(planRef, {
-          'pending_participant_id': FieldValue.arrayRemove([email])
+        await transaction.update(userRef1, {
+          'follow_requests': follow
+              ? FieldValue.arrayUnion([current])
+              : FieldValue.arrayRemove([current])
+        });
+        await transaction.update(userRef2, {
+          'follow_requested': follow
+              ? FieldValue.arrayUnion([email])
+              : FieldValue.arrayRemove([email])
         });
       });
+      // final requested = Followers.requested;
+      // follow ? requested.add(email) : requested.remove(email);
+      // Followers.setRequested(requested);
       return true;
     } catch (e) {
       print(e.toString());
@@ -215,6 +243,7 @@ class DataService {
       bool accept, String planId, String userEmail, String token) async {
     try {
       final planRef = database.collection('plan').document(planId);
+      final planDoc = await planRef.get();
       final batch = database.batch();
       batch.updateData(planRef, {
         'pending_participant_id': FieldValue.arrayRemove([userEmail])
@@ -238,7 +267,8 @@ class DataService {
             .document(userEmail)
             .collection('activity_notifications')
             .add({
-          'msg': 'You have been accepted in an Activity',
+          'msg':
+              'You have been accepted in ${planDoc.data['admin_name']}\'s Activity',
           'created_at': Timestamp.now()
         });
       } else {

@@ -11,11 +11,12 @@ class DynamicLinkService {
     final PendingDynamicLinkData data =
         await FirebaseDynamicLinks.instance.getInitialLink();
     final Uri deepLink = data?.link;
-    if (deepLink != null) ref = handleLink(deepLink, false);
+    if (deepLink != null) ref = handleLink(deepLink);
     FirebaseDynamicLinks.instance.onLink(
         onSuccess: (PendingDynamicLinkData data) async {
       final Uri deepLink = data?.link;
-      if (deepLink != null) ref = handleLink(deepLink, true, context: context);
+      if (deepLink != null)
+        ref = handleLink(deepLink, onResume: true, context: context);
     }, onError: (OnLinkErrorException e) async {
       print('onLinkError');
       print(e.message);
@@ -47,7 +48,7 @@ class DynamicLinkService {
       //   ),
       socialMetaTagParameters: SocialMetaTagParameters(
         title: 'Chalo Activity Sharing',
-        description: 'This link will take you to $admin\'s actitiy',
+        description: 'This link will take you to $admin\'s activity',
       ),
     );
 
@@ -60,8 +61,8 @@ class DynamicLinkService {
   }
 }
 
-DocumentReference handleLink(Uri deepLink, bool onResume,
-    {BuildContext context}) {
+DocumentReference handleLink(Uri deepLink,
+    {bool onResume = false, BuildContext context}) {
   DocumentReference ref;
   // print('deep link: $deepLink');
   bool isActivity = deepLink.pathSegments.contains('activity');

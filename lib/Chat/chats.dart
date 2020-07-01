@@ -14,6 +14,8 @@ import '../common/global_colors.dart';
 //import 'package:chaloapp/home.dart';
 
 class Chats extends StatefulWidget {
+  final Future<bool> Function() onBack;
+  Chats({@required this.onBack});
   @override
   _ChatsState createState() => _ChatsState();
 }
@@ -102,18 +104,6 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
             title: Center(child: Text('My Chats')));
   }
 
-  DateTime currentBackPressTime;
-  Future<bool> _onWillPop(BuildContext context) {
-    DateTime now = DateTime.now();
-    if (currentBackPressTime == null ||
-        now.difference(currentBackPressTime) > Duration(seconds: 1)) {
-      currentBackPressTime = now;
-      Toast.show("Press back again to exit", context);
-      return Future.value(false);
-    }
-    return Future.value(true);
-  }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -122,7 +112,7 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
         backgroundColor: Colors.white,
         appBar: appbar(),
         body: WillPopScope(
-          onWillPop: () => _onWillPop(context),
+          onWillPop: widget.onBack,
           child: TabBarView(
             children: [
               email == null && name == null

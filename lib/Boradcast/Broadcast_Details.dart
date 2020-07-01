@@ -113,7 +113,7 @@ class _BroadcardActivityDetailsState extends State<BroadcardActivityDetails> {
                               requests: planDoc['pending_participant_id']),
                         if (planDoc['pending_participant_id'].length > 0)
                           SizedBox(height: 10),
-                        ParticipantList(planDoc: planDoc)
+                        ParticipantList(planDoc: planDoc, current: email)
                       ],
                     ),
                   ),
@@ -126,7 +126,7 @@ class _BroadcardActivityDetailsState extends State<BroadcardActivityDetails> {
 }
 
 class JoinRequestList extends StatefulWidget {
-  final List<String> requests;
+  final List requests;
   final String planId;
   JoinRequestList({Key key, @required this.requests, @required this.planId})
       : super(key: key);
@@ -137,69 +137,73 @@ class JoinRequestList extends StatefulWidget {
 class _JoinRequestListState extends State<JoinRequestList> {
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: Text("Join Requests",
-          style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(primary))),
-      initiallyExpanded: false,
-      children: List<Widget>.generate(
-          widget.requests.length,
-          (index) => FutureBuilder(
-              future: DataService().getUserDoc(widget.requests[index]),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData)
-                  return Center(child: Text('Loading ...'));
-                return ListTile(
-                  onTap: () => showDialog(
-                      context: context,
-                      builder: (ctx) => Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              ProfileCard(
-                                username:
-                                    '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
-                                gender: snapshot.data['gender'],
-                                follower: 0,
-                                following: 0,
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                child: Row(
+    return widget.requests.length == 0
+        ? Container()
+        : ExpansionTile(
+            title: Text("Join Requests",
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(primary))),
+            initiallyExpanded: false,
+            children: List<Widget>.generate(
+                widget.requests.length,
+                (index) => FutureBuilder(
+                    future: DataService().getUserDoc(widget.requests[index]),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData)
+                        return Center(child: Text('Loading ...'));
+                      return ListTile(
+                        onTap: () => showDialog(
+                            context: context,
+                            builder: (ctx) => Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: <Widget>[
-                                    responseButton(
-                                        true,
-                                        widget.planId,
-                                        snapshot.data['email'],
-                                        snapshot.data['token']),
-                                    SizedBox(width: 30),
-                                    responseButton(
-                                        false,
-                                        widget.planId,
-                                        snapshot.data['email'],
-                                        snapshot.data['token'])
+                                    ProfileCard(
+                                      email: snapshot.data['email'],
+                                      username:
+                                          '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                                      gender: snapshot.data['gender'],
+                                      follower: 0,
+                                      following: 0,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          responseButton(
+                                              true,
+                                              widget.planId,
+                                              snapshot.data['email'],
+                                              snapshot.data['token']),
+                                          SizedBox(width: 30),
+                                          responseButton(
+                                              false,
+                                              widget.planId,
+                                              snapshot.data['email'],
+                                              snapshot.data['token'])
+                                        ],
+                                      ),
+                                    ),
                                   ],
-                                ),
-                              ),
-                            ],
-                          )),
-                  leading: CircleAvatar(
-                    backgroundImage: AssetImage("images/bgcover.jpg"),
-                  ),
-                  title: Text(
-                    '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
-                    style: TextStyle(
-                        fontFamily: bodyText,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400),
-                  ),
-                );
-              })),
-    );
+                                )),
+                        leading: CircleAvatar(
+                          backgroundImage: AssetImage("images/bgcover.jpg"),
+                        ),
+                        title: Text(
+                          '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                          style: TextStyle(
+                              fontFamily: bodyText,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w400),
+                        ),
+                      );
+                    })),
+          );
   }
 
   Widget responseButton(
@@ -208,7 +212,9 @@ class _JoinRequestListState extends State<JoinRequestList> {
       onPressed: () async {
         Navigator.of(context, rootNavigator: true).pop();
         await DataService().joinActivity(accept, planId, email, token);
-        setState(() {});
+        setState(() {
+          widget.requests.remove(email);
+        });
       },
       icon: Icon(
         accept ? FontAwesomeIcons.check : FontAwesomeIcons.times,

@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
@@ -50,6 +51,41 @@ class User {
   }
 }
 
+class Followers {
+  static List _followers, _following, _followRequests, _requested;
+  static StreamSubscription<DocumentSnapshot> _userInfo;
+  static Future<void> initialize(String email) async {
+    // _followers = follower;
+    // _following = following;
+    // _followRequests = requests;
+    // _requested = requested;
+    _userInfo = Firestore.instance
+        .collection('additional_info')
+        .document(email)
+        .snapshots()
+        .listen((snapshot) {
+      _following = snapshot.data['following_id'];
+      _followers = snapshot.data['followers_id'];
+      _followRequests = snapshot.data['follow_requests'];
+      _requested = snapshot.data['follow_requested'];
+    });
+  }
+
+  static void discard() {
+    _userInfo.cancel();
+    _followers = _following = _followRequests = _requested = [];
+  }
+
+  static List get followers => _followers;
+  static List get following => _following;
+  static List get followRequests => _followRequests;
+  static List get requested => _requested;
+  static void setFollowers(List temp) => _followers = temp;
+  static void setFollowing(List temp) => _following = temp;
+  static void setFollowRequests(List temp) => _followRequests = temp;
+  static void setRequested(List temp) => _requested = temp;
+}
+
 class UserData {
   Future setData(Map userData) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -79,7 +115,14 @@ class UserData {
         userInfo['followers_id'] == null ? 0 : userInfo['followers_id'].length);
     prefs.setInt('following',
         userInfo['following_id'] == null ? 0 : userInfo['following_id'].length);
+    Followers.initialize(userData['email']);
   }
+
+  // Future writeFollowers(
+  //   List followers, List followRequests, List following) async {
+  //   String _localpath = (await getApplicationDocumentsDirectory()).path;
+  //   File _localFile = File('$_localpath/data.txt');
+  // }
 
   Future deleteData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -88,6 +131,7 @@ class UserData {
     prefs.remove('name');
     prefs.remove('email');
     prefs.remove('type');
+    Followers.discard();
   }
 
   static Future checkVerified() async {

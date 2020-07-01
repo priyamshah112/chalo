@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chaloapp/Activites/Activity_Detail.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/home/home.dart';
+import 'package:chaloapp/profile/followers.dart';
 import 'package:chaloapp/services/dynamicLinking.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
@@ -12,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'data/data.dart';
 import 'package:chaloapp/authentication/login.dart';
 import 'services/AuthService.dart';
+import 'data/User.dart';
 
 void main() => runApp(
       MaterialApp(
@@ -49,8 +51,9 @@ class _SplashScreenState extends State<SplashScreen> {
       else {
         final prefs = await SharedPreferences.getInstance();
         bool verified = prefs.getBool('verified');
-        bool loggedIn = await AuthService().isUserLoggedIn();
-        if (verified && loggedIn) {
+        final user = await AuthService().isUserLoggedIn();
+        if (verified && user != null) {
+          Followers.initialize(user.email);
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -67,7 +70,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     configOneSignal();
-    DynamicLinkService.retrieveDynamicLink(context).then((ref) => checkUser(ref));
+    DynamicLinkService.retrieveDynamicLink(context)
+        .then((ref) => checkUser(ref));
     super.initState();
   }
 
@@ -84,8 +88,8 @@ class _SplashScreenState extends State<SplashScreen> {
         .setInFocusDisplayType(OSNotificationDisplayType.notification);
 
 // The promptForPushNotificationsWithUserResponse function will show the iOS push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-    await OneSignal.shared
-        .promptUserForPushNotificationPermission(fallbackToSettings: true);
+    // await OneSignal.shared
+    //     .promptUserForPushNotificationPermission(fallbackToSettings: true);
   }
 
   @override

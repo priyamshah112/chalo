@@ -19,6 +19,8 @@ import '../common/global_colors.dart';
 //import 'package:chaloapp/home.dart';
 
 class AllActivity extends StatefulWidget {
+  final Future<bool> Function() onBack;
+  AllActivity({@required this.onBack});
   @override
   _AllActivityState createState() => _AllActivityState();
 }
@@ -106,23 +108,10 @@ class _AllActivityState extends State<AllActivity> {
         isExpanded: true,
       );
 
-  DateTime currentBackPressTime;
-  Future<bool> _onWillPop(BuildContext context) {
-    DateTime now = DateTime.now();
-    if (currentBackPressTime == null ||
-        now.difference(currentBackPressTime) > Duration(seconds: 1)) {
-      currentBackPressTime = now;
-      Toast.show("Press back again to exit", context);
-      return Future.value(false);
-    }
-    SystemNavigator.pop();
-    return Future.value(true);
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () => _onWillPop(context),
+      onWillPop: widget.onBack,
       child: Scaffold(
           appBar: AppBar(
             backgroundColor: Color(primary),

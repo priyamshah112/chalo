@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
+import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/profile/edit_profile_page.dart';
 import 'package:chaloapp/profile/follow_request.dart';
 import 'package:chaloapp/profile/following.dart';
 import 'package:chaloapp/Explore/post_details.dart';
+import 'package:chaloapp/services/DatabaseService.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -158,60 +161,58 @@ class _ProfilePageState extends State<ProfilePage> {
                     return [
                       SliverList(
                         delegate: SliverChildListDelegate([
-                          Padding(
-                            padding:
-                                EdgeInsets.only(top: 20, left: 20, right: 20),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 0, horizontal: 5),
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Color(primary),
-                                  ),
-                                  borderRadius: BorderRadius.circular(6)),
-                              child: ListTile(
-                                leading: Icon(
-                                  Icons.person_add,
-                                  color: Color(primary),
-                                ),
-                                contentPadding: EdgeInsets.only(
-                                    top: 8, left: 5, right: 00, bottom: 8),
-                                title: Text(
-                                  "You have 3 new requests",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    color: Color(primary),
-                                  ),
-                                ),
-                                trailing: FittedBox(
-                                  fit: BoxFit.fill,
-                                  child: Container(
-                                      width: 90,
-                                      height: 27,
-                                      child: RaisedButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder:
-                                                    (BuildContext context) =>
-                                                        FollowReq()),
-                                          );
-                                        },
+                          if (Followers.followRequests.length > 0)
+                            Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
                                         color: Color(primary),
-                                        textColor: Colors.white,
-                                        child: Text(
-                                          "See all",
-                                          style: TextStyle(
-                                            fontFamily: bodyText,
-                                          ),
-                                        ),
-                                      )),
-                                ),
-                              ),
+                                      ),
+                                      borderRadius: BorderRadius.circular(6)),
+                                  child: ListTile(
+                                    leading: Icon(
+                                      Icons.person_add,
+                                      color: Color(primary),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 5, vertical: 8),
+                                    title: Text(
+                                      "You have ${Followers.followRequests.length} new requests",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                        color: Color(primary),
+                                      ),
+                                    ),
+                                    trailing: FittedBox(
+                                      fit: BoxFit.fill,
+                                      child: Container(
+                                          width: 90,
+                                          height: 27,
+                                          child: RaisedButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        FollowReq()),
+                                              );
+                                            },
+                                            color: Color(primary),
+                                            textColor: Colors.white,
+                                            child: Text(
+                                              "See all",
+                                              style: TextStyle(
+                                                fontFamily: bodyText,
+                                              ),
+                                            ),
+                                          )),
+                                    ),
+                                  )),
                             ),
-                          ),
                           ProfileCard(
+                            email: _email,
                             username: _name,
                             gender: _gender,
                             job: _job,
@@ -834,22 +835,37 @@ class InfoDetail extends StatelessWidget {
 class ProfileCard extends StatefulWidget {
   const ProfileCard(
       {Key key,
+      @required this.email,
       @required this.username,
       @required this.gender,
       @required this.follower,
       @required this.following,
       this.job,
       this.lang,
+      this.showFollow = false,
       this.profilePic})
       : super(key: key);
-  final String username, job, lang, gender, profilePic;
+  final String email, username, job, lang, gender, profilePic;
   final int follower, following;
+  final bool showFollow;
 
   @override
   _ProfileCardState createState() => _ProfileCardState();
 }
 
 class _ProfileCardState extends State<ProfileCard> {
+  bool _following;
+  bool _pending;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.showFollow) {
+      _following = Followers.following.contains(widget.email) ? true : false;
+      _pending = Followers.requested.contains(widget.email) ? true : false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -1002,14 +1018,16 @@ class _ProfileCardState extends State<ProfileCard> {
                                 ),
                               ),
                             ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Follower(),
-                                ),
-                              );
-                            },
+                            onTap: widget.showFollow
+                                ? null
+                                : () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Follower(),
+                                      ),
+                                    );
+                                  },
                             splashColor: Color(background1),
                           ),
                           InkWell(
@@ -1026,18 +1044,55 @@ class _ProfileCardState extends State<ProfileCard> {
                                 ),
                               ),
                             ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Following(),
-                                ),
-                              );
-                            },
+                            onTap: widget.showFollow
+                                ? null
+                                : () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Following(),
+                                      ),
+                                    );
+                                  },
                             splashColor: Color(background1),
                           ),
                         ],
                       ),
+                      if (widget.showFollow)
+                        Container(
+                          width: double.infinity,
+                          height: 27,
+                          margin: const EdgeInsets.only(top: 10),
+                          child: RaisedButton(
+                            onPressed: _following
+                                ? null
+                                : () async {
+                                    await DataService()
+                                        .requestFollow(widget.email, !_pending);
+                                    setState(() {
+                                      _pending = !_pending;
+                                    });
+                                  },
+                            elevation: 2,
+                            shape: ContinuousRectangleBorder(
+                                side: BorderSide(
+                              color: Color(primary), //Color of the border
+                              style: BorderStyle.solid, //Style of the border
+                              width: 0.9, //width of the border
+                            )),
+                            textColor: Color(primary),
+                            color: Colors.white,
+                            child: Text(
+                              _following
+                                  ? 'Following'
+                                  : _pending ? 'Requested' : 'Follow',
+                              style: TextStyle(
+                                fontFamily: bodyText,
+                              ),
+                            ),
+                            splashColor: Color(primary),
+                          ),
+                        ),
                     ],
                   ),
                 ),
