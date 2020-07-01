@@ -43,7 +43,6 @@ class _ProfilePageState extends State<ProfilePage> {
       _linkedin,
       _web,
       _gender;
-  int _followers, _following;
   Future<bool> getData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _name = prefs.getString('name');
@@ -63,8 +62,6 @@ class _ProfilePageState extends State<ProfilePage> {
     _insta = prefs.getString('instagram');
     _linkedin = prefs.getString('linkedin');
     _web = prefs.getString('website');
-    _followers = prefs.getInt('followers');
-    _following = prefs.getInt('following');
     return true;
   }
 
@@ -190,14 +187,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                           width: 90,
                                           height: 27,
                                           child: RaisedButton(
-                                            onPressed: () {
-                                              Navigator.push(
+                                            onPressed: () async {
+                                              await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (BuildContext
                                                             context) =>
-                                                        FollowReq()),
+                                                        FollowReq(
+                                                            requests: Followers
+                                                                .followRequests)),
                                               );
+                                              setState(() {});
                                             },
                                             color: Color(primary),
                                             textColor: Colors.white,
@@ -218,8 +218,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             job: _job,
                             lang: _lang,
                             profilePic: _profile_pic,
-                            follower: _followers,
-                            following: _following,
+                            follower: Followers.followers.length,
+                            following: Followers.following.length,
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
@@ -1064,15 +1064,9 @@ class _ProfileCardState extends State<ProfileCard> {
                           height: 27,
                           margin: const EdgeInsets.only(top: 10),
                           child: RaisedButton(
-                            onPressed: _following
-                                ? null
-                                : () async {
-                                    await DataService()
-                                        .requestFollow(widget.email, !_pending);
-                                    setState(() {
-                                      _pending = !_pending;
-                                    });
-                                  },
+                            onPressed: () => _following
+                                ? _handleUnfollow(context)
+                                : _handleFollowRequest(),
                             elevation: 2,
                             shape: ContinuousRectangleBorder(
                                 side: BorderSide(
@@ -1128,6 +1122,37 @@ class _ProfileCardState extends State<ProfileCard> {
         ),
       ],
     );
+  }
+
+  _handleUnfollow(BuildContext context) async {
+    var result = await showModalBottomSheet(
+      context: context,
+      builder: (_) => Container(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+                onTap: () async {
+                  DataService().unFollow(widget.email);
+                  Navigator.of(context).pop(false);
+                },
+                leading: Icon(Icons.cancel, color: Colors.redAccent),
+                title: Text(
+                  'Unfollow',
+                  style: TextStyle(color: Colors.redAccent),
+                )),
+          ],
+        ),
+      ),
+    );
+    setState(() => _following = result ?? true);
+  }
+
+  _handleFollowRequest() async {
+    await DataService().requestFollow(widget.email, !_pending);
+    setState(() {
+      _pending = !_pending;
+    });
   }
 }
 

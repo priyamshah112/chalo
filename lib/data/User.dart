@@ -14,41 +14,15 @@ class User {
   String uid;
   List activities = [];
 
-  void setActivities(item) {
-    this.activities.add(item);
-  }
-
-  void setUid(String uid) {
-    this.uid = uid;
-  }
-
-  void setFname(String name) {
-    this.fname = name;
-  }
-
-  void setLname(String name) {
-    this.lname = name;
-  }
-
-  void setEmail(String email) {
-    this.email = email;
-  }
-
-  void setPassword(String password) {
-    this.password = password;
-  }
-
-  void setGender(String gender) {
-    this.gender = gender;
-  }
-
-  void setBirthDate(String bdate) {
-    this.birthDate = bdate;
-  }
-
-  void setPhone(String phone) {
-    this.phone = phone;
-  }
+  void setActivities(item) => this.activities.add(item);
+  void setUid(String uid) => this.uid = uid;
+  void setFname(String name) => this.fname = name;
+  void setLname(String name) => this.lname = name;
+  void setEmail(String email) => this.email = email;
+  void setPassword(String password) => this.password = password;
+  void setGender(String gender) => this.gender = gender;
+  void setBirthDate(String bdate) => this.birthDate = bdate;
+  void setPhone(String phone) => this.phone = phone;
 }
 
 class Followers {
@@ -111,10 +85,6 @@ class UserData {
     prefs.setString('instagram', userInfo['instagram_acc']);
     prefs.setString('linkedin', userInfo['linkedin_acc']);
     prefs.setString('website', userInfo['website']);
-    prefs.setInt('followers',
-        userInfo['followers_id'] == null ? 0 : userInfo['followers_id'].length);
-    prefs.setInt('following',
-        userInfo['following_id'] == null ? 0 : userInfo['following_id'].length);
     Followers.initialize(userData['email']);
   }
 

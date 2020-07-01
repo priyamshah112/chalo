@@ -229,9 +229,50 @@ class DataService {
               : FieldValue.arrayRemove([email])
         });
       });
-      // final requested = Followers.requested;
-      // follow ? requested.add(email) : requested.remove(email);
-      // Followers.setRequested(requested);
+      return true;
+    } catch (e) {
+      print(e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> acceptFollow(String email, bool accept) async {
+    final user = await UserData.getUser();
+    final current = user['email'];
+    final userRef1 = database.collection('additional_info').document(email);
+    final userRef2 = database.collection('additional_info').document(current);
+    try {
+      await database.runTransaction((transaction) async {
+        await transaction.update(userRef1, {
+          if (accept) 'following_id': FieldValue.arrayUnion([current]),
+          'follow_requested': FieldValue.arrayRemove([current])
+        });
+        await transaction.update(userRef2, {
+          if (accept) 'followers_id': FieldValue.arrayUnion([email]),
+          'follow_requests': FieldValue.arrayRemove([email])
+        });
+      });
+      return true;
+    } catch (e) {
+      print(e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> unFollow(String email) async {
+    final user = await UserData.getUser();
+    final current = user['email'];
+    final userRef1 = database.collection('additional_info').document(email);
+    final userRef2 = database.collection('additional_info').document(current);
+    try {
+      await database.runTransaction((transaction) async {
+        await transaction.update(userRef1, {
+          'followers_id': FieldValue.arrayRemove([current]),
+        });
+        await transaction.update(userRef2, {
+          'following_id': FieldValue.arrayRemove([email]),
+        });
+      });
       return true;
     } catch (e) {
       print(e.toString());
