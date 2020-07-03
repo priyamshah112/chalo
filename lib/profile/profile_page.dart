@@ -842,28 +842,34 @@ class ProfileCard extends StatefulWidget {
       @required this.following,
       this.job,
       this.lang,
-      this.showFollow = false,
+      this.isCurrent = true,
       this.profilePic})
       : super(key: key);
   final String email, username, job, lang, gender, profilePic;
   final int follower, following;
-  final bool showFollow;
+  final bool isCurrent;
 
   @override
   _ProfileCardState createState() => _ProfileCardState();
 }
 
 class _ProfileCardState extends State<ProfileCard> {
-  bool _following;
-  bool _pending;
+  bool _following, _pending;
+  int followers, following;
 
   @override
   void initState() {
     super.initState();
-    if (widget.showFollow) {
+    if (!widget.isCurrent) {
       _following = Followers.following.contains(widget.email) ? true : false;
       _pending = Followers.requested.contains(widget.email) ? true : false;
-    }
+    } else
+      _update();
+  }
+
+  void _update() {
+    followers = Followers.followers.length;
+    following = Followers.following.length;
   }
 
   @override
@@ -1009,7 +1015,7 @@ class _ProfileCardState extends State<ProfileCard> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: 5, vertical: 5),
                               child: Text(
-                                "${widget.follower} Followers",
+                                "${!widget.isCurrent ? widget.follower : followers} Followers",
                                 style: TextStyle(
                                   fontFamily: bodyText,
                                   color: Color(primary),
@@ -1018,16 +1024,16 @@ class _ProfileCardState extends State<ProfileCard> {
                                 ),
                               ),
                             ),
-                            onTap: widget.showFollow
-                                ? null
-                                : () {
+                            onTap: widget.isCurrent
+                                ? () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => Follower(),
                                       ),
                                     );
-                                  },
+                                  }
+                                : null,
                             splashColor: Color(background1),
                           ),
                           InkWell(
@@ -1035,7 +1041,7 @@ class _ProfileCardState extends State<ProfileCard> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: 5, vertical: 5),
                               child: Text(
-                                "${widget.following} Following",
+                                "${!widget.isCurrent ? widget.following : following} Following",
                                 style: TextStyle(
                                   color: Color(primary),
                                   fontFamily: bodyText,
@@ -1044,21 +1050,24 @@ class _ProfileCardState extends State<ProfileCard> {
                                 ),
                               ),
                             ),
-                            onTap: widget.showFollow
-                                ? null
-                                : () {
-                                    Navigator.push(
+                            onTap: widget.isCurrent
+                                ? () async {
+                                    await Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => Following(),
                                       ),
                                     );
-                                  },
+                                    await Future.delayed(
+                                        Duration(milliseconds: 500));
+                                    setState(() => _update());
+                                  }
+                                : null,
                             splashColor: Color(background1),
                           ),
                         ],
                       ),
-                      if (widget.showFollow)
+                      if (!widget.isCurrent)
                         Container(
                           width: double.infinity,
                           height: 27,
@@ -1074,8 +1083,12 @@ class _ProfileCardState extends State<ProfileCard> {
                               style: BorderStyle.solid, //Style of the border
                               width: 0.9, //width of the border
                             )),
-                            textColor: Color(primary),
-                            color: Colors.white,
+                            textColor: _following || _pending
+                                ? Colors.white
+                                : Color(primary),
+                            color: _following || _pending
+                                ? Color(primary)
+                                : Colors.white,
                             child: Text(
                               _following
                                   ? 'Following'

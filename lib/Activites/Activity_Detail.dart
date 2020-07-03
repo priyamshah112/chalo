@@ -271,7 +271,7 @@ class ParticipantList extends StatelessWidget {
                                               gender: snapshot.data['gender'],
                                               follower: 0,
                                               following: 0,
-                                              showFollow: true,
+                                              isCurrent: false,
                                             )
                                           ])),
                           leading: CircleAvatar(
