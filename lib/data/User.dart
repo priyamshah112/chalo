@@ -25,23 +25,46 @@ class User {
   void setPhone(String phone) => this.phone = phone;
 }
 
-class Followers {
+class CurrentUser {
   static List _followers, _following, _followRequests, _requested;
+  static String _email,
+      photoURL,
+      about,
+      job,
+      lang,
+      country,
+      state,
+      city,
+      facebook,
+      insta,
+      twitter,
+      linkedin,
+      website;
   static StreamSubscription<DocumentSnapshot> _userInfo;
   static Future<void> initialize(String email) async {
-    // _followers = follower;
-    // _following = following;
-    // _followRequests = requests;
-    // _requested = requested;
+    _email = email;
     _userInfo = Firestore.instance
         .collection('additional_info')
-        .document(email)
+        .document(_email)
         .snapshots()
         .listen((snapshot) {
+      print('Initializing Data...');
       _following = snapshot.data['following_id'];
       _followers = snapshot.data['followers_id'];
       _followRequests = snapshot.data['follow_requests'];
       _requested = snapshot.data['follow_requested'];
+      about = snapshot.data['about'];
+      lang = snapshot.data['languages'];
+      job = snapshot.data['job'];
+      country = snapshot.data['country'];
+      state = snapshot.data['state'];
+      city = snapshot.data['city'];
+      facebook = snapshot.data['facebook_acc'];
+      insta = snapshot.data['instagram_acc'];
+      linkedin = snapshot.data['linkedin_acc'];
+      twitter = snapshot.data['twitter_acc'];
+      website = snapshot.data['website'];
+      photoURL = snapshot.data['profile_pic'];
     });
   }
 
@@ -63,55 +86,31 @@ class Followers {
 class UserData {
   Future setData(Map userData) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final userInfo = await DataService().getUserInfo(userData['email']);
-    prefs.setString(
-        'name', userData['first_name'] + " " + userData['last_name']);
-    prefs.setString('fname', userData['first_name']);
-    prefs.setString('lname', userData['last_name']);
+    prefs.setString('name', userData['name']);
     prefs.setString('email', userData['email']);
-    prefs.setString('gender', userData['gender']);
     prefs.setString('phone', userData['mobile_no']);
-    prefs.setString('dob', userData['dob']);
-    prefs.setString('profile_pic', userData['profile_pic']);
+    prefs.setString('gender', userData['gender']);
+    prefs.setString('dob', userData['email']);
+    prefs.setString('profile_pic', userData['profile_url']);
     prefs.setBool('verified', userData['verified']);
-    prefs.setString('about', userInfo['about']);
-    prefs.setString('job', userInfo['job']);
-    prefs.setString('lang', userInfo['languages']);
-    prefs.setString('country', userInfo['country']);
-    prefs.setString('state', userInfo['state']);
-    prefs.setString('city', userInfo['city']);
-    prefs.setString('facebook', userInfo['facebook_acc']);
-    prefs.setString('twitter', userInfo['twitter_acc']);
-    prefs.setString('instagram', userInfo['instagram_acc']);
-    prefs.setString('linkedin', userInfo['linkedin_acc']);
-    prefs.setString('website', userInfo['website']);
-    Followers.initialize(userData['email']);
+    CurrentUser.initialize(userData['email']);
   }
-
-  // Future writeFollowers(
-  //   List followers, List followRequests, List following) async {
-  //   String _localpath = (await getApplicationDocumentsDirectory()).path;
-  //   File _localFile = File('$_localpath/data.txt');
-  // }
 
   Future deleteData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('fname');
-    prefs.remove('lname');
     prefs.remove('name');
     prefs.remove('email');
-    prefs.remove('type');
-    Followers.discard();
+    prefs.remove('phone');
+    prefs.remove('dob');
+    prefs.remove('gender');
+    prefs.remove('profile_pic');
+    prefs.setBool('verified', false);
+    CurrentUser.discard();
   }
 
   static Future checkVerified() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool('verified');
-  }
-
-  static Future<String> checkType() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('type');
   }
 
   static Future<Map> getUser() async {

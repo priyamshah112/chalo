@@ -269,8 +269,8 @@ class ParticipantList extends StatelessWidget {
                                               username:
                                                   '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
                                               gender: snapshot.data['gender'],
-                                              follower: 0,
-                                              following: 0,
+                                              follower: snapshot.data['followers'],
+                                              following: snapshot.data['following'],
                                               isCurrent: false,
                                             )
                                           ])),

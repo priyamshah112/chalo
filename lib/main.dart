@@ -53,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> {
         bool verified = prefs.getBool('verified');
         final user = await AuthService().isUserLoggedIn();
         if (verified && user != null) {
-          Followers.initialize(user.email);
+          CurrentUser.initialize(user.email);
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(

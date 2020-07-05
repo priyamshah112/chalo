@@ -1,3 +1,8 @@
+import 'dart:io';
+
+import 'package:chaloapp/services/StorageService.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'CloudMessaging.dart';
 import 'Hashing.dart';
 import '../data/User.dart';
@@ -7,6 +12,7 @@ class DataService {
   static final database = Firestore.instance;
   Future createUser(User user) async {
     await database.collection('users').document(user.email).setData({
+      'name': user.fname + ' ' + user.lname,
       'first_name': user.fname,
       'last_name': user.lname,
       'email': user.email,
@@ -44,9 +50,42 @@ class DataService {
       'follow_requested': [],
       'facebook_acc': "",
       'instagram_acc': "",
-      'profile_pic': "",
+      'linkedin_acc': "",
+      'twitter_acc': "",
+      'website': "",
+      'profile_pic':null,
       'interested_activity': []
     });
+  }
+
+  Future updateUserInfo(Map<String, dynamic> additionalInfo, String name,
+      String gender, File image) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String profilePic;
+    if (image != null)
+      profilePic = await StorageService.updateProfilePic(
+          prefs.getString('email'), image);
+    await database.runTransaction((transaction) async {
+      additionalInfo['profile_pic'] = profilePic;
+      await transaction.update(
+          database
+              .collection('additional_info')
+              .document(prefs.getString('email')),
+          additionalInfo);
+    });
+    await database.runTransaction((transaction) async {
+      await transaction.update(
+          database.collection('users').document(prefs.getString('email')), {
+        'first_name': name.split(' ').first,
+        'last_name': name.split(' ').last,
+        'gender': gender
+      });
+    });
+    prefs.setString('name', name);
+    prefs.setString('fname', name.split(' ').first);
+    prefs.setString('lname', name.split(' ').last);
+    prefs.setString('gender', gender);
+    prefs.setString('profile_pic', profilePic ?? null);
   }
 
   Future createPlan(Map details) async {
@@ -90,13 +129,20 @@ class DataService {
         await transaction.update(plandoc, {
           'group_chat': groupchatdoc,
           'location_id': locationdoc,
-          'plan_id': plandoc.documentID
+          'plan_id': plandoc.documentID,
+          'activity_logo': (await database
+                  .collection('chalo_activtiy')
+                  .document(
+                      details['activity_type'].toString().split(' ').join())
+                  .get())
+              .data['logo']
         });
       });
       await database.runTransaction((transaction) async {
         await transaction.update(
             database.collection('user_plans').document(details['admin_id']), {
-          'current_plans': FieldValue.arrayUnion([plandoc.documentID])
+          'current_plans': FieldValue.arrayUnion([plandoc.documentID]),
+          'your_adminplans': FieldValue.arrayUnion([plandoc.documentID])
         });
       });
     } catch (e) {
@@ -237,21 +283,30 @@ class DataService {
   }
 
   Future<bool> acceptFollow(String email, bool accept) async {
+    final batch = database.batch();
     final user = await UserData.getUser();
     final current = user['email'];
-    final userRef1 = database.collection('additional_info').document(email);
-    final userRef2 = database.collection('additional_info').document(current);
+    final userInfo = database.collection('additional_info').document(email);
+    final currentinfo =
+        database.collection('additional_info').document(current);
+    final userSnap = await database.collection('users').document(email).get();
+    final currentUser = database.collection('users').document(current);
     try {
-      await database.runTransaction((transaction) async {
-        await transaction.update(userRef1, {
-          if (accept) 'following_id': FieldValue.arrayUnion([current]),
-          'follow_requested': FieldValue.arrayRemove([current])
-        });
-        await transaction.update(userRef2, {
-          if (accept) 'followers_id': FieldValue.arrayUnion([email]),
-          'follow_requests': FieldValue.arrayRemove([email])
-        });
+      batch.updateData(userInfo, {
+        if (accept) 'following_id': FieldValue.arrayUnion([current]),
+        'follow_requested': FieldValue.arrayRemove([current])
       });
+      batch.updateData(currentinfo, {
+        if (accept) 'followers_id': FieldValue.arrayUnion([email]),
+        'follow_requests': FieldValue.arrayRemove([email])
+      });
+      if (accept) {
+        batch.updateData(
+            currentUser, {'followers': CurrentUser.followers.length + 1});
+        batch.updateData(
+            userSnap.reference, {'following': userSnap.data['following'] + 1});
+      }
+      await batch.commit();
       return true;
     } catch (e) {
       print(e.toString());
@@ -260,19 +315,26 @@ class DataService {
   }
 
   Future<bool> unFollow(String email) async {
+    final batch = database.batch();
     final user = await UserData.getUser();
     final current = user['email'];
-    final userRef1 = database.collection('additional_info').document(email);
-    final userRef2 = database.collection('additional_info').document(current);
+    final userInfo = database.collection('additional_info').document(email);
+    final currentInfo =
+        database.collection('additional_info').document(current);
+    final userSnap = await database.collection('users').document(email).get();
+    final currentUser = database.collection('users').document(current);
     try {
-      await database.runTransaction((transaction) async {
-        await transaction.update(userRef1, {
-          'followers_id': FieldValue.arrayRemove([current]),
-        });
-        await transaction.update(userRef2, {
-          'following_id': FieldValue.arrayRemove([email]),
-        });
+      batch.updateData(userInfo, {
+        'followers_id': FieldValue.arrayRemove([current]),
       });
+      batch.updateData(currentInfo, {
+        'following_id': FieldValue.arrayRemove([email]),
+      });
+      batch.updateData(
+          userSnap.reference, {'followers': userSnap.data['followers'] - 1});
+      batch.updateData(
+          currentUser, {'following': CurrentUser.following.length - 1});
+      await batch.commit();
       return true;
     } catch (e) {
       print(e.toString());

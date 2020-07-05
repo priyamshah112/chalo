@@ -178,9 +178,12 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                               height: 55.0,
                                               child: CircleAvatar(
                                                 foregroundColor: Color(primary),
+                                                radius: 5,
                                                 backgroundColor:
                                                     Color(secondary),
-                                                backgroundImage: AssetImage(
+                                                backgroundImage: planSnap.data['activity_logo']!=null? 
+                                                NetworkImage(planSnap.data['activity_logo'])
+                                                :AssetImage(
                                                     'images/bgcover.jpg'),
                                               ),
                                             ),

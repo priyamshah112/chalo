@@ -29,6 +29,7 @@ class MainHome extends StatefulWidget {
 class _MainHomeState extends State<MainHome> {
   int _currentIndex = 0;
   List tabs;
+  String profilePic;
   @override
   void initState() {
     super.initState();
@@ -56,7 +57,7 @@ class _MainHomeState extends State<MainHome> {
       Toast.show("Press back again to exit", context);
       return Future.value(false);
     }
-    Followers.discard();
+    CurrentUser.discard();
     return Future.value(true);
   }
 
@@ -128,22 +129,8 @@ class MainMap extends StatefulWidget {
 class _MainMapState extends State<MainMap> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // void _getData() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     user = prefs.getString('name');
-  //     email = prefs.getString('email');
-  //   });
-  // }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
-    // _getData();
     return Scaffold(
       key: _scaffoldKey,
       floatingActionButton: FloatingActionButton(
@@ -219,12 +206,19 @@ class _MainMapState extends State<MainMap> {
                           },
                           child: CircleAvatar(
                             child: ClipOval(
-                              child: Image.asset(
-                                'images/bgcover.jpg',
-                                height: 50,
-                                width: 50,
-                                fit: BoxFit.cover,
-                              ),
+                              child: CurrentUser.photoURL == null
+                                  ? Image.asset(
+                                      'images/bgcover.jpg',
+                                      height: 50,
+                                      width: 50,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.network(
+                                      CurrentUser.photoURL,
+                                      height: 50,
+                                      width: 50,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                           ),
                         ),

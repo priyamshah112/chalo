@@ -26,42 +26,19 @@ List<List<String>> activityList;
 List<List<String>> postList;
 
 class _ProfilePageState extends State<ProfilePage> {
-  String _name,
-      _email,
-      _phone,
-      _dob,
-      _job,
-      _about,
-      _lang,
-      _city,
-      _state,
-      _country,
-      _profile_pic,
-      _fb,
-      _twitter,
-      _insta,
-      _linkedin,
-      _web,
-      _gender;
-  Future<bool> getData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  String _name, _email, _phone, _dob, _gender;
+  void getData(SharedPreferences prefs) {
     _name = prefs.getString('name');
     _email = prefs.getString('email');
     _gender = prefs.getString('gender');
     _phone = prefs.getString('phone');
     _dob = prefs.getString('dob');
-    _profile_pic = prefs.getString('profile_pic');
-    _about = prefs.getString('about');
-    _job = prefs.getString('job');
-    _lang = prefs.getString('lang');
-    _country = prefs.getString('country');
-    _state = prefs.getString('state');
-    _city = prefs.getString('city');
-    _fb = prefs.getString('facebook');
-    _twitter = prefs.getString('twitter');
-    _insta = prefs.getString('instagram');
-    _linkedin = prefs.getString('linkedin');
-    _web = prefs.getString('website');
+  }
+
+  SharedPreferences prefs;
+  Future<bool> getPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    getData(prefs);
     return true;
   }
 
@@ -103,10 +80,12 @@ class _ProfilePageState extends State<ProfilePage> {
     ];
   }
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      key: _scaffoldKey,
       appBar: AppBar(
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -129,23 +108,34 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         actions: <Widget>[
           IconButton(
-            tooltip: 'Edit Profile',
-            icon: Icon(
-              Icons.edit,
-            ),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      EditProfile(name: _name, gender: _gender)),
-            ),
-          ),
+              tooltip: 'Edit Profile',
+              icon: Icon(
+                Icons.edit,
+              ),
+              onPressed: () async {
+                bool updated = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => EditProfile(
+                            name: _name,
+                            gender: _gender,
+                            profilePic: CurrentUser.photoURL)));
+                if (updated) {
+                  _scaffoldKey.currentState.showSnackBar(SnackBar(
+                      content: Text(
+                        'Profile updated',
+                        style: TextStyle(color: Color(primary)),
+                      ),
+                      duration: Duration(seconds: 2)));
+                  setState(() {});
+                }
+              }),
         ],
         elevation: 1.0,
         backgroundColor: Color(primary),
       ),
       body: FutureBuilder(
-          future: getData(),
+          future: getPrefs(),
           builder: (context, snapshot) {
             if (!snapshot.hasData)
               return Center(child: CircularProgressIndicator());
@@ -158,7 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     return [
                       SliverList(
                         delegate: SliverChildListDelegate([
-                          if (Followers.followRequests.length > 0)
+                          if (CurrentUser.followRequests.length > 0)
                             Padding(
                               padding: EdgeInsets.all(20),
                               child: Container(
@@ -175,7 +165,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     contentPadding: const EdgeInsets.symmetric(
                                         horizontal: 5, vertical: 8),
                                     title: Text(
-                                      "You have ${Followers.followRequests.length} new requests",
+                                      "You have ${CurrentUser.followRequests.length} new requests",
                                       style: TextStyle(
                                         fontWeight: FontWeight.normal,
                                         color: Color(primary),
@@ -194,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                     builder: (BuildContext
                                                             context) =>
                                                         FollowReq(
-                                                            requests: Followers
+                                                            requests: CurrentUser
                                                                 .followRequests)),
                                               );
                                               setState(() {});
@@ -215,11 +205,11 @@ class _ProfilePageState extends State<ProfilePage> {
                             email: _email,
                             username: _name,
                             gender: _gender,
-                            job: _job,
-                            lang: _lang,
-                            profilePic: _profile_pic,
-                            follower: Followers.followers.length,
-                            following: Followers.following.length,
+                            job: CurrentUser.job,
+                            lang: CurrentUser.lang,
+                            profilePic: CurrentUser.photoURL,
+                            follower: CurrentUser.followers.length,
+                            following: CurrentUser.following.length,
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
@@ -635,7 +625,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         margin: const EdgeInsets.only(
                                             top: 10.0, bottom: 5.0),
                                         child: Text(
-                                          _about ?? 'Add about',
+                                          CurrentUser.about ?? 'Add about',
                                           style: TextStyle(
                                             fontSize: 13,
                                             fontFamily: bodyText,
@@ -646,12 +636,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                       Divider(
                                         thickness: 1,
                                       ),
-                                      if (_job != null)
+                                      if (CurrentUser.job != null)
                                         InfoDetail(
-                                            title: 'Job Title', text: _job),
-                                      if (_lang != null)
+                                            title: 'Job Title',
+                                            text: CurrentUser.job),
+                                      if (CurrentUser.lang != null)
                                         InfoDetail(
-                                            title: 'Language', text: _lang),
+                                            title: 'Language',
+                                            text: CurrentUser.lang),
                                       InfoDetail(title: 'Email', text: _email),
                                       InfoDetail(
                                           title: 'Contact', text: _phone),
@@ -669,23 +661,36 @@ class _ProfilePageState extends State<ProfilePage> {
                                         height: 20.0,
                                         color: Color(primary),
                                       ),
-                                      Text(
-                                        "Social Information",
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: Color(primary),
-                                          fontFamily: heading,
-                                          fontWeight: FontWeight.w600,
+                                      GestureDetector(
+                                        onTap: () {
+                                          print(CurrentUser.linkedin);
+                                        },
+                                        child: Text(
+                                          "Social Information",
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: Color(primary),
+                                            fontFamily: heading,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                       SizedBox(height: 5),
-                                      InfoDetail(title: 'Facebook', text: _fb),
                                       InfoDetail(
-                                          title: 'Instagram', text: _insta),
-                                      InfoDetail(title: 'LinkedIn', text: ''),
-                                      InfoDetail(title: 'Twitter', text: ''),
+                                          title: 'Facebook',
+                                          text: CurrentUser.facebook),
                                       InfoDetail(
-                                          title: 'Website/Blog', text: ''),
+                                          title: 'Instagram',
+                                          text: CurrentUser.insta),
+                                      InfoDetail(
+                                          title: 'LinkedIn',
+                                          text: CurrentUser.linkedin),
+                                      InfoDetail(
+                                          title: 'Twitter',
+                                          text: CurrentUser.twitter),
+                                      InfoDetail(
+                                          title: 'Website/Blog',
+                                          text: CurrentUser.website),
                                     ],
                                   ),
                                 ),
@@ -861,15 +866,15 @@ class _ProfileCardState extends State<ProfileCard> {
   void initState() {
     super.initState();
     if (!widget.isCurrent) {
-      _following = Followers.following.contains(widget.email) ? true : false;
-      _pending = Followers.requested.contains(widget.email) ? true : false;
+      _following = CurrentUser.following.contains(widget.email) ? true : false;
+      _pending = CurrentUser.requested.contains(widget.email) ? true : false;
     } else
       _update();
   }
 
   void _update() {
-    followers = Followers.followers.length;
-    following = Followers.following.length;
+    followers = CurrentUser.followers.length;
+    following = CurrentUser.following.length;
   }
 
   @override
@@ -1058,9 +1063,8 @@ class _ProfileCardState extends State<ProfileCard> {
                                         builder: (context) => Following(),
                                       ),
                                     );
-                                    await Future.delayed(
-                                        Duration(milliseconds: 500));
-                                    setState(() => _update());
+                                    if (widget.isCurrent)
+                                      setState(() => _update());
                                   }
                                 : null,
                             splashColor: Color(background1),

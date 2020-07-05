@@ -68,7 +68,7 @@ class _FollowingState extends State<Following> {
   @override
   void initState() {
     super.initState();
-    following = Followers.following;
+    following = CurrentUser.following;
   }
 
   @override
