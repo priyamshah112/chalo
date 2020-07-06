@@ -1,19 +1,27 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:chaloapp/Activites/Activity_Detail.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/home/home.dart';
+import 'package:chaloapp/profile/followers.dart';
+import 'package:chaloapp/services/dynamicLinking.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'data/data.dart';
 import 'package:chaloapp/authentication/login.dart';
 import 'services/AuthService.dart';
+import 'data/User.dart';
 
 void main() => runApp(
       MaterialApp(
         theme: ThemeData(
-            primaryColor: Color(primary),
-            accentColor: Color(primary),
-            cursorColor: Color(primary)),
+          primaryColor: Color(primary),
+          accentColor: Color(primary),
+          cursorColor: Color(primary),
+        ),
         debugShowCheckedModeBanner: false,
         home: SplashScreen(),
       ),
@@ -34,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return prefs.getBool('onBoarding');
   }
 
-  void checkUser() async {
+  void checkUser(DocumentReference ref) async {
     await Future.delayed(Duration(seconds: 2));
     _showOnBoarding().then((show) async {
       if (show)
@@ -43,10 +51,15 @@ class _SplashScreenState extends State<SplashScreen> {
       else {
         final prefs = await SharedPreferences.getInstance();
         bool verified = prefs.getBool('verified');
-        bool loggedIn = await AuthService().isUserLoggedIn();
-        if (verified && loggedIn) {
+        final user = await AuthService().isUserLoggedIn();
+        if (verified && user != null) {
+          CurrentUser.initialize(user.email);
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => MainHome()));
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ref != null
+                      ? ActivityDetails(planRef: ref)
+                      : MainHome()));
         } else
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => HomePage()));
@@ -56,8 +69,27 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    checkUser();
+    configOneSignal();
+    DynamicLinkService.retrieveDynamicLink(context)
+        .then((ref) => checkUser(ref));
     super.initState();
+  }
+
+  void configOneSignal() async {
+    // //Remove this method to stop OneSignal Debugging
+    // OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+
+    await OneSignal.shared.init("cca66cd9-2af7-478f-b9d0-9b798db42679",
+        iOSSettings: {
+          OSiOSSettings.autoPrompt: false,
+          OSiOSSettings.inAppLaunchUrl: true
+        });
+    OneSignal.shared
+        .setInFocusDisplayType(OSNotificationDisplayType.notification);
+
+// The promptForPushNotificationsWithUserResponse function will show the iOS push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
+    // await OneSignal.shared
+    //     .promptUserForPushNotificationPermission(fallbackToSettings: true);
   }
 
   @override
@@ -217,7 +249,7 @@ class _HomeState extends State<Home> {
 }
 
 class SliderTile extends StatelessWidget {
-  String img, title, des;
+  final String img, title, des;
   SliderTile({this.img, this.title, this.des});
   @override
   Widget build(BuildContext context) {

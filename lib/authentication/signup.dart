@@ -203,7 +203,7 @@ class _SignUpState extends State<SignUp> {
                                     },
                                     onSaved: (value) {
                                       user.setBirthDate(
-                                          value.toString().substring(0, 10));
+                                          DateFormat('d/MM/y').format(value));
                                     },
                                     keyboardType: TextInputType.datetime,
                                     decoration: InputDecoration(
@@ -559,7 +559,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     if (user != null) {
       final _auth = AuthService();
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await _auth.signOut(prefs.getString('type'));
+      await _auth.signOut();
     }
     await Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => HomePage()));
