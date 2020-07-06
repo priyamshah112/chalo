@@ -21,29 +21,23 @@ import '../data/activity.dart';
 import 'Broadcast_Details.dart';
 
 class Broadcast extends StatefulWidget {
+  final Future<bool> Function() onBack;
+  Broadcast({@required this.onBack});
   @override
   _BroadcastState createState() => _BroadcastState();
 }
 
 class _BroadcastState extends State<Broadcast> {
-  DateTime currentBackPressTime;
-  Future<bool> _onWillPop(BuildContext context) {
-    DateTime now = DateTime.now();
-    if (currentBackPressTime == null ||
-        now.difference(currentBackPressTime) > Duration(seconds: 1)) {
-      currentBackPressTime = now;
-      Toast.show("Press back again to exit", context);
-      return Future.value(false);
-    }
-    return Future.value(true);
-  }
 
   String email;
-
   Future getdata() async {
-    final user = await UserData.getUser();
-    await Future.delayed(Duration(seconds: 1));
-    setState(() => email = user['email']);
+    try {
+      final user = await UserData.getUser();
+      await Future.delayed(Duration(seconds: 1));
+      setState(() => email = user['email']);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
@@ -55,7 +49,7 @@ class _BroadcastState extends State<Broadcast> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () => _onWillPop(context),
+      onWillPop: widget.onBack,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Color(primary),

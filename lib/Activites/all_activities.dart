@@ -3,11 +3,13 @@
 //import 'package:chaloapp/widgets/DailogBox.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chaloapp/data/User.dart';
+import 'package:chaloapp/services/dynamicLinking.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:share/share.dart';
 import 'package:toast/toast.dart';
 import 'Activity_Detail.dart';
 import '../common/global_colors.dart';
@@ -17,6 +19,8 @@ import '../common/global_colors.dart';
 //import 'package:chaloapp/home.dart';
 
 class AllActivity extends StatefulWidget {
+  final Future<bool> Function() onBack;
+  AllActivity({@required this.onBack});
   @override
   _AllActivityState createState() => _AllActivityState();
 }
@@ -104,23 +108,10 @@ class _AllActivityState extends State<AllActivity> {
         isExpanded: true,
       );
 
-  DateTime currentBackPressTime;
-  Future<bool> _onWillPop(BuildContext context) {
-    DateTime now = DateTime.now();
-    if (currentBackPressTime == null ||
-        now.difference(currentBackPressTime) > Duration(seconds: 1)) {
-      currentBackPressTime = now;
-      Toast.show("Press back again to exit", context);
-      return Future.value(false);
-    }
-    SystemNavigator.pop();
-    return Future.value(true);
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () => _onWillPop(context),
+      onWillPop: widget.onBack,
       child: Scaffold(
           appBar: AppBar(
             backgroundColor: Color(primary),
@@ -179,10 +170,12 @@ class _AllActivityState extends State<AllActivity> {
                               stream: Firestore.instance
                                   .collection('plan')
                                   .where('broadcast_type', isEqualTo: "public")
+                                  .orderBy('activity_start', descending: true)
                                   .snapshots(),
                               onTapGoto: (docRef) => Navigator.push(
                                 context,
                                 MaterialPageRoute(
+                                    settings: RouteSettings(name: 'Activity'),
                                     builder: (BuildContext context) =>
                                         ActivityDetails(planRef: docRef)),
                               ),
@@ -307,7 +300,16 @@ class ActivityCard extends StatelessWidget {
                       child: IconButton(
                         icon: Icon(Icons.share),
                         color: Colors.green,
-                        onPressed: () {},
+                        onPressed: () async {
+                          final RenderBox box = context.findRenderObject();
+                          final link = await DynamicLinkService.createLink(
+                              planDoc['plan_id'],
+                              planDoc['admin_name'].toString().split(' ')[0]);
+                          // print(link);
+                          Share.share('Check  out my activity: $link',
+                              sharePositionOrigin:
+                                  box.localToGlobal(Offset.zero) & box.size);
+                        },
                       ),
                     ),
                   ),

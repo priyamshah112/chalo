@@ -1,9 +1,13 @@
+import 'package:chaloapp/Explore/uploadPage.dart';
 import 'package:chaloapp/common/global_colors.dart';
+import 'package:chaloapp/data/User.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:like_button/like_button.dart';
+import 'package:chaloapp/home/home.dart';
 
 class Explore extends StatefulWidget {
+  final Future<bool> Function() onBack;
+  Explore({@required this.onBack});
 //  final String dp;
 //  final String name;
 //  final String time;
@@ -29,6 +33,16 @@ List<List<String>> ExplorepostList;
 class _ExploreState extends State<Explore> {
   int likeCount = 9;
   bool isLikeTap = false;
+  String email;
+  Future getdata() async {
+    try {
+      final user = await UserData.getUser();
+      await Future.delayed(Duration(seconds: 1));
+      setState(() => email = user['email']);
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,179 +159,190 @@ class _ExploreState extends State<Explore> {
       ],
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(primary),
-        title: Center(
-          child: Text(
-            "Social Wall",
+    return WillPopScope(
+      onWillPop: widget.onBack,
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => UploadPage()));
+          },
+        ),
+        appBar: AppBar(
+          backgroundColor: Color(primary),
+          title: Center(
+            child: Text(
+              "Social Wall",
+            ),
           ),
         ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                for (int i = 0; i < ExplorepostList.length; i++)
-                  Container(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: AssetImage(
-                              ExplorepostList[i][0],
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  for (int i = 0; i < ExplorepostList.length; i++)
+                    Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: AssetImage(
+                                ExplorepostList[i][0],
+                              ),
                             ),
-                          ),
-                          contentPadding:
-                              EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                ExplorepostList[i][1],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(secondary),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 15),
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  ExplorepostList[i][1],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(secondary),
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                ExplorepostList[i][2],
-                                style: TextStyle(
-                                  fontFamily: bodyText,
-                                  color: Color(primary),
+                                Text(
+                                  ExplorepostList[i][2],
+                                  style: TextStyle(
+                                    fontFamily: bodyText,
+                                    color: Color(primary),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                width: 90,
-                                height: 25,
-                                child: RaisedButton(
-                                  onPressed: () {},
-                                  color: Color(primary),
-                                  textColor: Colors.white,
-                                  elevation: 0,
-                                  child: Text(
-                                    'Follow',
-                                    style: TextStyle(
-                                      fontFamily: bodyText,
+                              ],
+                            ),
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                  width: 90,
+                                  height: 25,
+                                  child: RaisedButton(
+                                    onPressed: () {},
+                                    color: Color(primary),
+                                    textColor: Colors.white,
+                                    elevation: 0,
+                                    child: Text(
+                                      'Follow',
+                                      style: TextStyle(
+                                        fontFamily: bodyText,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Image.asset(
-                          ExplorepostList[i][3],
-                          width: MediaQuery.of(context).size.width,
-                          fit: BoxFit.cover,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                          child: Text(
-                            ExplorepostList[i][4],
-                            style: TextStyle(
-                              fontFamily: bodyText,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
+                              ],
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        ListTile(
-                          contentPadding:
-                              EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    if (isLikeTap) {
-                                      likeCount = likeCount - 1;
-                                      isLikeTap = false;
-                                    } else if (isLikeTap == false) {
-                                      likeCount = likeCount + 1;
-                                      isLikeTap = true;
-                                    }
-                                  });
-                                },
-                                child: Icon(
-                                  isLikeTap
-                                      ? FontAwesomeIcons.solidHeart
-                                      : FontAwesomeIcons.heart,
+                          Image.asset(
+                            ExplorepostList[i][3],
+                            width: MediaQuery.of(context).size.width,
+                            fit: BoxFit.cover,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 0, horizontal: 20),
+                            child: Text(
+                              ExplorepostList[i][4],
+                              style: TextStyle(
+                                fontFamily: bodyText,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          ListTile(
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 0, horizontal: 20),
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      if (isLikeTap) {
+                                        likeCount = likeCount - 1;
+                                        isLikeTap = false;
+                                      } else if (isLikeTap == false) {
+                                        likeCount = likeCount + 1;
+                                        isLikeTap = true;
+                                      }
+                                    });
+                                  },
+                                  child: Icon(
+                                    isLikeTap
+                                        ? FontAwesomeIcons.solidHeart
+                                        : FontAwesomeIcons.heart,
+                                    size: 17,
+                                    color: isLikeTap
+                                        ? Colors.red
+                                        : Color(secondary),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 7,
+                                ),
+                                Text(
+                                  "$likeCount likes",
+                                  style: TextStyle(
+                                    fontFamily: bodyText,
+                                    fontSize: 17,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                Icon(
+                                  FontAwesomeIcons.comment,
                                   size: 17,
-                                  color:
-                                      isLikeTap ? Colors.red : Color(secondary),
                                 ),
-                              ),
-                              SizedBox(
-                                width: 7,
-                              ),
-                              Text(
-                                "$likeCount likes",
-                                style: TextStyle(
-                                  fontFamily: bodyText,
-                                  fontSize: 17,
+                                SizedBox(
+                                  width: 5,
                                 ),
-                              ),
-                              SizedBox(
-                                width: 15,
-                              ),
-                              Icon(
-                                FontAwesomeIcons.comment,
-                                size: 17,
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                "67 comments",
-                                style: TextStyle(
-                                  fontFamily: bodyText,
-                                  fontSize: 17,
+                                Text(
+                                  "67 comments",
+                                  style: TextStyle(
+                                    fontFamily: bodyText,
+                                    fontSize: 17,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                ExplorepostList[i][5],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 11,
+                                SizedBox(
+                                  width: 10,
                                 ),
-                              ),
-                            ],
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(
-                              FontAwesomeIcons.share,
-                              size: 17,
-                              color: Color(secondary),
+                                Text(
+                                  ExplorepostList[i][5],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
                             ),
-                            onPressed: () {},
+                            trailing: IconButton(
+                              icon: Icon(
+                                FontAwesomeIcons.share,
+                                size: 17,
+                                color: Color(secondary),
+                              ),
+                              onPressed: () {},
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

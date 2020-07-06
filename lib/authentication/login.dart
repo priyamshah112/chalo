@@ -381,13 +381,14 @@ class _HomePageState extends State<HomePage> {
                           children: <Widget>[
                             Expanded(
                               child: FlatButton(
-                                onPressed: () => {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            HomePage()),
-                                  )
+                                onPressed: () async {
+                                  showDialog(
+                                      context: context,
+                                      builder: ((ctx) => Center(
+                                          child: CircularProgressIndicator())));
+                                  final result =
+                                      await AuthService().facebookSignIn();
+                                  login(result);
                                 },
                                 color: Colors.indigo,
                                 padding: EdgeInsets.symmetric(

@@ -1,28 +1,23 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
+import 'package:chaloapp/Animation/FadeAnimation.dart';
+import 'package:chaloapp/Settings/setting.dart';
+import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/profile/edit_profile_page.dart';
 import 'package:chaloapp/profile/follow_request.dart';
 import 'package:chaloapp/profile/following.dart';
-import 'package:chaloapp/home/home.dart';
 import 'package:chaloapp/Explore/post_details.dart';
-import 'package:chaloapp/tempprofile.dart';
-import 'package:toast/toast.dart';
+import 'package:chaloapp/services/DatabaseService.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../data/User.dart';
-
 import 'package:chaloapp/common/global_colors.dart';
-
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
-
 import 'followers.dart';
 
 class ProfilePage extends StatefulWidget {
-  final User user;
-  ProfilePage({this.user});
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -30,10 +25,24 @@ class ProfilePage extends StatefulWidget {
 List<List<String>> selectedActivityList;
 List<List<String>> activityList;
 List<List<String>> postList;
-final String username = "Abdul Quadir Ansari";
-final String userDp = "images/bgcover.jpg";
 
 class _ProfilePageState extends State<ProfilePage> {
+  String _name, _email, _phone, _dob, _gender;
+  void getData(SharedPreferences prefs) {
+    _name = prefs.getString('name');
+    _email = prefs.getString('email');
+    _gender = prefs.getString('gender');
+    _phone = prefs.getString('phone');
+    _dob = prefs.getString('dob');
+  }
+
+  SharedPreferences prefs;
+  Future<bool> getPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    getData(prefs);
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -72,10 +81,12 @@ class _ProfilePageState extends State<ProfilePage> {
     ];
   }
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      key: _scaffoldKey,
       appBar: AppBar(
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -90,960 +101,693 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         leading: InkWell(
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Setting()));
+          },
           child: Icon(
             Icons.settings,
             color: Colors.white,
           ),
         ),
         actions: <Widget>[
-          FlatButton(
-            onPressed: () {},
-            child: IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => TempProfilePage()),
-                );
-              },
+          IconButton(
+              tooltip: 'Edit Profile',
               icon: Icon(
-                Icons.notifications,
-                color: Colors.white,
+                Icons.edit,
               ),
-              splashColor: Colors.transparent,
-            ),
-          ),
+              onPressed: () async {
+                bool updated = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => EditProfile(
+                            name: _name,
+                            gender: _gender,
+                            profilePic: CurrentUser.photoURL)));
+                if (updated) {
+                  _scaffoldKey.currentState.showSnackBar(SnackBar(
+                      content: Text(
+                        'Profile updated',
+                        style: TextStyle(color: Color(primary)),
+                      ),
+                      duration: Duration(seconds: 2)));
+                  setState(() {});
+                }
+              }),
         ],
         elevation: 1.0,
         backgroundColor: Color(primary),
       ),
-      body: DefaultTabController(
-        length: 3,
-        child: NestedScrollView(
-          headerSliverBuilder: (context, _) {
-            return [
-              SliverList(
-                delegate: SliverChildListDelegate([
-                  Padding(
-                    padding: EdgeInsets.only(top: 20, left: 20, right: 20),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Color(primary),
-                          ),
-                          borderRadius: BorderRadius.circular(6)),
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.person_add,
-                          color: Color(primary),
-                        ),
-                        contentPadding: EdgeInsets.only(
-                            top: 8, left: 5, right: 00, bottom: 8),
-                        title: Text(
-                          "You have 3 new requests",
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Color(primary),
-                          ),
-                        ),
-                        trailing: FittedBox(
-                          fit: BoxFit.fill,
-                          child: Container(
-                              width: 90,
-                              height: 27,
-                              child: RaisedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            FollowReq()),
-                                  );
-                                },
-                                color: Color(primary),
-                                textColor: Colors.white,
-                                child: Text(
-                                  "See all",
-                                  style: TextStyle(
-                                    fontFamily: bodyText,
-                                  ),
-                                ),
-                              )),
-                        ),
-                      ),
-                    ),
-                  ),
-                  ProfileCard(username: 'Abdul Quadir Ansari'),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 20),
-                    child: TextField(
-                      keyboardType: TextInputType.text,
-                      autofocus: false,
-                      //obscureText: true,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Search users",
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Color(primary),
-                        ),
-                        contentPadding: const EdgeInsets.only(
-                            left: 30.0, bottom: 15.0, top: 15.0, right: 0.0),
-                        filled: true,
-                        fillColor: Color(form1),
-                        hintStyle: TextStyle(
-                          fontFamily: bodyText,
-                          color: Color(formHint),
-                        ),
-                      ),
-                    ),
-                  ),
-                ]),
-              ),
-            ];
-          },
-          body: Column(
-            children: <Widget>[
-              TabBar(
-                labelColor: Color(primary),
-                unselectedLabelColor: Color(secondary),
-                indicatorSize: TabBarIndicatorSize.label,
-                indicator: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(5),
-                        topRight: Radius.circular(5)),
-                    color: Color(background1)),
-                tabs: [
-                  Tab(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Activity",
-                        style: TextStyle(
-                          fontFamily: heading,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "About",
-                        style: TextStyle(
-                          fontFamily: heading,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Post",
-                        style: TextStyle(
-                          fontFamily: heading,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    //Activity Tab
-                    SingleChildScrollView(
-                      child: Container(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Text(
-                                "Activity Preferences",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontFamily: heading,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Select Activities",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontFamily: heading,
-                                      color: Color(secondary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  allActivity()));
-                                    },
-                                    child: Text(
-                                      "View all",
-                                      style: TextStyle(
-                                        fontSize: 15,
+      body: FutureBuilder(
+          future: getPrefs(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData)
+              return Center(child: CircularProgressIndicator());
+            return FadeAnimation(
+              1.5,
+              DefaultTabController(
+                length: 3,
+                child: NestedScrollView(
+                  headerSliverBuilder: (context, _) {
+                    return [
+                      SliverList(
+                        delegate: SliverChildListDelegate([
+                          if (CurrentUser.followRequests.length > 0)
+                            Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
                                         color: Color(primary),
-                                        fontFamily: heading,
-                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6)),
+                                  child: ListTile(
+                                    leading: Icon(
+                                      Icons.person_add,
+                                      color: Color(primary),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 5, vertical: 8),
+                                    title: Text(
+                                      "You have ${CurrentUser.followRequests.length} new requests",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                        color: Color(primary),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Container(
-                                height: 107,
-                                child: ListView(
-                                  scrollDirection: Axis.horizontal,
-                                  children: <Widget>[
-                                    for (int i = 0;
-                                        i < activityList.length;
-                                        i++)
-                                      Padding(
-                                        padding: EdgeInsets.all(2.0),
-                                        child: InkWell(
-                                          onTap: () {
-                                            activityList[i][2] = 'true';
-                                            for (int j = 0;
-                                                j < selectedActivityList.length;
-                                                j++) {
-                                              if (activityList[i][0] ==
-                                                      selectedActivityList[j]
-                                                          [0] &&
-                                                  activityList[i][1] ==
-                                                      selectedActivityList[j]
-                                                          [1]) {
-                                                activityList[i][2] = 'false';
-                                                break;
-                                              }
-                                            }
-                                            print(activityList[i][2]);
-                                            if (activityList[i][2] == 'true')
-                                              setState(() {
-                                                selectedActivityList.add([
-                                                  activityList[i][0],
-                                                  activityList[i][1],
-                                                ]);
-                                              });
-                                            else
-                                              for (int j = 0;
-                                                  j <
-                                                      selectedActivityList
-                                                          .length;
-                                                  j++) {
-                                                if (activityList[i][0] ==
-                                                        selectedActivityList[j]
-                                                            [0] &&
-                                                    activityList[i][1] ==
-                                                        selectedActivityList[j]
-                                                            [1]) {
-                                                  selectedActivityList
-                                                      .removeAt(j);
-                                                  break;
-                                                }
-                                              }
-                                            setState(() {});
-                                          },
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: Color(primary),
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(6)),
-                                            width: 110,
-                                            child: Stack(
-                                              children: <Widget>[
-                                                activityList[i][2] == 'true'
-                                                    ? Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(6),
-                                                          color: Colors
-                                                              .green.shade100,
-                                                        ),
-                                                      )
-                                                    : Text(''),
-                                                ListTile(
-                                                  title: Image.asset(
-                                                    activityList[i][0],
-                                                    width: 60,
-                                                    height: 60,
-                                                  ),
-                                                  subtitle: Container(
-                                                    padding:
-                                                        EdgeInsets.only(top: 7),
-                                                    child: Text(
-                                                      activityList[i][1],
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 13,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontFamily: bodyText,
-                                                        color: Color(secondary),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                    trailing: FittedBox(
+                                      fit: BoxFit.fill,
+                                      child: Container(
+                                          width: 90,
+                                          height: 27,
+                                          child: RaisedButton(
+                                            onPressed: () async {
+                                              await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        FollowReq(
+                                                            requests: CurrentUser
+                                                                .followRequests)),
+                                              );
+                                              setState(() {});
+                                            },
+                                            color: Color(primary),
+                                            textColor: Colors.white,
+                                            child: Text(
+                                              "See all",
+                                              style: TextStyle(
+                                                fontFamily: bodyText,
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
+                                          )),
+                                    ),
+                                  )),
+                            ),
+                          ProfileCard(
+                            email: _email,
+                            username: _name,
+                            gender: _gender,
+                            job: CurrentUser.job,
+                            lang: CurrentUser.lang,
+                            profilePic: CurrentUser.photoURL,
+                            follower: CurrentUser.followers.length,
+                            following: CurrentUser.following.length,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 20),
+                            child: TextField(
+                              keyboardType: TextInputType.text,
+                              autofocus: false,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: "Search users",
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Color(primary),
+                                ),
+                                contentPadding: const EdgeInsets.only(
+                                    left: 30.0,
+                                    bottom: 15.0,
+                                    top: 15.0,
+                                    right: 0.0),
+                                filled: true,
+                                fillColor: Color(form1),
+                                hintStyle: TextStyle(
+                                  fontFamily: bodyText,
+                                  color: Color(formHint),
                                 ),
                               ),
-                              selectedActivityList.length != 0
-                                  ? Container(
-                                      margin:
-                                          EdgeInsets.symmetric(vertical: 10),
-                                      child: Text(
-                                        "Your Activities",
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ];
+                  },
+                  body: Column(
+                    children: <Widget>[
+                      TabBar(
+                        labelColor: Color(primary),
+                        unselectedLabelColor: Color(secondary),
+                        indicatorSize: TabBarIndicatorSize.label,
+                        indicator: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(5),
+                                topRight: Radius.circular(5)),
+                            color: Color(background1)),
+                        tabs: [
+                          Tab(
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Activity",
+                                style: TextStyle(
+                                  fontFamily: heading,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Tab(
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                "About",
+                                style: TextStyle(
+                                  fontFamily: heading,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Tab(
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Post",
+                                style: TextStyle(
+                                  fontFamily: heading,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            //Activity Tab
+                            SingleChildScrollView(
+                              child: Container(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      SizedBox(
+                                        height: 20.0,
+                                      ),
+                                      Text(
+                                        "Activity Preferences",
                                         style: TextStyle(
                                           fontSize: 15,
-                                          color: Color(secondary),
+                                          color: Color(primary),
                                           fontFamily: heading,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                    )
-                                  : Text(""),
-                              selectedActivityList.length != 0
-                                  ? Container(
-                                      margin: EdgeInsets.only(bottom: 20),
-                                      height: 107,
-                                      child: ListView(
-                                        scrollDirection: Axis.horizontal,
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
-                                          for (int i = 0;
-                                              i < selectedActivityList.length;
-                                              i++)
-                                            Padding(
-                                              padding: EdgeInsets.all(2.0),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                      color: Color(primary),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            6)),
-                                                width: 110,
-                                                child: ListTile(
-                                                  title: Image.asset(
-                                                    selectedActivityList[i][0],
-                                                    width: 60,
-                                                    height: 60,
-                                                  ),
-                                                  subtitle: Container(
-                                                    padding:
-                                                        EdgeInsets.only(top: 7),
-                                                    child: Text(
-                                                      selectedActivityList[i]
-                                                          [1],
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 13,
-                                                        fontFamily: bodyText,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Color(secondary),
-                                                      ),
+                                          Text(
+                                            "Select Activities",
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontFamily: heading,
+                                              color: Color(secondary),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          allActivity()));
+                                            },
+                                            child: Text(
+                                              "View all",
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                color: Color(primary),
+                                                fontFamily: heading,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Container(
+                                        height: 107,
+                                        child: ListView(
+                                          scrollDirection: Axis.horizontal,
+                                          children: <Widget>[
+                                            for (int i = 0;
+                                                i < activityList.length;
+                                                i++)
+                                              Padding(
+                                                padding: EdgeInsets.all(2.0),
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    activityList[i][2] = 'true';
+                                                    for (int j = 0;
+                                                        j <
+                                                            selectedActivityList
+                                                                .length;
+                                                        j++) {
+                                                      if (activityList[i][0] ==
+                                                              selectedActivityList[
+                                                                  j][0] &&
+                                                          activityList[i][1] ==
+                                                              selectedActivityList[
+                                                                  j][1]) {
+                                                        activityList[i][2] =
+                                                            'false';
+                                                        break;
+                                                      }
+                                                    }
+                                                    print(activityList[i][2]);
+                                                    if (activityList[i][2] ==
+                                                        'true')
+                                                      setState(() {
+                                                        selectedActivityList
+                                                            .add([
+                                                          activityList[i][0],
+                                                          activityList[i][1],
+                                                        ]);
+                                                      });
+                                                    else
+                                                      for (int j = 0;
+                                                          j <
+                                                              selectedActivityList
+                                                                  .length;
+                                                          j++) {
+                                                        if (activityList[i]
+                                                                    [0] ==
+                                                                selectedActivityList[
+                                                                    j][0] &&
+                                                            activityList[i]
+                                                                    [1] ==
+                                                                selectedActivityList[
+                                                                    j][1]) {
+                                                          selectedActivityList
+                                                              .removeAt(j);
+                                                          break;
+                                                        }
+                                                      }
+                                                    setState(() {});
+                                                  },
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                          color: Color(primary),
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(6)),
+                                                    width: 110,
+                                                    child: Stack(
+                                                      children: <Widget>[
+                                                        activityList[i][2] ==
+                                                                'true'
+                                                            ? Container(
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              6),
+                                                                  color: Colors
+                                                                      .green
+                                                                      .shade100,
+                                                                ),
+                                                              )
+                                                            : Text(''),
+                                                        ListTile(
+                                                          title: Image.asset(
+                                                            activityList[i][0],
+                                                            width: 60,
+                                                            height: 60,
+                                                          ),
+                                                          subtitle: Container(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    top: 7),
+                                                            child: Text(
+                                                              activityList[i]
+                                                                  [1],
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style: TextStyle(
+                                                                fontSize: 13,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontFamily:
+                                                                    bodyText,
+                                                                color: Color(
+                                                                    secondary),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    )
-                                  : Container(),
-                              Text(
-                                "Invite Recieve Radius",
-                                style: TextStyle(
-                                  color: Color(primary),
-                                  fontFamily: heading,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              Container(
-                                margin: EdgeInsets.symmetric(vertical: 10),
-                                decoration: ShapeDecoration(
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      width: 1.0,
-                                      style: BorderStyle.solid,
-                                      color: Color(primary),
-                                    ),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5.0)),
-                                  ),
-                                ),
-                                child: SelectRadius(),
-                                padding: EdgeInsets.symmetric(horizontal: 15),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    //About Tab
-                    SingleChildScrollView(
-                      child: Container(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Text(
-                                "About Me",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontFamily: heading,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                "Hello! I’m Abdul Quadir Ansari. Web Developer specializing in front end development. Experienced with all stages of the development cycle for dynamic web projects. Well-versed in numerous programming languages including JavaScript, SQL, and C. Strong background in project management and customer relations.also I am good at wordpress.",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontFamily: bodyText,
-                                  color: Color(secondary),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Divider(
-                                thickness: 1,
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Job Title",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Web Developer",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Languages",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "English",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Gender",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Male",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Contact",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "+91 7738413265",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Email",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "abdulquadir.a@somaiya.edu",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Birth Date",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "24/04/2000",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Country",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "India",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "State",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Maharashtra",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "City",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Mumbai",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Divider(
-                                thickness: 1,
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                "Social Information",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontFamily: heading,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Facebook",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "facebook.com",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Instagram",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "instagram.com",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Linkedin",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "linkedin.com",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Twitter",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "twitter.com",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    "Website/blog",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: heading,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    "abdulquadir.co",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: bodyText,
-                                      color: Color(secondary),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    //Post Tab
-                    ListView(
-                      children: <Widget>[
-                        Container(
-                          child: Wrap(
-                            children: <Widget>[
-                              for (int i = 0; i < postList.length; i++)
-                                Container(
-                                  height: MediaQuery.of(context).size.width / 3,
-                                  width: MediaQuery.of(context).size.width / 3,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(postList[i][0]),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              PostItem(
-                                            dp: userDp,
-                                            name: username,
-                                            img: postList[i][0],
-                                            activityName: postList[i][1],
-                                            caption: postList[i][2],
-                                            time: postList[i][3],
+                                      selectedActivityList.length != 0
+                                          ? Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 10),
+                                              child: Text(
+                                                "Your Activities",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Color(secondary),
+                                                  fontFamily: heading,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            )
+                                          : Text(""),
+                                      selectedActivityList.length != 0
+                                          ? Container(
+                                              margin:
+                                                  EdgeInsets.only(bottom: 20),
+                                              height: 107,
+                                              child: ListView(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                children: <Widget>[
+                                                  for (int i = 0;
+                                                      i <
+                                                          selectedActivityList
+                                                              .length;
+                                                      i++)
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsets.all(2.0),
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                                border:
+                                                                    Border.all(
+                                                                  color: Color(
+                                                                      primary),
+                                                                ),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            6)),
+                                                        width: 110,
+                                                        child: ListTile(
+                                                          title: Image.asset(
+                                                            selectedActivityList[
+                                                                i][0],
+                                                            width: 60,
+                                                            height: 60,
+                                                          ),
+                                                          subtitle: Container(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    top: 7),
+                                                            child: Text(
+                                                              selectedActivityList[
+                                                                  i][1],
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style: TextStyle(
+                                                                fontSize: 13,
+                                                                fontFamily:
+                                                                    bodyText,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Color(
+                                                                    secondary),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            )
+                                          : Container(),
+                                      Text(
+                                        "Invite Recieve Radius",
+                                        style: TextStyle(
+                                          color: Color(primary),
+                                          fontFamily: heading,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Container(
+                                        margin:
+                                            EdgeInsets.symmetric(vertical: 10),
+                                        decoration: ShapeDecoration(
+                                          shape: RoundedRectangleBorder(
+                                            side: BorderSide(
+                                              width: 1.0,
+                                              style: BorderStyle.solid,
+                                              color: Color(primary),
+                                            ),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(5.0)),
                                           ),
                                         ),
-                                      );
-                                    },
+                                        child: selectRadius(),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 15),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                            ],
-                          ),
+                              ),
+                            ),
+                            //About Tab
+                            SingleChildScrollView(
+                              child: Container(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      SizedBox(
+                                        height: 20.0,
+                                      ),
+                                      Text(
+                                        "About Me",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Color(primary),
+                                          fontFamily: heading,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                            top: 10.0, bottom: 5.0),
+                                        child: Text(
+                                          CurrentUser.about ?? 'Add about',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontFamily: bodyText,
+                                            color: Color(secondary),
+                                          ),
+                                        ),
+                                      ),
+                                      Divider(
+                                        thickness: 1,
+                                      ),
+                                      if (CurrentUser.job != null)
+                                        InfoDetail(
+                                            title: 'Job Title',
+                                            text: CurrentUser.job),
+                                      if (CurrentUser.lang != null)
+                                        InfoDetail(
+                                            title: 'Language',
+                                            text: CurrentUser.lang),
+                                      InfoDetail(title: 'Email', text: _email),
+                                      InfoDetail(
+                                          title: 'Contact', text: _phone),
+                                      InfoDetail(
+                                          title: 'Gender', text: _gender),
+                                      InfoDetail(
+                                          title: 'Birth Date', text: _dob),
+                                      InfoDetail(
+                                          title: 'Country', text: 'India'),
+                                      InfoDetail(
+                                          title: 'State', text: 'Maharashtra'),
+                                      InfoDetail(title: 'City', text: 'Mumbai'),
+                                      Divider(
+                                        thickness: 1,
+                                        height: 20.0,
+                                        color: Color(primary),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          print(CurrentUser.linkedin);
+                                        },
+                                        child: Text(
+                                          "Social Information",
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: Color(primary),
+                                            fontFamily: heading,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 5),
+                                      InfoDetail(
+                                          title: 'Facebook',
+                                          text: CurrentUser.facebook),
+                                      InfoDetail(
+                                          title: 'Instagram',
+                                          text: CurrentUser.insta),
+                                      InfoDetail(
+                                          title: 'LinkedIn',
+                                          text: CurrentUser.linkedin),
+                                      InfoDetail(
+                                          title: 'Twitter',
+                                          text: CurrentUser.twitter),
+                                      InfoDetail(
+                                          title: 'Website/Blog',
+                                          text: CurrentUser.website),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            //Post Tab
+                            ListView(
+                              children: <Widget>[
+                                Container(
+                                  child: Wrap(
+                                    children: <Widget>[
+                                      for (int i = 0; i < postList.length; i++)
+                                        Container(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              3,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              3,
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: AssetImage(postList[i][0]),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          child: InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (BuildContext context) =>
+                                                          PostItem(
+                                                    dp: 'images/bgcover.jpg',
+                                                    name: _name,
+                                                    img: postList[i][0],
+                                                    activityName: postList[i]
+                                                        [1],
+                                                    caption: postList[i][2],
+                                                    time: postList[i][3],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            );
+          }),
     );
   }
 
-  List<String> RadiusListItems = [
-    "Less than 5 kilometers",
-    "Less than 10 kilometers",
-    "Less than 15 kilometers",
-    "Less than 20 kilometers",
-    "Less than 25 kilometers",
-    "Less than 50 kilometers",
-    "Less than 100 kilometers"
-  ];
-  String radius = "Less than 5 kilometers";
-  DropdownButton SelectRadius() => DropdownButton<String>(
-        items: [
-          for (int i = 0; i < RadiusListItems.length; i++)
-            DropdownMenuItem(
-              value: RadiusListItems[i],
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    RadiusListItems[i],
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Color(secondary),
-                    ),
+  int _radius = 5;
+  DropdownButton selectRadius() => DropdownButton<int>(
+        items: [5, 10, 15, 20, 25, 50, 100]
+            .map((radius) => DropdownMenuItem<int>(
+                  value: radius,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        'Less than $radius kilometers',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Color(secondary),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Icon(
+                        _radius == radius ? Icons.check : null,
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Icon(
-                    RadiusListItems[i] == radius ? Icons.check : null,
-                  ),
-                ],
-              ),
-            ),
-        ],
+                ))
+            .toList(),
         onChanged: (value) {
           setState(() {
-            radius = value;
-            print(radius);
+            _radius = value;
           });
         },
         icon: Icon(Icons.arrow_downward),
@@ -1051,7 +795,7 @@ class _ProfilePageState extends State<ProfilePage> {
         iconEnabledColor: Color(primary),
         underline: Container(),
         hint: Text(
-          radius,
+          'Less than $_radius kilometers',
           style: TextStyle(
             color: Colors.black,
             fontFamily: bodyText,
@@ -1062,22 +806,79 @@ class _ProfilePageState extends State<ProfilePage> {
       );
 }
 
+class InfoDetail extends StatelessWidget {
+  const InfoDetail({Key key, @required this.title, @required this.text})
+      : super(key: key);
+  final String title, text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 13,
+              fontFamily: heading,
+              color: Color(primary),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 13,
+              fontFamily: bodyText,
+              color: Color(secondary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class ProfileCard extends StatefulWidget {
-  const ProfileCard({Key key, @required this.username}) : super(key: key);
-  final String username;
+  const ProfileCard(
+      {Key key,
+      @required this.email,
+      @required this.username,
+      @required this.gender,
+      @required this.follower,
+      @required this.following,
+      this.job,
+      this.lang,
+      this.isCurrent = true,
+      this.profilePic})
+      : super(key: key);
+  final String email, username, job, lang, gender, profilePic;
+  final int follower, following;
+  final bool isCurrent;
 
   @override
   _ProfileCardState createState() => _ProfileCardState();
 }
 
 class _ProfileCardState extends State<ProfileCard> {
-  File _image;
-  Future getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _image = image;
-      print("Image Path $_image");
-    });
+  bool _following, _pending;
+  int followers, following;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.isCurrent) {
+      _following = CurrentUser.following.contains(widget.email) ? true : false;
+      _pending = CurrentUser.requested.contains(widget.email) ? true : false;
+    } else
+      _update();
+  }
+
+  void _update() {
+    followers = CurrentUser.followers.length;
+    following = CurrentUser.following.length;
   }
 
   @override
@@ -1085,102 +886,89 @@ class _ProfileCardState extends State<ProfileCard> {
     return Stack(
       overflow: Overflow.visible,
       children: <Widget>[
-        Container(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 20,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(
-                  height: 40,
-                ),
-                Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0)),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color(primary),
-                        ),
-                        borderRadius: BorderRadius.circular(6)),
-                    child: Column(
-                      children: <Widget>[
-                        SizedBox(
-                          height: 15.0,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(
-                              widget.username,
-                              style: TextStyle(
-                                color: Color(primary),
-                                fontSize: 18,
-                                fontFamily: heading,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.edit,
-                                size: 18,
-                              ),
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: 20,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              SizedBox(
+                height: 40,
+              ),
+              Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Color(primary),
+                      ),
+                      borderRadius: BorderRadius.circular(6)),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 15.0,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            widget.username,
+                            style: TextStyle(
                               color: Color(primary),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          EditProfile()),
-                                );
-                              },
+                              fontSize: 18,
+                              fontFamily: heading,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                Icon(
-                                  FontAwesomeIcons.trophy,
-                                  color: Colors.amberAccent,
-                                  size: 12,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  " 0 activities Done",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: bodyText,
-                                    color: Color(secondary),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              "Male, 22",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: bodyText,
-                                color: Color(secondary),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Icon(
+                                FontAwesomeIcons.trophy,
+                                color: Colors.amberAccent,
+                                size: 12,
                               ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                " 0 activities Done",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: bodyText,
+                                  color: Color(secondary),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            "${widget.gender}, 22",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontFamily: bodyText,
+                              color: Color(secondary),
                             ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          if (widget.job != null)
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
@@ -1193,7 +981,7 @@ class _ProfileCardState extends State<ProfileCard> {
                                   ),
                                 ),
                                 Text(
-                                  "Web Developer",
+                                  widget.job,
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontFamily: bodyText,
@@ -1201,6 +989,8 @@ class _ProfileCardState extends State<ProfileCard> {
                                 ),
                               ],
                             ),
+                          Spacer(),
+                          if (widget.lang != null)
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
@@ -1213,7 +1003,7 @@ class _ProfileCardState extends State<ProfileCard> {
                                   ),
                                 ),
                                 Text(
-                                  "English",
+                                  widget.lang,
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontFamily: bodyText,
@@ -1221,97 +1011,169 @@ class _ProfileCardState extends State<ProfileCard> {
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                        Divider(
-                          thickness: 1,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            InkWell(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 5),
-                                child: Text(
-                                  "0 Followers",
-                                  style: TextStyle(
-                                    fontFamily: bodyText,
-                                    color: Color(primary),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                  ),
+                        ],
+                      ),
+                      Divider(
+                        thickness: 1,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          InkWell(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 5),
+                              child: Text(
+                                "${!widget.isCurrent ? widget.follower : followers} Followers",
+                                style: TextStyle(
+                                  fontFamily: bodyText,
+                                  color: Color(primary),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
                                 ),
                               ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Follower(),
-                                  ),
-                                );
-                              },
-                              splashColor: Color(background1),
                             ),
-                            InkWell(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 5),
-                                child: Text(
-                                  "0 Following",
-                                  style: TextStyle(
-                                    color: Color(primary),
-                                    fontFamily: bodyText,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                  ),
+                            onTap: widget.isCurrent
+                                ? () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Follower(),
+                                      ),
+                                    );
+                                  }
+                                : null,
+                            splashColor: Color(background1),
+                          ),
+                          InkWell(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 5),
+                              child: Text(
+                                "${!widget.isCurrent ? widget.following : following} Following",
+                                style: TextStyle(
+                                  color: Color(primary),
+                                  fontFamily: bodyText,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
                                 ),
                               ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Following(),
-                                  ),
-                                );
-                              },
-                              splashColor: Color(background1),
                             ),
-                          ],
+                            onTap: widget.isCurrent
+                                ? () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Following(),
+                                      ),
+                                    );
+                                    if (widget.isCurrent)
+                                      setState(() => _update());
+                                  }
+                                : null,
+                            splashColor: Color(background1),
+                          ),
+                        ],
+                      ),
+                      if (!widget.isCurrent)
+                        Container(
+                          width: double.infinity,
+                          height: 27,
+                          margin: const EdgeInsets.only(top: 10),
+                          child: RaisedButton(
+                            onPressed: () => _following
+                                ? _handleUnfollow(context)
+                                : _handleFollowRequest(),
+                            elevation: 2,
+                            shape: ContinuousRectangleBorder(
+                                side: BorderSide(
+                              color: Color(primary), //Color of the border
+                              style: BorderStyle.solid, //Style of the border
+                              width: 0.9, //width of the border
+                            )),
+                            textColor: _following || _pending
+                                ? Colors.white
+                                : Color(primary),
+                            color: _following || _pending
+                                ? Color(primary)
+                                : Colors.white,
+                            child: Text(
+                              _following
+                                  ? 'Following'
+                                  : _pending ? 'Requested' : 'Follow',
+                              style: TextStyle(
+                                fontFamily: bodyText,
+                              ),
+                            ),
+                            splashColor: Color(primary),
+                          ),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         Center(
-          child: GestureDetector(
-            onTap: () {
-              getImage();
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 1.5,
-                    color: Color(primary),
-                  ),
-                  shape: BoxShape.circle),
-              margin: EdgeInsets.only(top: 20),
-              width: 55.0,
-              height: 55.0,
-              child: CircleAvatar(
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border.all(
+                  width: 1.5,
+                  color: Color(primary),
+                ),
+                shape: BoxShape.circle),
+            margin: EdgeInsets.only(top: 20),
+            width: 55.0,
+            height: 55.0,
+            child: CircleAvatar(
+                radius: 27.5,
                 foregroundColor: Color(primary),
                 backgroundColor: Color(background1),
-                backgroundImage: AssetImage('images/bgcover.jpg'),
-              ),
-            ),
+                backgroundImage: widget.profilePic != null
+                    ? NetworkImage(widget.profilePic)
+                    : null,
+                child: widget.profilePic == null
+                    ? Icon(
+                        Icons.account_circle,
+                        size: 50,
+                      )
+                    : null),
           ),
         ),
       ],
     );
+  }
+
+  _handleUnfollow(BuildContext context) async {
+    var result = await showModalBottomSheet(
+      context: context,
+      builder: (_) => Container(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+                onTap: () async {
+                  DataService().unFollow(widget.email);
+                  Navigator.of(context).pop(false);
+                },
+                leading: Icon(Icons.cancel, color: Colors.redAccent),
+                title: Text(
+                  'Unfollow',
+                  style: TextStyle(color: Colors.redAccent),
+                )),
+          ],
+        ),
+      ),
+    );
+    setState(() => _following = result ?? true);
+  }
+
+  _handleFollowRequest() async {
+    await DataService().requestFollow(widget.email, !_pending);
+    setState(() {
+      _pending = !_pending;
+    });
   }
 }
 
