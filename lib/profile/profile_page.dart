@@ -6,6 +6,7 @@ import 'package:chaloapp/profile/follow_request.dart';
 import 'package:chaloapp/profile/following.dart';
 import 'package:chaloapp/home/home.dart';
 import 'package:chaloapp/Explore/post_details.dart';
+import 'package:chaloapp/tempprofile.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -99,7 +100,13 @@ class _ProfilePageState extends State<ProfilePage> {
           FlatButton(
             onPressed: () {},
             child: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => TempProfilePage()),
+                );
+              },
               icon: Icon(
                 Icons.notifications,
                 color: Colors.white,
