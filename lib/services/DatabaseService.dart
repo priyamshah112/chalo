@@ -23,9 +23,10 @@ class DataService {
       'uid': user.uid,
       'timestamp': Timestamp.now(),
       'verified': false,
-      'photo_url': null,
+      'profile_pic': null,
       'followers': 0,
-      'following': 0
+      'following': 0,
+      'activities_completed': 0
     });
     await database.collection('user_plans').document(user.email).setData({
       'cancelled_plans': [],
@@ -53,7 +54,7 @@ class DataService {
       'linkedin_acc': "",
       'twitter_acc': "",
       'website': "",
-      'profile_pic':null,
+      'profile_pic': null,
       'interested_activity': []
     });
   }
@@ -66,7 +67,7 @@ class DataService {
       profilePic = await StorageService.updateProfilePic(
           prefs.getString('email'), image);
     await database.runTransaction((transaction) async {
-      additionalInfo['profile_pic'] = profilePic;
+      if (profilePic != null) additionalInfo['profile_pic'] = profilePic;
       await transaction.update(
           database
               .collection('additional_info')
@@ -78,14 +79,15 @@ class DataService {
           database.collection('users').document(prefs.getString('email')), {
         'first_name': name.split(' ').first,
         'last_name': name.split(' ').last,
-        'gender': gender
+        'gender': gender,
+        if (profilePic != null) 'profile_pic': profilePic
       });
     });
     prefs.setString('name', name);
     prefs.setString('fname', name.split(' ').first);
     prefs.setString('lname', name.split(' ').last);
     prefs.setString('gender', gender);
-    prefs.setString('profile_pic', profilePic ?? null);
+    if (profilePic != null) prefs.setString('profile_pic', profilePic);
   }
 
   Future createPlan(Map details) async {
@@ -93,6 +95,13 @@ class DataService {
       Map user = await UserData.getUser();
       DocumentReference plandoc =
           await database.collection('plan').add(details);
+      await database.runTransaction((transaction) async {
+        await transaction.update(
+            database.collection('user_plans').document(details['admin_id']), {
+          'current_plans': FieldValue.arrayUnion([plandoc.documentID]),
+          'your_adminplans': FieldValue.arrayUnion([plandoc.documentID])
+        });
+      });
       DocumentReference groupchatdoc =
           database.collection('group_chat').document(plandoc.documentID);
       await groupchatdoc.setData({
@@ -136,13 +145,6 @@ class DataService {
                       details['activity_type'].toString().split(' ').join())
                   .get())
               .data['logo']
-        });
-      });
-      await database.runTransaction((transaction) async {
-        await transaction.update(
-            database.collection('user_plans').document(details['admin_id']), {
-          'current_plans': FieldValue.arrayUnion([plandoc.documentID]),
-          'your_adminplans': FieldValue.arrayUnion([plandoc.documentID])
         });
       });
     } catch (e) {
@@ -358,7 +360,8 @@ class DataService {
         final userplanRef =
             database.collection('user_plans').document(userEmail);
         batch.updateData(userplanRef, {
-          'current_plans': FieldValue.arrayUnion([planId])
+          'current_plans': FieldValue.arrayUnion([planId]),
+          'requested_plans': FieldValue.arrayRemove([planId])
         });
         final groupchatSnap =
             await database.collection('group_chat').document(planId).get();
@@ -383,6 +386,49 @@ class DataService {
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  Future leaveActivity(DocumentSnapshot planDoc, {bool delete = false}) async {
+    final batch = database.batch();
+    final current = CurrentUser.email;
+    final planId = planDoc['plan_id'];
+    final groupchatRef = database.collection('group_chat').document(planId);
+    if (delete) {
+      List participants = planDoc['participants_id'];
+      participants.forEach((participant) {
+        batch.updateData(
+            database.collection('user_plans').document(participant), {
+          'current_plans': FieldValue.arrayRemove([planId]),
+          if (participant == current)
+            'your_adminplans': FieldValue.arrayRemove([planId])
+        });
+      });
+      batch.delete(planDoc.reference);
+    } else {
+      batch.updateData(planDoc.reference, {
+        'participants_id': FieldValue.arrayRemove([current])
+      });
+      batch.updateData(database.collection('user_plans').document(current), {
+        'current_plans': FieldValue.arrayRemove([planId]),
+      });
+    }
+    if (delete) {
+      final msgs = (await groupchatRef
+              .collection('chat')
+              .orderBy('timestamp')
+              .getDocuments())
+          .documents;
+      msgs.forEach((msg) => batch.delete(msg.reference));
+      if (planDoc['broadcast_type'] == 'public')
+        batch.delete(database.collection('map_activity').document(planId));
+      batch.delete(groupchatRef);
+    } else {
+      final groupchatSnap = await groupchatRef.get();
+      Map messengers = groupchatSnap.data['messenger_id'];
+      messengers.remove(current);
+      batch.updateData(groupchatRef, {'messenger_id': messengers});
+    }
+    await batch.commit();
   }
 
   Future<List<DocumentSnapshot>> getNotification() async {

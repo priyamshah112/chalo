@@ -257,8 +257,11 @@ class ActivityCard extends StatelessWidget {
                     height: 55.0,
                     child: CircleAvatar(
                       foregroundColor: Color(primary),
-                      backgroundColor: Color(secondary),
-                      backgroundImage: AssetImage('images/bgcover.jpg'),
+                      radius: 5,
+                      backgroundColor: Colors.white,
+                      backgroundImage: planDoc.data['activity_logo'] != null
+                          ? NetworkImage(planDoc.data['activity_logo'])
+                          : AssetImage('images/bgcover.jpg'),
                     ),
                   ),
                   SizedBox(

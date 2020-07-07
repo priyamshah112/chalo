@@ -53,7 +53,8 @@ class _SplashScreenState extends State<SplashScreen> {
         bool verified = prefs.getBool('verified');
         final user = await AuthService().isUserLoggedIn();
         if (verified && user != null) {
-          CurrentUser.initialize(user.email);
+          await CurrentUser.initialize(user.email);
+          CurrentUser.photoURL = prefs.getString('profile_pic');
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(

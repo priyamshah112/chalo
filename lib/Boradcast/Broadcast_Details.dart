@@ -7,6 +7,7 @@ import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/profile/profile_page.dart';
 import 'package:chaloapp/services/DatabaseService.dart';
+import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:chaloapp/Activites/Activity_Detail.dart';
@@ -34,71 +35,74 @@ class _BroadcardActivityDetailsState extends State<BroadcardActivityDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getData(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData)
-            return Container(
-                color: Colors.white,
-                child: Center(child: CircularProgressIndicator()));
-          final planDoc = snapshot.data['doc'];
-          final email = snapshot.data['email'];
-          final start = DateTime.fromMillisecondsSinceEpoch(
-              planDoc['activity_start'].seconds * 1000);
-          final end = DateTime.fromMillisecondsSinceEpoch(
-              planDoc['activity_end'].seconds * 1000);
-          return Scaffold(
-            appBar: AppBar(
-              centerTitle: true,
-              automaticallyImplyLeading: false,
-              title: Center(
-                child: Text(
-                  planDoc['activity_name'],
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: bodyText,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              leading: InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Icon(
-                  Icons.arrow_back,
+    return WillPopScope(
+      onWillPop: () async {
+        return deleting ? false : true;
+      },
+      child: FutureBuilder(
+          future: getData(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData)
+              return Container(
                   color: Colors.white,
-                ),
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) => EditActivity()),
-                    );
-                  },
+                  child: Center(child: CircularProgressIndicator()));
+            final planDoc = snapshot.data['doc'];
+            final email = snapshot.data['email'];
+            final List participants = planDoc['participants_id'];
+            final start = DateTime.fromMillisecondsSinceEpoch(
+                planDoc['activity_start'].seconds * 1000);
+            final end = DateTime.fromMillisecondsSinceEpoch(
+                planDoc['activity_end'].seconds * 1000);
+            return Scaffold(
+              appBar: AppBar(
+                centerTitle: true,
+                automaticallyImplyLeading: false,
+                title: Center(
                   child: Text(
-                    "Edit",
+                    planDoc['activity_name'],
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 17,
                       fontFamily: bodyText,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-              ],
-              elevation: 1.0,
-            ),
-            backgroundColor: Colors.white,
-            body: SingleChildScrollView(
-              child: FadeAnimation(
-                1,
-                Container(
-                  height: MediaQuery.of(context).size.height,
-                  child: Padding(
+                leading: InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                  ),
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => EditActivity()),
+                      );
+                    },
+                    child: Text(
+                      "Edit",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontFamily: bodyText,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+                elevation: 1.0,
+              ),
+              backgroundColor: Colors.white,
+              body: SingleChildScrollView(
+                child: FadeAnimation(
+                  1,
+                  Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: 20,
                     ),
@@ -111,17 +115,68 @@ class _BroadcardActivityDetailsState extends State<BroadcardActivityDetails> {
                           JoinRequestList(
                               planId: planDoc['plan_id'],
                               requests: planDoc['pending_participant_id']),
-                        if (planDoc['pending_participant_id'].length > 0)
-                          SizedBox(height: 10),
-                        ParticipantList(planDoc: planDoc, current: email)
+                        SizedBox(height: 10),
+                        ParticipantList(
+                            participants: participants, current: email),
+                        Container(
+                          width: double.infinity,
+                          child: RaisedButton(
+                              onPressed: () =>
+                                  handleDeleteActivity(context, planDoc),
+                              elevation: 2,
+                              textColor: Colors.white,
+                              color: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Text(
+                                'Delete Activity',
+                                style: TextStyle(
+                                  fontFamily: bodyText,
+                                ),
+                              )),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-            ),
-          );
-        });
+            );
+          }),
+    );
+  }
+
+  bool deleting;
+  void handleDeleteActivity(
+      BuildContext context, DocumentSnapshot planDoc) async {
+    bool deleteActivity = await showDialog<bool>(
+        context: context,
+        builder: (_) => DialogBox(
+              title: 'Alert !',
+              titleColor: Colors.red,
+              description: 'Are you sure you want to Delete this activity ?',
+              buttonText1: 'Cancel',
+              buttonText2: 'Delete',
+              btn2Color: Colors.red,
+              button1Func: () =>
+                  Navigator.of(context, rootNavigator: true).pop(false),
+              button2Func: () =>
+                  Navigator.of(context, rootNavigator: true).pop(true),
+            ));
+    if (deleteActivity) {
+      deleting = true;
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (_) => Center(
+                child: CircularProgressIndicator(),
+              ));
+      await DataService().leaveActivity(planDoc, delete: true);
+      await Future.delayed(Duration(milliseconds: 500));
+      Navigator.of(context, rootNavigator: true).pop();
+      deleting = false;
+      Navigator.of(context).pop();
+    } else
+      return;
   }
 }
 
@@ -165,8 +220,9 @@ class _JoinRequestListState extends State<JoinRequestList> {
                                       username:
                                           '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
                                       gender: snapshot.data['gender'],
-                                      follower: 0,
-                                      following: 0,
+                                      follower: snapshot.data['followers'],
+                                      following: snapshot.data['following'],
+                                      isCurrent: false,
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(

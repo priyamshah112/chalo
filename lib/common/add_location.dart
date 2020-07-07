@@ -35,9 +35,9 @@ class _GetLocationState extends State<GetLocation> {
         mapSearchValue = first.addressLine;
         isSelected = true;
         locationTextController.text = mapSearchValue;
-        LatLng latlog = new LatLng(position.latitude, position.longitude);
-        _mapController.move(latlog, 12);
       });
+      LatLng latlog = new LatLng(position.latitude, position.longitude);
+      _mapController.onReady.then((value) => _mapController.move(latlog, 12));
       print("${first.featureName} : ${first.addressLine}");
     } catch (e) {
       print(e.toString());
