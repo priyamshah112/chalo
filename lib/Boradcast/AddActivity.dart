@@ -227,7 +227,7 @@ class _AddActivityState extends State<AddActivity> {
                                     Map result = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => GetLocation(),
+                                        builder: (context) => GetLocation(activityLocation ?? null),
                                       ),
                                     );
                                     if (result != null) {

@@ -114,12 +114,12 @@ class DataService {
         'address': details['address'],
         'location': details['location'],
       });
+      final activity = await database
+          .collection('chalo_activity')
+          .where('name', isEqualTo: details['activity_type'])
+          .limit(1)
+          .getDocuments();
       if (details['broadcast_type'] == 'public') {
-        final activity = await database
-            .collection('chalo_activity')
-            .where('name', isEqualTo: details['activity_type'])
-            .limit(1)
-            .getDocuments();
         await database
             .collection('map_activity')
             .document(plandoc.documentID)
@@ -139,12 +139,7 @@ class DataService {
           'group_chat': groupchatdoc,
           'location_id': locationdoc,
           'plan_id': plandoc.documentID,
-          'activity_logo': (await database
-                  .collection('chalo_activtiy')
-                  .document(
-                      details['activity_type'].toString().split(' ').join())
-                  .get())
-              .data['logo']
+          'activity_logo': activity.documents[0].data['logo']
         });
       });
     } catch (e) {
@@ -344,11 +339,10 @@ class DataService {
     }
   }
 
-  Future joinActivity(
-      bool accept, String planId, String userEmail, String token) async {
+  Future joinActivity(bool accept, String planId, String userEmail,
+      String token, String admin) async {
     try {
       final planRef = database.collection('plan').document(planId);
-      final planDoc = await planRef.get();
       final batch = database.batch();
       batch.updateData(planRef, {
         'pending_participant_id': FieldValue.arrayRemove([userEmail])
@@ -368,15 +362,8 @@ class DataService {
         Map messengers = groupchatSnap.data['messenger_id'];
         messengers[userEmail] = token;
         batch.updateData(groupchatSnap.reference, {'messenger_id': messengers});
-        await database
-            .collection('users')
-            .document(userEmail)
-            .collection('activity_notifications')
-            .add({
-          'msg':
-              'You have been accepted in ${planDoc.data['admin_name']}\'s Activity',
-          'created_at': Timestamp.now()
-        });
+        await notifyUser(
+            userEmail, 'You have been accepted in $admin\'s Activity');
       } else {
         batch.updateData(planRef, {
           'blocked_participant_id': FieldValue.arrayUnion([userEmail])
@@ -402,6 +389,9 @@ class DataService {
           if (participant == current)
             'your_adminplans': FieldValue.arrayRemove([planId])
         });
+        if (participant != current)
+          notifyUser(participant,
+              'You were removed from ${planDoc['admin_name']}\'s Activity since it was deleted');
       });
       batch.delete(planDoc.reference);
     } else {
@@ -429,6 +419,34 @@ class DataService {
       batch.updateData(groupchatRef, {'messenger_id': messengers});
     }
     await batch.commit();
+  }
+
+  Future<void> removeFromActivity(
+      String planId, String admin, String user) async {
+    await database.runTransaction((transaction) async {
+      await transaction.update(database.collection('plan').document(planId), {
+        'participants_id': FieldValue.arrayRemove([user])
+      });
+      await transaction
+          .update(database.collection('user_plans').document(user), {
+        'current_plans': FieldValue.arrayRemove([planId])
+      });
+      final groupchatSnap =
+          await database.collection('group_chat').document(planId).get();
+      Map messengers = groupchatSnap.data['messenger_id'];
+      messengers.remove(user);
+      await transaction
+          .update(groupchatSnap.reference, {'messenger_id': messengers});
+    });
+    await notifyUser(user, 'You were removed from $admin\'s Activity');
+  }
+
+  Future<void> notifyUser(String user, String msg) async {
+    await database
+        .collection('users')
+        .document(user)
+        .collection('activity_notifications')
+        .add({'msg': msg, 'created_at': Timestamp.now()});
   }
 
   Future<List<DocumentSnapshot>> getNotification() async {

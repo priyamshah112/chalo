@@ -206,7 +206,7 @@ class _MainMapState extends State<MainMap> {
                           },
                           child: CircleAvatar(
                             child: ClipOval(
-                              child: CurrentUser.photoURL == null
+                              child: CurrentUser.profileUrl == null
                                   ? Image.asset(
                                       'images/bgcover.jpg',
                                       height: 50,
@@ -214,7 +214,7 @@ class _MainMapState extends State<MainMap> {
                                       fit: BoxFit.cover,
                                     )
                                   : Image.network(
-                                      CurrentUser.photoURL,
+                                      CurrentUser.profileUrl,
                                       height: 50,
                                       width: 50,
                                       fit: BoxFit.cover,
@@ -257,7 +257,7 @@ class _MainMapState extends State<MainMap> {
             button1Func: () =>
                 Navigator.of(context, rootNavigator: true).pop(false),
             buttonText2: "Yes",
-            btn1Color: Color(primary),
+            btn1Color: Colors.green,
             button2Func: () async {
               await AuthService().signOut();
               print("Signed out");

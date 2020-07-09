@@ -119,7 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         builder: (BuildContext context) => EditProfile(
                             name: _name,
                             gender: _gender,
-                            profilePic: CurrentUser.photoURL)));
+                            profilePic: CurrentUser.profileUrl)));
                 if (updated) {
                   _scaffoldKey.currentState.showSnackBar(SnackBar(
                       content: Text(
@@ -207,7 +207,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             gender: _gender,
                             job: CurrentUser.job,
                             lang: CurrentUser.lang,
-                            profilePic: CurrentUser.photoURL,
+                            profilePic: CurrentUser.profileUrl,
                             follower: CurrentUser.followers.length,
                             following: CurrentUser.following.length,
                           ),

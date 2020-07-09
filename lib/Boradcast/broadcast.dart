@@ -28,7 +28,6 @@ class Broadcast extends StatefulWidget {
 }
 
 class _BroadcastState extends State<Broadcast> {
-
   String email;
   Future getdata() async {
     try {
@@ -68,96 +67,95 @@ class _BroadcastState extends State<Broadcast> {
           elevation: 1.0,
         ),
         backgroundColor: Colors.white,
-        body: SingleChildScrollView(
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 20,
-              ),
-              child: Column(
-                children: <Widget>[
-                  SizedBox(
-                    height: 30.0,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      FlatButton(
-                        onPressed: () async {
-                          Map<String, dynamic> result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    AddActivity()),
-                          );
-                          if (result != null) DataService().createPlan(result);
-                        },
-                        color: Colors.teal,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 30.0, vertical: 14.0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0)),
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              FontAwesomeIcons.plus,
-                              size: 20,
-                              color: Colors.white,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 10.0),
-                            ),
-                            Text(
-                              "Broadcast new Activity",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20.0,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Divider(
-                    thickness: 1,
-                  ),
-                  Text(
-                    "Broadcasted Activities",
-                    style: TextStyle(
-                      color: Color(primary),
-                      fontWeight: FontWeight.bold,
-                      fontFamily: heading,
-                      fontSize: 16,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  email == null
-                      ? Padding(
-                          padding: const EdgeInsets.only(top: 30.0),
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                      : Expanded(
-                          child: Activities(
-                          stream: Firestore.instance
-                              .collection('plan')
-                              .where('admin_id', isEqualTo: email)
-                              .snapshots(),
-                          onTapGoto: (planRef) => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    BroadcardActivityDetails(planRef: planRef)),
+        body: Container(
+          height: MediaQuery.of(context).size.height,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 20,
+            ),
+            child: Column(
+              children: <Widget>[
+                SizedBox(
+                  height: 30.0,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    FlatButton(
+                      onPressed: () async {
+                        Map<String, dynamic> result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  AddActivity()),
+                        );
+                        if (result != null) DataService().createPlan(result);
+                      },
+                      color: Colors.teal,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 30.0, vertical: 14.0),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0)),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            FontAwesomeIcons.plus,
+                            size: 20,
+                            color: Colors.white,
                           ),
-                        )),
-                ],
-              ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 10.0),
+                          ),
+                          Text(
+                            "Broadcast new Activity",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.0,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 10.0,
+                ),
+                Divider(
+                  thickness: 1,
+                ),
+                Text(
+                  "Broadcasted Activities",
+                  style: TextStyle(
+                    color: Color(primary),
+                    fontWeight: FontWeight.bold,
+                    fontFamily: heading,
+                    fontSize: 16,
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                email == null
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 30.0),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    : Expanded(
+                        child: Activities(
+                        stream: Firestore.instance
+                            .collection('plan')
+                            .where('admin_id', isEqualTo: email)
+                            .snapshots(),
+                        showUserActivities: true,
+                        onTapGoto: (planRef) => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  BroadcardActivityDetails(planRef: planRef)),
+                        ),
+                      )),
+              ],
             ),
           ),
         ),

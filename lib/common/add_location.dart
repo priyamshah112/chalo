@@ -11,7 +11,8 @@ const kApiKey =
     'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw';
 
 class GetLocation extends StatefulWidget {
-  GetLocation({Key key}) : super(key: key);
+  GetLocation(this.initialPosition, {Key key}) : super(key: key);
+  final Position initialPosition;
   @override
   _GetLocationState createState() => _GetLocationState();
 }
@@ -19,8 +20,16 @@ class GetLocation extends StatefulWidget {
 class _GetLocationState extends State<GetLocation> {
   String mapSearchValue;
   bool istap = false;
-  Position position = Position(latitude: null, longitude: null);
-  TextEditingController locationTextController = TextEditingController();
+  Position position;
+  TextEditingController locationTextController;
+  @override
+  void initState() {
+    super.initState();
+    position =
+        widget.initialPosition ?? Position(latitude: null, longitude: null);
+    locationTextController = TextEditingController();
+  }
+
   void getUserLocation() async {
     try {
       Position userPosition = await Geolocator()
