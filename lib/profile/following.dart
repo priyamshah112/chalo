@@ -4,9 +4,6 @@ import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:like_button/like_button.dart';
-import 'package:toast/toast.dart';
-
 import '../Animation/FadeAnimation.dart';
 
 class Following extends StatefulWidget {
@@ -51,9 +48,10 @@ class _FollowingState extends State<Following> {
                 onPressed: () => Navigator.of(context).pop(_isChanged),
                 icon: Icon(Icons.arrow_back)),
             actions: <Widget>[
-              IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () => setState(() => _search = true))
+              if (following.length > 0)
+                IconButton(
+                    icon: Icon(Icons.search),
+                    onPressed: () => setState(() => _search = true))
             ],
             backgroundColor: Color(primary),
             title: Text(
@@ -85,76 +83,89 @@ class _FollowingState extends State<Following> {
           child: SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: following.map((user) {
-                    return FutureBuilder(
-                        future: DataService().getUserDoc(user),
-                        builder: (BuildContext context,
-                                AsyncSnapshot snapshot) =>
-                            Container(
-                              child: !snapshot.hasData
-                                  ? null
-                                  : ListTile(
-                                      leading: CircleAvatar(
-                                        child: Icon(Icons.account_circle),
-                                        // backgroundImage: NetworkImage(),
-                                      ),
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical: 8, horizontal: 15),
-                                      title: Text(
-                                        '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(secondary),
-                                        ),
-                                      ),
-                                      subtitle: Row(
-                                        children: <Widget>[
-                                          Icon(
-                                            FontAwesomeIcons.trophy,
-                                            color: Colors.amberAccent,
-                                            size: 12,
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text(
-                                            "${0} activities done",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      trailing: Container(
-                                        width: 100,
-                                        height: 27,
-                                        child: OutlineButton(
-                                          onPressed: () =>
-                                              _handleUnfollow(user),
-                                          borderSide: BorderSide(
-                                            color: Color(
-                                                primary), //Color of the border
-                                            style: BorderStyle
-                                                .solid, //Style of the border
-                                            width: 0.9, //width of the border
-                                          ),
-                                          color: Color(primary),
-                                          textColor: Color(primary),
-                                          child: Text(
-                                            "Unfollow",
-                                            style: TextStyle(
-                                              fontFamily: bodyText,
-                                            ),
-                                          ),
-                                        ),
+              child: following.length == 0
+                  ? Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height - 150,
+                      alignment: Alignment.center,
+                      child: Text('You aren\'t following anyone'))
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: following.map((user) {
+                        return FutureBuilder(
+                          future: DataService().getUserDoc(user),
+                          builder:
+                              (BuildContext context, AsyncSnapshot snapshot) {
+                            if (!snapshot.hasData) return Container();
+                            return Card(
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                side: BorderSide(
+                                  color: Color(primary),
+                                ),
+                              ),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  child: Icon(Icons.account_circle),
+                                  // backgroundImage: NetworkImage(),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 15),
+                                title: Text(
+                                  '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    color: Color(secondary),
+                                  ),
+                                ),
+                                subtitle: Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      FontAwesomeIcons.trophy,
+                                      color: Colors.amberAccent,
+                                      size: 12,
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(
+                                      "${0} activities done",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontFamily: bodyText,
+                                        color: Color(secondary),
                                       ),
                                     ),
-                            ));
-                  }).toList()),
+                                  ],
+                                ),
+                                trailing: Container(
+                                  width: 100,
+                                  height: 27,
+                                  child: OutlineButton(
+                                    onPressed: () => _handleUnfollow(user),
+                                    borderSide: BorderSide(
+                                      color:
+                                          Color(primary), //Color of the border
+                                      style: BorderStyle
+                                          .solid, //Style of the border
+                                      width: 0.9, //width of the border
+                                    ),
+                                    color: Color(primary),
+                                    textColor: Color(primary),
+                                    child: Text(
+                                      "Unfollow",
+                                      style: TextStyle(
+                                        fontFamily: bodyText,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      }).toList()),
             ),
           ),
         ),

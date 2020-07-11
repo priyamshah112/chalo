@@ -80,7 +80,9 @@ class _ChatItemPageState extends State<ChatItemPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (BuildContext context) => ChatInfo()),
+                      builder: (BuildContext context) => ChatInfo(
+                        planRef: Firestore.instance.collection('plan').document(widget.planId),
+                      )),
                 );
               },
               icon: Icon(

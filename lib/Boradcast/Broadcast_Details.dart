@@ -1,20 +1,13 @@
-//import 'package:chaloapp/forgot.dart';
-//import 'package:chaloapp/main.dart';
-//import 'package:chaloapp/widgets/DailogBox.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chaloapp/Boradcast/edit_activity.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/profile/profile_page.dart';
 import 'package:chaloapp/services/DatabaseService.dart';
+import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:chaloapp/Activites/Activity_Detail.dart';
-import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-//import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-//import 'package:chaloapp/signup.dart';
-//import 'package:chaloapp/home.dart';
 
 class BroadcardActivityDetails extends StatefulWidget {
   final DocumentReference planRef;
@@ -26,23 +19,22 @@ class BroadcardActivityDetails extends StatefulWidget {
 }
 
 class _BroadcardActivityDetailsState extends State<BroadcardActivityDetails> {
-  Future<Map<String, dynamic>> getData() async {
-    final snapshot = await widget.planRef.get();
-    final user = await UserData.getUser();
-    return {'doc': snapshot, 'email': user['email']};
-  }
-
+  // List participants;
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getData(),
+    return StreamBuilder(
+        stream: Firestore.instance
+            .collection('plan')
+            .where('plan_id', isEqualTo: widget.planRef.documentID)
+            .limit(1)
+            .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData)
             return Container(
                 color: Colors.white,
                 child: Center(child: CircularProgressIndicator()));
-          final planDoc = snapshot.data['doc'];
-          final email = snapshot.data['email'];
+          final DocumentSnapshot planDoc = snapshot.data.documents[0];
+          final String email = CurrentUser.email;
           final start = DateTime.fromMillisecondsSinceEpoch(
               planDoc['activity_start'].seconds * 1000);
           final end = DateTime.fromMillisecondsSinceEpoch(
@@ -94,41 +86,100 @@ class _BroadcardActivityDetailsState extends State<BroadcardActivityDetails> {
             ),
             backgroundColor: Colors.white,
             body: SingleChildScrollView(
-              child: FadeAnimation(
-                1,
-                Container(
-                  height: MediaQuery.of(context).size.height,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                ),
+                child: Column(
+                  children: <Widget>[
+                    ActivityDetailCard(
+                        planDoc: planDoc, start: start, end: end),
+                    SizedBox(height: 10),
+                    if (planDoc['pending_participant_id'].length > 0)
+                      JoinRequestList(
+                        planId: planDoc['plan_id'],
+                        admin: planDoc['admin_name'],
+                        requests: planDoc['pending_participant_id'],
+                      ),
+                    SizedBox(height: 10),
+                    ParticipantList(
+                        participants: planDoc['participants_id'],
+                        admin: planDoc['admin_name'],
+                        adminId: planDoc['admin_id'],
+                        planId: planDoc['plan_id'],
+                        current: email,
+                        showRemove: true),
+                    Container(
+                      width: double.infinity,
+                      child: RaisedButton(
+                          onPressed: () =>
+                              handleDeleteActivity(context, planDoc),
+                          elevation: 2,
+                          textColor: Colors.white,
+                          color: Colors.red,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Text(
+                            'Delete Activity',
+                            style: TextStyle(
+                              fontFamily: bodyText,
+                            ),
+                          )),
                     ),
-                    child: Column(
-                      children: <Widget>[
-                        ActivityDetailCard(
-                            planDoc: planDoc, start: start, end: end),
-                        SizedBox(height: 10),
-                        if (planDoc['pending_participant_id'].length > 0)
-                          JoinRequestList(
-                              planId: planDoc['plan_id'],
-                              requests: planDoc['pending_participant_id']),
-                        if (planDoc['pending_participant_id'].length > 0)
-                          SizedBox(height: 10),
-                        ParticipantList(planDoc: planDoc, current: email)
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
               ),
             ),
           );
         });
   }
+
+  bool deleting;
+  void handleDeleteActivity(
+      BuildContext context, DocumentSnapshot planDoc) async {
+    bool deleteActivity = await showDialog<bool>(
+        context: context,
+        builder: (_) => DialogBox(
+              title: 'Alert !',
+              titleColor: Colors.red,
+              description: 'Are you sure you want to Delete this activity ?',
+              buttonText1: 'Cancel',
+              buttonText2: 'Delete',
+              btn2Color: Colors.red,
+              button1Func: () =>
+                  Navigator.of(context, rootNavigator: true).pop(false),
+              button2Func: () =>
+                  Navigator.of(context, rootNavigator: true).pop(true),
+            ));
+    if (deleteActivity) {
+      deleting = true;
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (_) => Container(
+            // width: MediaQuery.of(context).,
+            child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+          ));
+      await DataService().leaveActivity(planDoc, delete: true);
+      await Future.delayed(Duration(milliseconds: 500));
+      Navigator.of(context, rootNavigator: true).pop();
+      deleting = false;
+      // Navigator.of(context).pop();
+    } else
+      return;
+  }
 }
 
 class JoinRequestList extends StatefulWidget {
   final List requests;
-  final String planId;
-  JoinRequestList({Key key, @required this.requests, @required this.planId})
+  final String planId, admin;
+  JoinRequestList(
+      {Key key,
+      @required this.requests,
+      @required this.admin,
+      @required this.planId})
       : super(key: key);
   @override
   _JoinRequestListState createState() => _JoinRequestListState();
@@ -165,8 +216,9 @@ class _JoinRequestListState extends State<JoinRequestList> {
                                       username:
                                           '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
                                       gender: snapshot.data['gender'],
-                                      follower: 0,
-                                      following: 0,
+                                      follower: snapshot.data['followers'],
+                                      following: snapshot.data['following'],
+                                      isCurrent: false,
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -211,10 +263,9 @@ class _JoinRequestListState extends State<JoinRequestList> {
     return RaisedButton.icon(
       onPressed: () async {
         Navigator.of(context, rootNavigator: true).pop();
-        await DataService().joinActivity(accept, planId, email, token);
-        setState(() {
-          widget.requests.remove(email);
-        });
+        setState(() => widget.requests.remove(email));
+        await DataService()
+            .joinActivity(accept, planId, email, token, widget.admin);
       },
       icon: Icon(
         accept ? FontAwesomeIcons.check : FontAwesomeIcons.times,

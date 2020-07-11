@@ -4,7 +4,6 @@ import 'package:chaloapp/profile/profile_page.dart';
 import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../Animation/FadeAnimation.dart';
 
 class Follower extends StatefulWidget {
@@ -45,9 +44,10 @@ class _FollowerState extends State<Follower> {
             ))
         : AppBar(
             actions: <Widget>[
-              IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () => setState(() => _search = true))
+              if (followers.length > 0)
+                IconButton(
+                    icon: Icon(Icons.search),
+                    onPressed: () => setState(() => _search = true))
             ],
             backgroundColor: Color(primary),
             title: Text(
@@ -74,61 +74,65 @@ class _FollowerState extends State<Follower> {
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: followers
-                    .map(
-                      (follower) => FutureBuilder(
-                          future: DataService().getUserDoc(follower),
-                          builder: (context, snapshot) {
-                            return Card(
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                side: BorderSide(
-                                  color: Color(primary),
-                                ),
-                              ),
-                              child: !snapshot.hasData
-                                  ? Container()
-                                  : ListTile(
-                                      onTap: () => showDialog(
-                                          context: context,
-                                          builder: (ctx) => Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: <Widget>[
-                                                    ProfileCard(
-                                                      email: snapshot
-                                                          .data['email'],
-                                                      username:
-                                                          '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
-                                                      gender: snapshot
-                                                          .data['gender'],
-                                                      follower: 0,
-                                                      following: 0,
-                                                      isCurrent: false,
-                                                    )
-                                                  ])),
-                                      leading: CircleAvatar(
-                                        backgroundImage:
-                                            AssetImage("images/bgcover.jpg"),
-                                      ),
-                                      title: Text(
-                                        '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
-                                        style: TextStyle(
-                                            fontFamily: bodyText,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w400),
-                                      ),
-                                      subtitle: Text('1 Actvity Done'),
+            child: followers.length == 0
+                ? Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height - 150,
+                    alignment: Alignment.center,
+                    child: Text('You aren\'t following anyone'))
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: followers
+                        .map(
+                          (follower) => FutureBuilder(
+                              future: DataService().getUserDoc(follower),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) return Container();
+                                return Card(
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    side: BorderSide(
+                                      color: Color(primary),
                                     ),
-                            );
-                          }),
-                    )
-                    .toList()),
+                                  ),
+                                  child: ListTile(
+                                    onTap: () => showDialog(
+                                        context: context,
+                                        builder: (ctx) => Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  ProfileCard(
+                                                    email:
+                                                        snapshot.data['email'],
+                                                    username:
+                                                        '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                                                    gender:
+                                                        snapshot.data['gender'],
+                                                    follower: 0,
+                                                    following: 0,
+                                                    isCurrent: false,
+                                                  )
+                                                ])),
+                                    leading: CircleAvatar(
+                                      backgroundImage:
+                                          AssetImage("images/bgcover.jpg"),
+                                    ),
+                                    title: Text(
+                                      '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                                      style: TextStyle(
+                                          fontFamily: bodyText,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                    subtitle: Text('1 Actvity Done'),
+                                  ),
+                                );
+                              }),
+                        )
+                        .toList()),
           ),
         ),
       ),

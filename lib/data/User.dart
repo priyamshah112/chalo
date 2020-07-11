@@ -28,7 +28,7 @@ class User {
 class CurrentUser {
   static List _followers, _following, _followRequests, _requested;
   static String _email,
-      photoURL,
+      profileUrl,
       about,
       job,
       lang,
@@ -41,8 +41,9 @@ class CurrentUser {
       linkedin,
       website;
   static StreamSubscription<DocumentSnapshot> _userInfo;
-  static Future<void> initialize(String email) async {
+  static Future<void> initialize(String email, String profilePic) async {
     _email = email;
+    profileUrl = profilePic;
     _userInfo = Firestore.instance
         .collection('additional_info')
         .document(_email)
@@ -64,7 +65,6 @@ class CurrentUser {
       linkedin = snapshot.data['linkedin_acc'];
       twitter = snapshot.data['twitter_acc'];
       website = snapshot.data['website'];
-      photoURL = snapshot.data['profile_pic'];
     });
   }
 
@@ -77,6 +77,7 @@ class CurrentUser {
   static List get following => _following;
   static List get followRequests => _followRequests;
   static List get requested => _requested;
+  static String get email => _email;
   static void setFollowers(List temp) => _followers = temp;
   static void setFollowing(List temp) => _following = temp;
   static void setFollowRequests(List temp) => _followRequests = temp;
@@ -91,9 +92,9 @@ class UserData {
     prefs.setString('phone', userData['mobile_no']);
     prefs.setString('gender', userData['gender']);
     prefs.setString('dob', userData['email']);
-    prefs.setString('profile_pic', userData['profile_url']);
+    prefs.setString('profile_pic', userData['profile_pic']);
     prefs.setBool('verified', userData['verified']);
-    CurrentUser.initialize(userData['email']);
+    CurrentUser.initialize(userData['email'], userData['profile_pic']);
   }
 
   Future deleteData() async {

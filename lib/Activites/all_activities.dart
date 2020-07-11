@@ -162,11 +162,7 @@ class _AllActivityState extends State<AllActivity> {
                     height: 10,
                   ),
                   Expanded(
-                      child: FutureBuilder(
-                          future: UserData.getUser(),
-                          builder: (context, snapshot) {
-                            if (!snapshot.hasData) return Container();
-                            return Activities(
+                      child: Activities(
                               stream: Firestore.instance
                                   .collection('plan')
                                   .where('broadcast_type', isEqualTo: "public")
@@ -179,9 +175,7 @@ class _AllActivityState extends State<AllActivity> {
                                     builder: (BuildContext context) =>
                                         ActivityDetails(planRef: docRef)),
                               ),
-                              user: snapshot.data['email'],
-                            );
-                          })),
+                            )),
                 ],
               ),
             ),
@@ -192,9 +186,9 @@ class _AllActivityState extends State<AllActivity> {
 
 class Activities extends StatefulWidget {
   final Stream stream;
-  final String user;
+  final bool showUserActivities;
   final Function(DocumentReference planRef) onTapGoto;
-  Activities({@required this.stream, @required this.onTapGoto, this.user});
+  Activities({@required this.stream, @required this.onTapGoto, this.showUserActivities = false});
   @override
   _ActivitiesState createState() => _ActivitiesState();
 }
@@ -213,7 +207,7 @@ class _ActivitiesState extends State<Activities> {
           return ListView.builder(
               itemCount: count,
               itemBuilder: (context, index) {
-                return plans[index]['admin_id'] == widget.user
+                return  !widget.showUserActivities && plans[index]['admin_id'] == CurrentUser.email
                     ? Container()
                     : ActivityCard(
                         planDoc: plans[index],
@@ -257,8 +251,11 @@ class ActivityCard extends StatelessWidget {
                     height: 55.0,
                     child: CircleAvatar(
                       foregroundColor: Color(primary),
-                      backgroundColor: Color(secondary),
-                      backgroundImage: AssetImage('images/bgcover.jpg'),
+                      radius: 5,
+                      backgroundColor: Colors.white,
+                      backgroundImage: planDoc.data['activity_logo'] != null
+                          ? NetworkImage(planDoc.data['activity_logo'])
+                          : AssetImage('images/bgcover.jpg'),
                     ),
                   ),
                   SizedBox(

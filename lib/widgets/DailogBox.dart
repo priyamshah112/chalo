@@ -50,15 +50,17 @@ class _DialogBoxState extends State<DialogBox> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min, // To make the card compact
                   children: <Widget>[
-                    Text(
-                      widget.title,
-                      style: TextStyle(
-                        fontSize: 24.0,
-                        color: widget.titleColor,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: bodyText,
-                      ),
-                    ),
+                    widget.title == null
+                        ? SizedBox(height: 10)
+                        : Text(
+                            widget.title,
+                            style: TextStyle(
+                              fontSize: 24.0,
+                              color: widget.titleColor,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: bodyText,
+                            ),
+                          ),
                     widget.description != ""
                         ? Column(
                             children: <Widget>[
@@ -84,9 +86,6 @@ class _DialogBoxState extends State<DialogBox> {
                               Align(
                                 alignment: Alignment.bottomCenter,
                                 child: Row(
-                                  mainAxisAlignment: widget.buttonText2 != null
-                                      ? MainAxisAlignment.spaceEvenly
-                                      : MainAxisAlignment.center,
                                   children: <Widget>[
                                     Expanded(
                                       child: FlatButton(

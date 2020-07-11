@@ -50,6 +50,7 @@ dependencies:
   onesignal_flutter: ^2.5.0
   share: ^0.6.4+3
   http: ^0.12.1
+  flappy_search_bar: ^1.7.2
 
 
 dev_dependencies:
