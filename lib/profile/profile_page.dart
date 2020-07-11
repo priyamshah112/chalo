@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
+import 'package:chaloapp/Settings/setting.dart';
 import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/profile/edit_profile_page.dart';
 import 'package:chaloapp/profile/follow_request.dart';
@@ -97,7 +98,10 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         leading: InkWell(
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Setting()));
+          },
           child: Icon(
             Icons.settings,
             color: Colors.white,

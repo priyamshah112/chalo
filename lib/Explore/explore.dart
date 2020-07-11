@@ -1,4 +1,6 @@
+import 'package:chaloapp/Explore/uploadPage.dart';
 import 'package:chaloapp/common/global_colors.dart';
+import 'package:chaloapp/data/User.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chaloapp/home/home.dart';
@@ -31,6 +33,16 @@ List<List<String>> ExplorepostList;
 class _ExploreState extends State<Explore> {
   int likeCount = 9;
   bool isLikeTap = false;
+  String email;
+  Future getdata() async {
+    try {
+      final user = await UserData.getUser();
+      await Future.delayed(Duration(seconds: 1));
+      setState(() => email = user['email']);
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +161,14 @@ class _ExploreState extends State<Explore> {
 
     return WillPopScope(
       onWillPop: widget.onBack,
-          child: Scaffold(
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => UploadPage()));
+          },
+        ),
         appBar: AppBar(
           backgroundColor: Color(primary),
           title: Center(
@@ -177,8 +196,8 @@ class _ExploreState extends State<Explore> {
                                 ExplorepostList[i][0],
                               ),
                             ),
-                            contentPadding:
-                                EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 15),
                             title: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
@@ -229,8 +248,8 @@ class _ExploreState extends State<Explore> {
                             height: 10,
                           ),
                           Padding(
-                            padding:
-                                EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 0, horizontal: 20),
                             child: Text(
                               ExplorepostList[i][4],
                               style: TextStyle(
@@ -244,8 +263,8 @@ class _ExploreState extends State<Explore> {
                             width: 15,
                           ),
                           ListTile(
-                            contentPadding:
-                                EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 0, horizontal: 20),
                             title: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[
@@ -266,8 +285,9 @@ class _ExploreState extends State<Explore> {
                                         ? FontAwesomeIcons.solidHeart
                                         : FontAwesomeIcons.heart,
                                     size: 17,
-                                    color:
-                                        isLikeTap ? Colors.red : Color(secondary),
+                                    color: isLikeTap
+                                        ? Colors.red
+                                        : Color(secondary),
                                   ),
                                 ),
                                 SizedBox(
