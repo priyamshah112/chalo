@@ -102,16 +102,15 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                 backgroundColor: Color(primary),
                 elevation: 0.0,
                 automaticallyImplyLeading: false,
-                title: Center(
-                  child: Text(
-                    planDoc.data['activity_name'],
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: bodyText,
-                      fontWeight: FontWeight.bold,
-                    ),
+                title: Text(
+                  planDoc.data['activity_name'],
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: bodyText,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+                centerTitle: true,
               ),
               backgroundColor: Colors.white,
               body: SingleChildScrollView(
@@ -319,7 +318,6 @@ class ParticipantList extends StatefulWidget {
 }
 
 class _ParticipantListState extends State<ParticipantList> {
-
   @override
   Widget build(BuildContext context) {
     return Column(

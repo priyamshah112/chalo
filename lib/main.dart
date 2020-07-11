@@ -3,10 +3,8 @@ import 'dart:io';
 import 'package:chaloapp/Activites/Activity_Detail.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/home/home.dart';
-import 'package:chaloapp/profile/followers.dart';
 import 'package:chaloapp/services/dynamicLinking.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +19,7 @@ void main() => runApp(
           primaryColor: Color(primary),
           accentColor: Color(primary),
           cursorColor: Color(primary),
+          primarySwatch: Colors.teal
         ),
         debugShowCheckedModeBanner: false,
         home: SplashScreen(),
@@ -70,13 +69,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
+    super.initState();
     configOneSignal();
     DynamicLinkService.retrieveDynamicLink(context)
         .then((ref) => checkUser(ref));
-    super.initState();
   }
 
-  void configOneSignal() async {
+  Future<void> configOneSignal() async {
     // //Remove this method to stop OneSignal Debugging
     // OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
 
