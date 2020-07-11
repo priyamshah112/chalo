@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chaloapp/Activites/Activity_Detail.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/profile/profile_page.dart';
@@ -173,100 +175,11 @@ class _MainMapState extends State<MainMap> {
                     );
                   }),
             ),
-            Positioned(
-                top: 60.0,
-                left: 15.0,
-                right: 15.0,
-                child: Container(
-                  height: 50.0,
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.grey,
-                          offset: Offset(1.0, 1.0),
-                          blurRadius: 10,
-                          spreadRadius: 2)
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(left: 15, bottom: 5, top: 7),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      ProfilePage()),
-                            );
-                          },
-                          child: CircleAvatar(
-                            child: ClipOval(
-                              child: CurrentUser.photoURL == null
-                                  ? Image.asset(
-                                      'images/bgcover.jpg',
-                                      height: 50,
-                                      width: 50,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.network(
-                                      CurrentUser.photoURL,
-                                      height: 50,
-                                      width: 50,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: TextField(
-                          cursorColor: Colors.black,
-                          decoration: InputDecoration(
-                            hintText: "Search Users",
-                            border: InputBorder.none,
-                            contentPadding:
-                                EdgeInsets.only(left: 11.0, top: 5.0),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                          icon: Icon(Icons.exit_to_app),
-                          onPressed: () => signOut(context))
-                    ],
-                  ),
-                ))
+            UserSearchBar()
           ],
         ),
       ),
     );
-  }
-
-  void signOut(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (ctx) => DialogBox(
-            title: 'Warning',
-            description: "Are you sure you want to Sign out ?",
-            btn2Color: Colors.red,
-            buttonText1: "No",
-            button1Func: () =>
-                Navigator.of(context, rootNavigator: true).pop(false),
-            buttonText2: "Yes",
-            btn1Color: Color(primary),
-            button2Func: () async {
-              await AuthService().signOut();
-              print("Signed out");
-              Navigator.of(context, rootNavigator: true).pop(true);
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => HomePage())); // To close the dialog
-            }));
   }
 
   List<Marker> getMarkers(List<DocumentSnapshot> documents) {
@@ -493,16 +406,257 @@ class _MainMapState extends State<MainMap> {
   }
 }
 
-List<Marker> getMarkers(List<DocumentSnapshot> documents) {
-  int count = documents.length;
-  return List<Marker>.generate(
-      count,
-      (index) => Marker(
-          width: 60.0,
-          height: 60.0,
-          point: new LatLng(documents[index].data['location'].latitude,
-              documents[index].data['location'].longitude),
-          builder: (ctx) => new IconButton(
-              icon: Image.network(documents[index].data['activity_logo']),
-              onPressed: () {})));
+class UserSearchBar extends StatefulWidget {
+  @override
+  _UserSearchBarState createState() => _UserSearchBarState();
+}
+
+class _UserSearchBarState extends State<UserSearchBar> {
+  final _searchController = TextEditingController();
+  final _searchFocus = FocusNode();
+  bool _isSearch = false;
+  String _query = '';
+  Timer _debounce;
+  var strFrontCode, strEndCode, startCode, endCode;
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        if (_searchController.text.isNotEmpty) {
+          _query = _searchController.text.toLowerCase();
+          //for one word
+          _query = _query.length == 1
+              ? _query.toUpperCase()
+              : _query.substring(0, 1).toUpperCase() + _query.substring(1);
+          // for multiple words
+          List<String> words = _query.split(' ');
+          if (words.length > 1) {
+            for (var i = 1; i < words.length; i++)
+              words[i] = words[i].length == 1
+                  ? words[i].toUpperCase()
+                  : words[i].substring(0, 1).toUpperCase() +
+                      words[i].substring(1);
+            _query = words.join(' ');
+          }
+        } else {
+          _query = '';
+          return;
+        }
+        var len = _query.length;
+        strFrontCode = _query.substring(0, len - 1);
+        strEndCode = _query.substring(len - 1, len);
+        startCode = _query;
+        endCode =
+            strFrontCode + String.fromCharCode(strEndCode.codeUnitAt(0) + 1);
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    _debounce.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        if (_isSearch)
+          Scaffold(
+            appBar: AppBar(
+              title: TextField(
+                controller: _searchController,
+                focusNode: _searchFocus,
+                cursorColor: Colors.white,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Search Users",
+                  hintStyle: TextStyle(color: Colors.white),
+                  contentPadding: EdgeInsets.only(left: 10.0),
+                  border: InputBorder.none
+                ),
+              ),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    FocusScope.of(context).unfocus();
+                    setState(() => _isSearch = false);
+                  },
+                )
+              ],
+            ),
+            body: SafeArea(
+                child: _query.length == 0
+                    ? Center(child: Text('Find Other Chalo Members'))
+                    : FutureBuilder(
+                        future: Firestore.instance
+                            .collection('users')
+                            .where('name', isGreaterThanOrEqualTo: startCode)
+                            .where('name', isLessThan: endCode)
+                            .getDocuments(),
+                        builder: (_, snapshot) {
+                          if (!snapshot.hasData)
+                            return Center(child: CircularProgressIndicator());
+                          List<DocumentSnapshot> users =
+                              snapshot.data.documents;
+                          if (snapshot.data == null || users.length == 0)
+                            return Center(
+                              child: Text('No such User'),
+                            );
+                          return ListView.builder(
+                              itemCount: users.length,
+                              itemBuilder: (_, index) {
+                                var user = users[index].data;
+                                // if (user['email'] == CurrentUser.email)
+                                //   return Container();
+                                return Card(
+                                  child: ListTile(
+                                    onTap: () => user['email'] ==
+                                            CurrentUser.email
+                                        ? Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: ((_) =>
+                                                    ProfilePage())))
+                                        : showDialog(
+                                            context: context,
+                                            builder: (ctx) => Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: <Widget>[
+                                                      ProfileCard(
+                                                          email: user['email'],
+                                                          username:
+                                                              '${user['name']}',
+                                                          gender:
+                                                              user['gender'],
+                                                          follower:
+                                                              user['followers'],
+                                                          following:
+                                                              user['following'],
+                                                          isCurrent: false),
+                                                    ])),
+                                    title: Text(user['name']),
+                                    subtitle: Text(user['email']),
+                                    leading: CircleAvatar(
+                                      backgroundImage: user['profile_pic'] ==
+                                              null
+                                          ? null
+                                          : NetworkImage(user['profile_pic']),
+                                      child: user['profile_pic'] == null
+                                          ? Icon(Icons.account_circle)
+                                          : null,
+                                    ),
+                                  ),
+                                );
+                              });
+                        })),
+          ),
+        if (!_isSearch)
+          Positioned(
+              top: 60.0,
+              left: 15.0,
+              right: 15.0,
+              child: Container(
+                height: 50.0,
+                width: MediaQuery.of(context).size.width * 0.8,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey,
+                        offset: Offset(1.0, 1.0),
+                        blurRadius: 10,
+                        spreadRadius: 2)
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => ProfilePage()),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 5),
+                        child: CircleAvatar(
+                          child: ClipOval(
+                            child: CurrentUser.profileUrl == null
+                                ? Image.asset(
+                                    'images/bgcover.jpg',
+                                    height: 50,
+                                    width: 50,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.network(
+                                    CurrentUser.profileUrl,
+                                    height: 50,
+                                    width: 50,
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() => _isSearch = true);
+                          FocusScope.of(context).requestFocus(_searchFocus);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 15.0),
+                          child: Text('Search Users'),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                        icon: Icon(Icons.exit_to_app),
+                        onPressed: () => signOut(context))
+                  ],
+                ),
+              )),
+      ],
+    );
+  }
+
+  void signOut(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (ctx) => DialogBox(
+            title: 'Warning',
+            description: "Are you sure you want to Sign out ?",
+            btn2Color: Colors.red,
+            buttonText1: "No",
+            button1Func: () =>
+                Navigator.of(context, rootNavigator: true).pop(false),
+            buttonText2: "Yes",
+            btn1Color: Colors.green,
+            button2Func: () async {
+              await AuthService().signOut();
+              print("Signed out");
+              Navigator.of(context, rootNavigator: true).pop(true);
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HomePage())); // To close the dialog
+            }));
+  }
 }

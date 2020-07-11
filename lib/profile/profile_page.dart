@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/profile/edit_profile_page.dart';
@@ -7,13 +6,11 @@ import 'package:chaloapp/profile/follow_request.dart';
 import 'package:chaloapp/profile/following.dart';
 import 'package:chaloapp/Explore/post_details.dart';
 import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chaloapp/common/global_colors.dart';
-import 'package:image_picker/image_picker.dart';
 import 'followers.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -119,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         builder: (BuildContext context) => EditProfile(
                             name: _name,
                             gender: _gender,
-                            profilePic: CurrentUser.photoURL)));
+                            profilePic: CurrentUser.profileUrl)));
                 if (updated) {
                   _scaffoldKey.currentState.showSnackBar(SnackBar(
                       content: Text(
@@ -207,7 +204,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             gender: _gender,
                             job: CurrentUser.job,
                             lang: CurrentUser.lang,
-                            profilePic: CurrentUser.photoURL,
+                            profilePic: CurrentUser.profileUrl,
                             follower: CurrentUser.followers.length,
                             following: CurrentUser.following.length,
                           ),
@@ -1072,37 +1069,74 @@ class _ProfileCardState extends State<ProfileCard> {
                         ],
                       ),
                       if (!widget.isCurrent)
-                        Container(
-                          width: double.infinity,
-                          height: 27,
-                          margin: const EdgeInsets.only(top: 10),
-                          child: RaisedButton(
-                            onPressed: () => _following
-                                ? _handleUnfollow(context)
-                                : _handleFollowRequest(),
-                            elevation: 2,
-                            shape: ContinuousRectangleBorder(
-                                side: BorderSide(
-                              color: Color(primary), //Color of the border
-                              style: BorderStyle.solid, //Style of the border
-                              width: 0.9, //width of the border
-                            )),
-                            textColor: _following || _pending
-                                ? Colors.white
-                                : Color(primary),
-                            color: _following || _pending
-                                ? Color(primary)
-                                : Colors.white,
-                            child: Text(
-                              _following
-                                  ? 'Following'
-                                  : _pending ? 'Requested' : 'Follow',
-                              style: TextStyle(
-                                fontFamily: bodyText,
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Container(
+                              width: double.infinity,
+                              height: 27,
+                              margin: const EdgeInsets.only(top: 10),
+                              child: RaisedButton(
+                                onPressed: () => _following
+                                    ? _handleUnfollow(context)
+                                    : _handleFollowRequest(),
+                                elevation: 2,
+                                shape: ContinuousRectangleBorder(
+                                    side: BorderSide(
+                                  color: Color(primary), //Color of the border
+                                  style:
+                                      BorderStyle.solid, //Style of the border
+                                  width: 0.9, //width of the border
+                                )),
+                                textColor: _following || _pending
+                                    ? Colors.white
+                                    : Color(primary),
+                                color: _following || _pending
+                                    ? Color(primary)
+                                    : Colors.white,
+                                child: Text(
+                                  _following
+                                      ? 'Following'
+                                      : _pending ? 'Requested' : 'Follow',
+                                  style: TextStyle(
+                                    fontFamily: bodyText,
+                                  ),
+                                ),
+                                splashColor: Color(primary),
                               ),
                             ),
-                            splashColor: Color(primary),
-                          ),
+                            Container(
+                              width: double.infinity,
+                              height: 27,
+                              margin: const EdgeInsets.only(top: 10),
+                              child: RaisedButton(
+                                onPressed: () => Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                        builder: (_) => Scaffold(
+                                              body: Center(
+                                                  child: Text(
+                                                      '${widget.username}\'s Profile')),
+                                            ))),
+                                elevation: 2,
+                                shape: ContinuousRectangleBorder(
+                                    side: BorderSide(
+                                  color: Color(primary), //Color of the border
+                                  style:
+                                      BorderStyle.solid, //Style of the border
+                                  width: 0.9, //width of the border
+                                )),
+                                textColor: Color(primary),
+                                color: Colors.white,
+                                child: Text(
+                                  'View Profile',
+                                  style: TextStyle(
+                                    fontFamily: bodyText,
+                                  ),
+                                ),
+                                splashColor: Color(primary),
+                              ),
+                            ),
+                          ],
                         ),
                     ],
                   ),

@@ -140,10 +140,15 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                       .collection('plan')
                                       .document(plans[index])
                                       .get(),
-                                  builder: (ctx, planSnap) {
-                                    if (!planSnap.hasData)
+                                  builder: (ctx,
+                                      AsyncSnapshot<DocumentSnapshot>
+                                          snapshot) {
+                                    if (!snapshot.hasData || snapshot.connectionState == ConnectionState.waiting)
                                       return Center(
                                           child: CircularProgressIndicator());
+                                    final DocumentSnapshot planSnap =
+                                        snapshot.data;
+                                    print(planSnap.data);
                                     return FadeAnimation(
                                       index - 8.0,
                                       Container(
@@ -179,12 +184,14 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                               child: CircleAvatar(
                                                 foregroundColor: Color(primary),
                                                 radius: 5,
-                                                backgroundColor:
-                                                    Color(secondary),
-                                                backgroundImage: planSnap.data['activity_logo']!=null? 
-                                                NetworkImage(planSnap.data['activity_logo'])
-                                                :AssetImage(
-                                                    'images/bgcover.jpg'),
+                                                backgroundColor: Colors.white,
+                                                backgroundImage: planSnap.data[
+                                                            'activity_logo'] !=
+                                                        null
+                                                    ? NetworkImage(planSnap
+                                                        .data['activity_logo'])
+                                                    : AssetImage(
+                                                        'images/bgcover.jpg'),
                                               ),
                                             ),
                                             title: Text(
