@@ -88,7 +88,7 @@ class _FollowingState extends State<Following> {
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height - 150,
                       alignment: Alignment.center,
-                      child: Text('You aren\'t following anyone'))
+                      child: Text('You have no followers'))
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: following.map((user) {

@@ -10,22 +10,6 @@ import 'package:intl/intl.dart';
 class Explore extends StatefulWidget {
   final Future<bool> Function() onBack;
   Explore({@required this.onBack});
-//  final String dp;
-//  final String name;
-//  final String time;
-//  final String img;
-//  final String caption;
-//  final String activityName;
-//
-//  Explore({
-//    Key key,
-//    @required this.dp,
-//    @required this.name,
-//    @required this.time,
-//    @required this.img,
-//    @required this.caption,
-//    @required this.activityName,
-//  }) : super(key: key);
   @override
   _ExploreState createState() => _ExploreState();
 }
@@ -38,10 +22,8 @@ class _ExploreState extends State<Explore> {
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => UploadPage()));
-          },
+          onPressed: () => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => UploadPage())),
         ),
         appBar: AppBar(
           backgroundColor: Color(primary),
@@ -88,9 +70,8 @@ class _PostCardState extends State<PostCard> {
   @override
   void initState() {
     super.initState();
-    print(widget.post);
     isLiked = false;
-    likeCount = 0;
+    likeCount = widget.post['likes'];
     postTime = DateTime.fromMillisecondsSinceEpoch(
         widget.post['timestamp'].seconds * 1000);
   }
@@ -155,7 +136,6 @@ class _PostCardState extends State<PostCard> {
                       isLiked = !isLiked;
                       likeCount = isLiked ? likeCount + 1 : likeCount - 1;
                     });
-                    print(likeCount);
                   },
                   child: Icon(
                     isLiked
