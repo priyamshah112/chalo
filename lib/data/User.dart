@@ -27,7 +27,8 @@ class User {
 
 class CurrentUser {
   static List _followers, _following, _followRequests, _requested;
-  static String _email,
+  static String _name,
+      _email,
       profileUrl,
       about,
       job,
@@ -41,7 +42,9 @@ class CurrentUser {
       linkedin,
       website;
   static StreamSubscription<DocumentSnapshot> _userInfo;
-  static Future<void> initialize(String email, String profilePic) async {
+  static Future<void> initialize(
+      String name, String email, String profilePic) async {
+    _name = name;
     _email = email;
     profileUrl = profilePic;
     _userInfo = Firestore.instance
@@ -78,6 +81,7 @@ class CurrentUser {
   static List get followRequests => _followRequests;
   static List get requested => _requested;
   static String get email => _email;
+  static String get name => _name;
   static void setFollowers(List temp) => _followers = temp;
   static void setFollowing(List temp) => _following = temp;
   static void setFollowRequests(List temp) => _followRequests = temp;
@@ -94,7 +98,7 @@ class UserData {
     prefs.setString('dob', userData['email']);
     prefs.setString('profile_pic', userData['profile_pic']);
     prefs.setBool('verified', userData['verified']);
-    CurrentUser.initialize(userData['email'], userData['profile_pic']);
+    CurrentUser.initialize(userData['name'],userData['email'], userData['profile_pic']);
   }
 
   Future deleteData() async {

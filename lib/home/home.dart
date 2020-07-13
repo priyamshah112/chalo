@@ -462,7 +462,11 @@ class _UserSearchBarState extends State<UserSearchBar> {
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
-    _debounce.cancel();
+    try {
+      _debounce.cancel();
+    } catch (e) {
+      print(e.toString());
+    }
     super.dispose();
   }
 
@@ -473,17 +477,17 @@ class _UserSearchBarState extends State<UserSearchBar> {
         if (_isSearch)
           Scaffold(
             appBar: AppBar(
+              backgroundColor: Color(primary),
               title: TextField(
                 controller: _searchController,
                 focusNode: _searchFocus,
                 cursorColor: Colors.white,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: "Search Users",
-                  hintStyle: TextStyle(color: Colors.white),
-                  contentPadding: EdgeInsets.only(left: 10.0),
-                  border: InputBorder.none
-                ),
+                    hintText: "Search Users",
+                    hintStyle: TextStyle(color: Colors.white),
+                    contentPadding: EdgeInsets.only(left: 10.0),
+                    border: InputBorder.none),
               ),
               actions: <Widget>[
                 IconButton(

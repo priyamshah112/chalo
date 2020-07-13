@@ -10,4 +10,16 @@ class StorageService {
     final url = await ref.getDownloadURL();
     return url;
   }
+
+  static Future<String> uploadPostPic(
+      String current, String post_name, File image) async {
+    final ref = storage
+        .child('users')
+        .child(current)
+        .child('posts')
+        .child('$post_name.jpg');
+    await ref.putFile(image).onComplete;
+    final url = await ref.getDownloadURL();
+    return url;
+  }
 }

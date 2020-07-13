@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:chaloapp/data/post.dart';
 import 'package:chaloapp/services/StorageService.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'CloudMessaging.dart';
@@ -458,5 +460,29 @@ class DataService {
         .orderBy('created_at', descending: true)
         .getDocuments();
     return notifications.documents.length == 0 ? null : notifications.documents;
+  }
+
+  Future uploadPost(Post post) async {
+    final email = CurrentUser.email;
+    final postName = DateFormat('yyyyMMdd_HHmmss').format(post.timestamp);
+    final imageUrl =
+        await StorageService.uploadPostPic(email, postName, post.image);
+    final ref = await database.collection('posts').add({
+      'user': post.email,
+      'username': post.username,
+      'caption': post.caption,
+      'likes': post.likes,
+      'activity': post.activityType,
+      'timestamp': post.timestamp,
+      'image_url': imageUrl
+    });
+    await database.runTransaction((transaction) async {
+      await transaction
+          .update(ref, {'post_id': ref.documentID});
+      await transaction
+          .update(database.collection('additional_info').document(email), {
+        'posts': FieldValue.arrayUnion([ref.documentID])
+      });
+    });
   }
 }
