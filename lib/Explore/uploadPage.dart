@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:chaloapp/common/global_colors.dart';
+import 'package:chaloapp/data/post.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:toast/toast.dart';
+import '../common/activitylist.dart';
 
 class UploadPage extends StatefulWidget {
 //  final String gCurrentUser;
@@ -15,46 +18,103 @@ class UploadPage extends StatefulWidget {
 }
 
 class _UploadPageState extends State<UploadPage> {
+  
+  File file;
+
+  getImage({bool isCamera = false}) async {
+    File imageFile = File((await ImagePicker().getImage(
+      source: isCamera ? ImageSource.camera : ImageSource.gallery,
+      maxWidth: 600,
+      maxHeight: 600,
+    ))
+        .path);
+    if (mounted)
+      setState(() {
+        this.file = imageFile;
+      });
+  }
+
+  takeImage(mContext) {
+    return showDialog(
+      context: mContext,
+      builder: (_) {
+        return SimpleDialog(
+          title: Text(
+            "New Post",
+            style: TextStyle(
+              color: Color(primary),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          children: <Widget>[
+            SimpleDialogOption(
+              child: Text(
+                "Capture Image with Camera",
+                style: TextStyle(
+                  color: Color(secondary),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(mContext, rootNavigator: true).pop();
+                getImage(isCamera: true);
+              },
+            ),
+            SimpleDialogOption(
+              child: Text(
+                "Select Image from Gallery",
+                style: TextStyle(
+                  color: Color(secondary),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(mContext, rootNavigator: true).pop();
+                getImage();
+              },
+            ),
+            SimpleDialogOption(
+              child: Text(
+                "Cancel",
+                style: TextStyle(
+                  color: Color(secondary),
+                ),
+              ),
+              onPressed: () =>
+                  Navigator.of(mContext, rootNavigator: true).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  removeImage() {
+    setState(() {
+      file = null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return file == null ? UploadScreen(takeImage: takeImage) : PostCreationScreen();
+  }
+}
+
+class PostCreationScreen extends StatefulWidget {
+  @override
+  _PostCreationScreenState createState() => _PostCreationScreenState();
+}
+
+class _PostCreationScreenState extends State<PostCreationScreen> {
+  List<List<String>> AllactivityListItems;
   @override
   void initState() {
     super.initState();
+    ActivityList.getActivityList().then((list) => AllactivityListItems = list);
   }
 
-  List<List<String>> AllactivityListItems = [
-    ['images/activities/Beach.png', 'Beach'],
-    ['images/activities/BirdWatching.png', 'Bird Watching'],
-    ['images/activities/Canoeing.png', 'Caneoing'],
-    ['images/activities/Hiking.png', 'Hiking'],
-    ['images/activities/BeachBBQ.png', 'Beach BBQ'],
-    ['images/activities/Camping.png', 'Camping'],
-    ['images/activities/Cycling.png', 'Cycling'],
-    ['images/activities/DogWalking.png', 'Dog Walking'],
-    ['images/activities/Fishing.png', 'Fishing'],
-    ['images/activities/Gardening.png', 'Gardening'],
-    ['images/activities/Gym.png', 'Gym'],
-    ['images/activities/MountainBiking.png', 'Mountain Biking'],
-    ['images/activities/Picnic.png', 'Picnic'],
-    ['images/activities/Kayaking.png', 'Kayaking'],
-    ['images/activities/Museum.png', 'Museum'],
-    ['images/activities/Beach.png', 'Beach'],
-    ['images/activities/BirdWatching.png', 'Bird Watching'],
-    ['images/activities/Canoeing.png', 'Caneoing'],
-    ['images/activities/Hiking.png', 'Hiking'],
-    ['images/activities/BeachBBQ.png', 'Beach BBQ'],
-    ['images/activities/Camping.png', 'Camping'],
-    ['images/activities/Cycling.png', 'Cycling'],
-    ['images/activities/DogWalking.png', 'Dog Walking'],
-    ['images/activities/Fishing.png', 'Fishing'],
-    ['images/activities/Gardening.png', 'Gardening'],
-    ['images/activities/Gym.png', 'Gym'],
-    ['images/activities/MountainBiking.png', 'Mountain Biking'],
-    ['images/activities/Picnic.png', 'Picnic'],
-    ['images/activities/Kayaking.png', 'Kayaking'],
-    ['images/activities/Museum.png', 'Museum'],
-  ];
-  String _value = "Select Activity";
+  String _activity = "Select Activity";
 
-  DropdownButton FilterByActivity() => DropdownButton<String>(
+  DropdownButton activityMenu() => DropdownButton<String>(
         focusColor: Colors.redAccent,
         items: [
           for (int i = 0; i < AllactivityListItems.length; i++)
@@ -74,7 +134,7 @@ class _UploadPageState extends State<UploadPage> {
                   SizedBox(
                     width: 10,
                   ),
-                  Image.asset(
+                  Image.network(
                     AllactivityListItems[i][0],
                     width: 30,
                     height: 30,
@@ -85,8 +145,7 @@ class _UploadPageState extends State<UploadPage> {
         ],
         onChanged: (value) {
           setState(() {
-            _value = value;
-            print(_value);
+            _activity = value;
           });
         },
         icon: Icon(Icons.arrow_downward),
@@ -94,7 +153,7 @@ class _UploadPageState extends State<UploadPage> {
         iconEnabledColor: Color(primary),
         underline: Container(),
         hint: Text(
-          _value,
+          _activity,
           style: TextStyle(
             color: Colors.black,
           ),
@@ -102,81 +161,168 @@ class _UploadPageState extends State<UploadPage> {
         elevation: 0,
         isExpanded: true,
       );
-
-  File file;
-  TextEditingController CaptionText = TextEditingController();
-
-  CaptureImageWithCamera() async {
-    Navigator.pop(context);
-    File imageFile = await ImagePicker.pickImage(
-      source: ImageSource.camera,
-      maxWidth: 970,
-      maxHeight: 680,
-    );
-    if (mounted)
-      setState(() {
-        this.file = imageFile;
-      });
-  }
-
-  PickImageFromGallery() async {
-    Navigator.pop(context);
-    File imageFile = await ImagePicker.pickImage(
-      source: ImageSource.gallery,
-    );
-    if (mounted)
-      setState(() {
-        this.file = imageFile;
-      });
-  }
-
-  takeImage(mContext) {
-    return showDialog(
-      context: mContext,
-      builder: (context) {
-        return SimpleDialog(
-          title: Text(
-            "New Post",
-            style: TextStyle(
-              color: Color(primary),
-              fontWeight: FontWeight.bold,
+ bool _uploading = false;
+  @override
+  Widget build(BuildContext context) {
+    return return WillPopScope(
+      onWillPop: () {
+        if (_uploading) Toast.show("Please wait, uploading...", context);
+        _uploading ? Future.value(false) : Future.value(true);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: InkWell(
+            onTap: () => removeImage(),
+            child: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
             ),
           ),
-          children: <Widget>[
-            SimpleDialogOption(
-              child: Text(
-                "Capture Image with Camera",
-                style: TextStyle(
-                  color: Color(secondary),
-                ),
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+          title: Center(
+            child: Text(
+              "New Post",
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: bodyText,
+                fontWeight: FontWeight.bold,
               ),
-              onPressed: () => CaptureImageWithCamera(),
             ),
-            SimpleDialogOption(
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () async {
+                FocusScope.of(context).unfocus();
+                setState(() => _isActivitySelected =
+                    _activity == 'Select Activity' ? false : true);
+                print(CaptionText.text);
+                if (!_isActivitySelected) return;
+                // setState(() => _uploading = true);
+                // showDialog(
+                //     context: context,
+                //     barrierDismissible: false,
+                //     builder: (_) => Center(child: CircularProgressIndicator()));
+                // Post post = Post(
+                //     email: CurrentUser.email,
+                //     username: CurrentUser.name,
+                //     activityType: _activity,
+                //     caption: caption ?? '',
+                //     image: file,
+                //     likes: 0,
+                //     timestamp: DateTime.now());
+                // await DataService().uploadPost(post);
+                // setState(() => _uploading = false);
+                // Navigator.of(context, rootNavigator: true).pop();
+                // Navigator.of(context, rootNavigator: true).pop();
+              },
               child: Text(
-                "Select Image from Gallery",
+                "Share",
                 style: TextStyle(
-                  color: Color(secondary),
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontFamily: bodyText,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              onPressed: () => PickImageFromGallery(),
-            ),
-            SimpleDialogOption(
-              child: Text(
-                "Cancel",
-                style: TextStyle(
-                  color: Color(secondary),
-                ),
-              ),
-              onPressed: () => Navigator.pop(context),
             ),
           ],
-        );
-      },
+          elevation: 1.0,
+        ),
+        backgroundColor: Colors.white,
+        body: ListView(
+          children: <Widget>[
+            Container(
+              height: 230,
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: FileImage(file),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 12.0),
+            ),
+            ListTile(
+              title: Text(
+                "Write Caption",
+                style: TextStyle(
+                  color: Color(primary),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: bodyText,
+                  fontSize: 16,
+                ),
+              ),
+              subtitle: Container(
+                padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
+                child: TextField(
+                  keyboardType: TextInputType.text,
+                  onChanged: (value) => caption = value.trim(),
+                  autofocus: false,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: "Say Something about Image...",
+                    contentPadding: const EdgeInsets.only(
+                        left: 20.0, bottom: 20.0, top: 20.0),
+                    filled: true,
+                    fillColor: Color(form1),
+                    hintStyle: TextStyle(
+                      color: Color(formHint),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              title: Text(
+                "Select Activity",
+                style: TextStyle(
+                  color: Color(primary),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: bodyText,
+                  fontSize: 16,
+                ),
+              ),
+              subtitle: Container(
+                padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
+                child: Container(
+                  padding: EdgeInsets.only(
+                    left: 20.0,
+                    bottom: 6.0,
+                    top: 6.0,
+                    right: 20,
+                  ),
+                  color: Color(form1),
+                  child: FilterByActivity(),
+                ),
+              ),
+            ),
+            if (!_isActivitySelected)
+              Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Text('Please select a Activity',
+                      style: TextStyle(color: Colors.red)))
+          ],
+        ),
+      ),
     );
   }
+}
 
-  DisplayUploadScreen() {
+class UploadScreen extends StatelessWidget {
+  final Function(BuildContext) takeImage;
+  UploadScreen({@required this.takeImage});
+  @override
+  Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).accentColor.withOpacity(0.5),
       child: Column(
@@ -207,136 +353,6 @@ class _UploadPageState extends State<UploadPage> {
         ],
       ),
     );
-  }
 
-  removeImage() {
-    setState(() {
-      file = null;
-    });
-  }
-
-  DisplayUploadFormScreen() {
-    return Scaffold(
-      appBar: AppBar(
-        leading: InkWell(
-          onTap: () => removeImage(),
-          child: Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        title: Center(
-          child: Text(
-            "New Post",
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: bodyText,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        actions: <Widget>[
-          FlatButton(
-            onPressed: () {},
-            child: Text(
-              "Share",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontFamily: bodyText,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-        elevation: 1.0,
-      ),
-      backgroundColor: Colors.white,
-      body: ListView(
-        children: <Widget>[
-          Container(
-            height: 230,
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: FileImage(file),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 12.0),
-          ),
-          ListTile(
-            title: Text(
-              "Write Caption",
-              style: TextStyle(
-                color: Color(primary),
-                fontWeight: FontWeight.bold,
-                fontFamily: bodyText,
-                fontSize: 16,
-              ),
-            ),
-            subtitle: Container(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
-              child: TextFormField(
-                controller: CaptionText,
-                keyboardType: TextInputType.text,
-                autofocus: false,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: "Say Something about Image...",
-                  contentPadding: const EdgeInsets.only(
-                      left: 20.0, bottom: 20.0, top: 20.0),
-                  filled: true,
-                  fillColor: Color(form1),
-                  hintStyle: TextStyle(
-                    color: Color(formHint),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          ListTile(
-            title: Text(
-              "Select Activity",
-              style: TextStyle(
-                color: Color(primary),
-                fontWeight: FontWeight.bold,
-                fontFamily: bodyText,
-                fontSize: 16,
-              ),
-            ),
-            subtitle: Container(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
-              child: Container(
-                padding: EdgeInsets.only(
-                  left: 20.0,
-                  bottom: 6.0,
-                  top: 6.0,
-                  right: 20,
-                ),
-                color: Color(form1),
-                child: FilterByActivity(),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return file == null ? DisplayUploadScreen() : DisplayUploadFormScreen();
   }
 }
