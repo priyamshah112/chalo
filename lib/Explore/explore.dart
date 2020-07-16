@@ -1,12 +1,11 @@
 import 'package:chaloapp/Explore/uploadPage.dart';
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:chaloapp/data/User.dart';
+import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:chaloapp/home/home.dart';
 import 'package:intl/intl.dart';
-
 class Explore extends StatefulWidget {
   final Future<bool> Function() onBack;
   Explore({@required this.onBack});
@@ -65,19 +64,25 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   bool isLiked;
-  int likeCount;
+  List<String> diff;
+  int hrs, min, sec;
   DateTime postTime;
   @override
   void initState() {
     super.initState();
-    isLiked = false;
-    likeCount = widget.post['likes'];
+    List likes = widget.post['likes'];
+    isLiked = likes.contains(CurrentUser.email);
     postTime = DateTime.fromMillisecondsSinceEpoch(
         widget.post['timestamp'].seconds * 1000);
+    diff = (postTime.difference(DateTime.now())).toString().split(':');
+    hrs = int.parse(diff[0]).abs();
+    min = int.parse(diff[1]).abs();
+    sec = int.parse(diff[2].substring(0, 2)).abs();
   }
 
   @override
   Widget build(BuildContext context) {
+    String postedTime = getPostedTime;
     return Container(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -103,10 +108,16 @@ class _PostCardState extends State<PostCard> {
               ),
             ),
           ),
-          Image.network(
-            widget.post['image_url'],
-            width: MediaQuery.of(context).size.width,
-            fit: BoxFit.cover,
+          GestureDetector(
+            onDoubleTap: () {
+              DataService().likePost(widget.post['post_id']);
+              setState(() => isLiked = true);
+            },
+            child: Image.network(
+              widget.post['image_url'],
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.cover,
+            ),
           ),
           SizedBox(
             height: 10,
@@ -130,26 +141,26 @@ class _PostCardState extends State<PostCard> {
             title: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isLiked = !isLiked;
-                      likeCount = isLiked ? likeCount + 1 : likeCount - 1;
-                    });
+                IconButton(
+                  onPressed: () {
+                    DataService()
+                        .likePost(widget.post['post_id'], like: !isLiked);
+                    setState(() => isLiked = !isLiked);
                   },
-                  child: Icon(
+                  icon: Icon(
                     isLiked
                         ? FontAwesomeIcons.solidHeart
                         : FontAwesomeIcons.heart,
-                    size: 17,
+                    size: 20,
                     color: isLiked ? Colors.red : Color(secondary),
                   ),
+                  splashColor: Colors.red
                 ),
                 SizedBox(
                   width: 7,
                 ),
                 Text(
-                  "$likeCount likes",
+                  "${widget.post['likes'].length} likes",
                   style: TextStyle(
                     fontFamily: bodyText,
                     fontSize: 17,
@@ -162,7 +173,7 @@ class _PostCardState extends State<PostCard> {
                   width: 10,
                 ),
                 Text(
-                  DateFormat('d/M/yy').format(postTime),
+                  postedTime,
                   style: TextStyle(
                     fontWeight: FontWeight.w300,
                     fontSize: 11,
@@ -183,4 +194,27 @@ class _PostCardState extends State<PostCard> {
       ),
     );
   }
+
+  String get getPostedTime {
+    if (hrs == 0) {
+      if (min == 0)
+        return '$sec sec ago';
+      else
+        return '$min min ago';
+    } else {
+      if (hrs >= 24) {
+        int days = hrs ~/ 24;
+        if (days >= 7) {
+          int weeks = days ~/ 7;
+          if (weeks > 4)
+            return DateFormat('d MMM yyyy').format(postTime);
+          else
+            return weeks == 1 ? '1 week ago' : '$weeks weeks ago';
+        } else
+          return days == 1 ? 'Yesterday' : '$days days ago';
+      } else
+        return hrs == 1 ? '1 hr ago' : '$hrs hrs ago';
+    }
+  }
 }
+

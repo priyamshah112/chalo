@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:toast/toast.dart';
 import '../common/activitylist.dart';
 
@@ -78,7 +79,7 @@ class _UploadPageState extends State<UploadPage> {
                   activityType: _activity,
                   caption: _caption ?? '',
                   image: file,
-                  likes: 0,
+                  likes: [],
                   timestamp: DateTime.now());
               await DataService().uploadPost(post);
               setState(() => _uploading = false);
@@ -104,7 +105,7 @@ class _UploadPageState extends State<UploadPage> {
           GestureDetector(
             onTap: () => takeImage(context),
             child: AspectRatio(
-              aspectRatio: 4/3,
+              aspectRatio: 1,
               child: Container(
                   decoration: BoxDecoration(
                       image: file == null
@@ -270,15 +271,34 @@ class _UploadPageState extends State<UploadPage> {
 
   File file;
   void getImage({bool isCamera = false}) async {
-    File imageFile = File((await ImagePicker().getImage(
+    PickedFile temp = await ImagePicker().getImage(
       source: isCamera ? ImageSource.camera : ImageSource.gallery,
       maxWidth: 600,
       maxHeight: 600,
-    ))
-        .path);
+    );
+    File imageFile = await _cropImage(temp, CropAspectRatioPreset.square);
     if (mounted)
       setState(() {
         this.file = imageFile;
       });
+  }
+
+  Future<File> _cropImage(
+      PickedFile imageFile, CropAspectRatioPreset ratio) async {
+    File croppedFile = await ImageCropper.cropImage(
+        sourcePath: imageFile.path,
+        aspectRatioPresets: [ratio],
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Color(primary),
+            toolbarWidgetColor: Colors.white,
+            activeControlsWidgetColor: Color(primary),
+            initAspectRatio: ratio,
+            lockAspectRatio: true,
+            hideBottomControls: false),
+        iosUiSettings: IOSUiSettings(
+          title: 'Cropper',
+        ));
+    return croppedFile;
   }
 }
