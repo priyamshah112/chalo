@@ -1,14 +1,13 @@
 import 'dart:io';
 
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/data/post.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:toast/toast.dart';
+import '../common/global_colors.dart';
+import '../data/post.dart';
+import '../widgets/DailogBox.dart';
+import '../data/User.dart';
+import '../services/DatabaseService.dart';
 import '../common/activitylist.dart';
 
 class UploadPage extends StatefulWidget {

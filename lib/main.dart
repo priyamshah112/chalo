@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:chaloapp/Activites/Activity_Detail.dart';
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/home/home.dart';
-import 'package:chaloapp/services/dynamicLinking.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Activites/Activity_Detail.dart';
+import 'common/global_colors.dart';
+import 'home/home.dart';
+import 'services/dynamicLinking.dart';
 import 'data/data.dart';
-import 'package:chaloapp/authentication/login.dart';
+import 'authentication/login.dart';
 import 'services/AuthService.dart';
 import 'data/User.dart';
 

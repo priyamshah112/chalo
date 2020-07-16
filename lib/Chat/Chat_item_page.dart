@@ -1,10 +1,10 @@
-import 'package:chaloapp/data/Send_menu_items.dart';
-import 'package:chaloapp/data/User.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../data/Send_menu_items.dart';
+import '../data/User.dart';
 import '../Animation/FadeAnimation.dart';
 import '../common/global_colors.dart';
 import 'chat_info.dart';
@@ -81,8 +81,10 @@ class _ChatItemPageState extends State<ChatItemPage> {
                   context,
                   MaterialPageRoute(
                       builder: (BuildContext context) => ChatInfo(
-                        planRef: Firestore.instance.collection('plan').document(widget.planId),
-                      )),
+                            planRef: Firestore.instance
+                                .collection('plan')
+                                .document(widget.planId),
+                          )),
                 );
               },
               icon: Icon(

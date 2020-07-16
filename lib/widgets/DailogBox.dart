@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:chaloapp/common/global_colors.dart';
+import '../common/global_colors.dart';
 
 class DialogBox extends StatefulWidget {
   final String title, description, buttonText1, buttonText2;

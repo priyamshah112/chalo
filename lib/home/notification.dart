@@ -1,7 +1,8 @@
-import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import '../services/DatabaseService.dart';
 
 class NotificationList extends StatefulWidget {
   @override

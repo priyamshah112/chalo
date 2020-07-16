@@ -1,14 +1,13 @@
 import 'dart:io';
 
-import 'package:chaloapp/data/post.dart';
-import 'package:chaloapp/services/StorageService.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../data/post.dart';
+import '../data/User.dart';
+import 'StorageService.dart';
 import 'CloudMessaging.dart';
 import 'Hashing.dart';
-import '../data/User.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DataService {
   static final database = Firestore.instance;

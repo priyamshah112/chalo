@@ -1,17 +1,11 @@
-import 'package:chaloapp/Chat/Chat_item_page.dart';
-import 'package:chaloapp/data/User.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
-import 'package:toast/toast.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Animation/FadeAnimation.dart';
 import '../data/chat_model.dart';
 import '../common/global_colors.dart';
-//import 'package:chaloapp/Animation/FadeAnimation.dart';
-//import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-//import 'package:chaloapp/signup.dart';
-//import 'package:chaloapp/home.dart';
+import '../data/User.dart';
+import 'Chat_item_page.dart';
 
 class Chats extends StatefulWidget {
   final Future<bool> Function() onBack;
@@ -143,7 +137,9 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                   builder: (ctx,
                                       AsyncSnapshot<DocumentSnapshot>
                                           snapshot) {
-                                    if (!snapshot.hasData || snapshot.connectionState == ConnectionState.waiting)
+                                    if (!snapshot.hasData ||
+                                        snapshot.connectionState ==
+                                            ConnectionState.waiting)
                                       return Center(
                                           child: CircularProgressIndicator());
                                     final DocumentSnapshot planSnap =

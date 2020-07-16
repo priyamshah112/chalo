@@ -1,9 +1,9 @@
-import 'package:chaloapp/authentication/login.dart';
-import 'package:chaloapp/services/AuthService.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
-import 'package:chaloapp/Animation/FadeAnimation.dart';
-import 'package:chaloapp/common/global_colors.dart';
+import '../authentication/login.dart';
+import '../services/AuthService.dart';
+import '../widgets/DailogBox.dart';
+import '../Animation/FadeAnimation.dart';
+import '../common/global_colors.dart';
 
 class ForgotPage extends StatefulWidget {
   final String email;

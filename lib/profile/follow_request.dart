@@ -1,13 +1,8 @@
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:like_button/like_button.dart';
-import 'package:toast/toast.dart';
-
+import '../common/global_colors.dart';
+import '../services/DatabaseService.dart';
 import '../Animation/FadeAnimation.dart';
 
 class FollowReq extends StatefulWidget {
@@ -94,97 +89,93 @@ class _FollowReqState extends State<FollowReq> {
                                 child: !snapshot.hasData
                                     ? null
                                     : ListTile(
-                                      leading: CircleAvatar(
-                                        child: Icon(Icons.account_circle),
-                                      ),
-                                      contentPadding: EdgeInsets.only(
-                                          top: 8,
-                                          left: 15,
-                                          right: 5,
-                                          bottom: 8),
-                                      title: Text(
-                                        '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.normal,
-                                          color: Color(secondary),
+                                        leading: CircleAvatar(
+                                          child: Icon(Icons.account_circle),
                                         ),
-                                      ),
-                                      subtitle: Row(
-                                        children: <Widget>[
-                                          Icon(
-                                            FontAwesomeIcons.trophy,
-                                            color: Colors.amberAccent,
-                                            size: 12,
+                                        contentPadding: EdgeInsets.only(
+                                            top: 8,
+                                            left: 15,
+                                            right: 5,
+                                            bottom: 8),
+                                        title: Text(
+                                          '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.normal,
+                                            color: Color(secondary),
                                           ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text(
-                                            "${0} activities done",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: bodyText,
-                                              color: Color(secondary),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      trailing: FittedBox(
-                                        fit: BoxFit.fill,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
+                                        ),
+                                        subtitle: Row(
                                           children: <Widget>[
-                                            Container(
-                                                width: 100,
-                                                height: 27,
-                                                child: OutlineButton(
-                                                  onPressed: () async {
-                                                    await DataService()
-                                                        .acceptFollow(
-                                                            req, true);
-                                                    setState(() => widget
-                                                        .requests
-                                                        .remove(req));
-                                                  },
-                                                  borderSide: BorderSide(
-                                                    color: Color(
-                                                        primary), //Color of the border
-                                                    style: BorderStyle
-                                                        .solid, //Style of the border
-                                                    width:
-                                                        0.9, //width of the border
-                                                  ),
-                                                  color: Color(primary),
-                                                  textColor:
-                                                      Color(primary),
-                                                  child: Text(
-                                                    "Accept",
-                                                    style: TextStyle(
-                                                      fontFamily:
-                                                          bodyText,
-                                                    ),
-                                                  ),
-                                                )),
-                                            IconButton(
-                                              onPressed: () async {
-                                                await DataService()
-                                                    .acceptFollow(
-                                                        req, false);
-                                                setState(() => widget
-                                                    .requests
-                                                    .remove(req));
-                                              },
-                                              icon: Icon(
-                                                Icons.delete,
-                                                color: Colors
-                                                    .redAccent.shade200,
+                                            Icon(
+                                              FontAwesomeIcons.trophy,
+                                              color: Colors.amberAccent,
+                                              size: 12,
+                                            ),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(
+                                              "${0} activities done",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontFamily: bodyText,
+                                                color: Color(secondary),
                                               ),
                                             ),
                                           ],
                                         ),
+                                        trailing: FittedBox(
+                                          fit: BoxFit.fill,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: <Widget>[
+                                              Container(
+                                                  width: 100,
+                                                  height: 27,
+                                                  child: OutlineButton(
+                                                    onPressed: () async {
+                                                      await DataService()
+                                                          .acceptFollow(
+                                                              req, true);
+                                                      setState(() => widget
+                                                          .requests
+                                                          .remove(req));
+                                                    },
+                                                    borderSide: BorderSide(
+                                                      color: Color(
+                                                          primary), //Color of the border
+                                                      style: BorderStyle
+                                                          .solid, //Style of the border
+                                                      width:
+                                                          0.9, //width of the border
+                                                    ),
+                                                    color: Color(primary),
+                                                    textColor: Color(primary),
+                                                    child: Text(
+                                                      "Accept",
+                                                      style: TextStyle(
+                                                        fontFamily: bodyText,
+                                                      ),
+                                                    ),
+                                                  )),
+                                              IconButton(
+                                                onPressed: () async {
+                                                  await DataService()
+                                                      .acceptFollow(req, false);
+                                                  setState(() => widget.requests
+                                                      .remove(req));
+                                                },
+                                                icon: Icon(
+                                                  Icons.delete,
+                                                  color:
+                                                      Colors.redAccent.shade200,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                    ),
                               );
                             },
                           ),

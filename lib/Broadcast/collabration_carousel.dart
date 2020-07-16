@@ -1,8 +1,7 @@
-import 'package:chaloapp/Boradcast/CollabrationList.dart';
-import 'package:chaloapp/common/Collaboratorlist.dart';
-import 'package:chaloapp/common/global_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'CollabrationList.dart';
+import '../common/Collaboratorlist.dart';
+import '../common/global_colors.dart';
 
 class CollabrationCarousel extends StatelessWidget {
   @override

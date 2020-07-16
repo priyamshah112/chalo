@@ -1,12 +1,12 @@
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/home/home.dart';
-import 'package:chaloapp/profile/profile_page.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../common/global_colors.dart';
+import '../data/User.dart';
+import '../home/home.dart';
+import '../profile/profile_page.dart';
+import '../services/DatabaseService.dart';
+import '../widgets/DailogBox.dart';
 import '../Animation/FadeAnimation.dart';
 
 class ActivityDetails extends StatefulWidget {
@@ -127,7 +127,9 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                         children: <Widget>[
                           ActivityDetailCard(
                               planDoc: planDoc, start: start, end: end),
-                          if (!participants.contains(email))
+                          if (!participants.contains(email) &&
+                              participants.length <
+                                  planDoc.data['max_participant'])
                             isLoading
                                 ? Padding(
                                     padding: const EdgeInsets.all(10.0),

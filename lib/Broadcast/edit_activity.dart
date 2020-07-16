@@ -1,32 +1,21 @@
-import 'dart:math';
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
-import 'package:chaloapp/widgets/date_time.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:chaloapp/Animation/FadeAnimation.dart';
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:geolocator/geolocator.dart';
-import '../common/add_location.dart';
-import '../data/activity.dart';
 import 'package:intl/intl.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import '../Animation/FadeAnimation.dart';
+import '../common/global_colors.dart';
+import '../widgets/date_time.dart';
 
-import 'collabration_carousel.dart';
-
-class AddActivity extends StatefulWidget {
+class EditActivity extends StatefulWidget {
   @override
-  _AddActivityState createState() => _AddActivityState();
+  _EditActivityState createState() => _EditActivityState();
 }
 
-class _AddActivityState extends State<AddActivity> {
+class _EditActivityState extends State<EditActivity> {
   final _formKey = GlobalKey<FormState>();
   final activityController = TextEditingController();
+  String activityName, activity, note, type = 'Public';
   TextEditingController address = TextEditingController();
-  String activityName, activity, location, note, type = 'Public';
-  Position activityLocation;
   List<String> activities;
   DateTime startTime = DateTime.now().add(Duration(minutes: 29));
   DateTime endTime;
@@ -43,15 +32,16 @@ class _AddActivityState extends State<AddActivity> {
       autovalidate: _autovalidate,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(primary),
           centerTitle: true,
           automaticallyImplyLeading: false,
-          title: Text(
-            "Broadcast Activity",
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: bodyText,
-              fontWeight: FontWeight.bold,
+          title: Center(
+            child: Text(
+              "Edit Activity",
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: bodyText,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           leading: InkWell(
@@ -63,6 +53,26 @@ class _AddActivityState extends State<AddActivity> {
               color: Colors.white,
             ),
           ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () {
+//                Navigator.push(
+//                  context,
+//                  MaterialPageRoute(
+//                      builder: (BuildContext context) => EditActivity()),
+//                );
+              },
+              child: Text(
+                "Update",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontFamily: bodyText,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
           elevation: 1.0,
         ),
         backgroundColor: Colors.white,
@@ -90,192 +100,11 @@ class _AddActivityState extends State<AddActivity> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
-                                "Activity Title",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 1.0, vertical: 10.0),
-                                child: TextFormField(
-                                  validator: (value) {
-                                    if (value.isEmpty)
-                                      return 'Please Enter a title';
-                                    else
-                                      return null;
-                                  },
-                                  onSaved: (value) => activityName = value,
-                                  keyboardType: TextInputType.text,
-                                  autofocus: false,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "A name for your Activity",
-                                    prefixIcon: Icon(
-                                      Icons.directions_bike,
-                                    ),
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 30.0, bottom: 18.0, top: 18.0),
-                                    filled: true,
-                                    fillColor: Color(form1),
-                                    hintStyle: TextStyle(
-                                      color: Color(formHint),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 1.0, vertical: 10.0),
-                                child: TextFormField(
-                                  validator: (value) {
-                                    if (value.isEmpty)
-                                      return 'Please Select an Activity';
-                                    else {
-                                      bool contains = true;
-                                      for (var activity in activities) {
-                                        contains =
-                                            value == activity ? true : false;
-                                        if (contains) break;
-                                      }
-                                      return contains
-                                          ? null
-                                          : 'Make sure to select an activity from the list';
-                                    }
-                                  },
-                                  onSaved: (value) => activity = value,
-                                  keyboardType: TextInputType.text,
-                                  autofocus: false,
-                                  onTap: () async {
-                                    var result = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ViewActivity(),
-                                      ),
-                                    );
-                                    if (result == null) return;
-                                    activityController.text =
-                                        result['selected'];
-                                    activities = result['activityList'];
-                                    FocusScope.of(context).unfocus();
-                                  },
-                                  controller: activityController,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Select an Activity",
-                                    prefixIcon: Icon(
-                                      Icons.search,
-                                      color: Color(primary),
-                                    ),
-                                    suffixIcon: Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: Color(primary),
-                                        ),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Material(
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(30.0),
-                                        ),
-                                        child: InkWell(
-                                          child: Icon(
-                                            Icons.format_list_bulleted,
-                                            color: Color(primary),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 30.0, bottom: 18.0, top: 18.0),
-                                    filled: true,
-                                    fillColor: Color(form1),
-                                    hintStyle: TextStyle(
-                                      color: Color(formHint),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              CollabrationCarousel(),
-                              SizedBox(height: 10.0),
-                              Text(
-                                "Activity Location",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 1.0, vertical: 10.0),
-                                child: TextFormField(
-                                  controller: address,
-                                  keyboardType: TextInputType.text,
-                                  autofocus: false,
-                                  validator: (value) => value.isEmpty
-                                      ? 'Please Select a Location'
-                                      : null,
-                                  onSaved: (value) => location = value,
-                                  onTap: () async {
-                                    FocusScope.of(context).unfocus();
-                                    Map result = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => GetLocation(activityLocation ?? null),
-                                      ),
-                                    );
-                                    if (result != null) {
-                                      address.text = result['location'];
-                                      activityLocation = result['position'];
-                                    }
-                                  },
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Search for a place",
-                                    suffixIcon: Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: Color(primary),
-                                        ),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Material(
-                                        elevation: 1,
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(10.0),
-                                        ),
-                                        child: InkWell(
-                                          child: Icon(
-                                            Icons.location_on,
-                                            color: Color(primary),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 10.0,
-                                        bottom: 18.0,
-                                        top: 18.0,
-                                        right: 30.0),
-                                    filled: true,
-                                    fillColor: Color(form1),
-                                    hintStyle: TextStyle(
-                                      color: Color(formHint),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Text(
                                 "Date & Time",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
+                                  fontFamily: bodyText,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -377,32 +206,12 @@ class _AddActivityState extends State<AddActivity> {
                                   ),
                                 ),
                               ),
-                              Row(
-                                children: <Widget>[
-                                  Checkbox(
-                                    activeColor: Color(primary),
-                                    value: proposeTime,
-                                    onChanged: (bool value) {
-                                      setState(() {
-                                        proposeTime = value;
-                                      });
-                                    },
-                                  ),
-                                  Text(
-                                    "Let others propose time changes",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
                               Text(
                                 "No. of peoples you'd like to join",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
+                                  fontFamily: bodyText,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -414,10 +223,11 @@ class _AddActivityState extends State<AddActivity> {
                                   visible: _showDropdown,
                                   child: SelectPeople()),
                               Text(
-                                "Boradcast audience",
+                                "Privacy",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
+                                  fontFamily: bodyText,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -429,10 +239,11 @@ class _AddActivityState extends State<AddActivity> {
                                 height: 10,
                               ),
                               Text(
-                                "Boradcast audience Gender",
+                                "Select Gender",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(primary),
+                                  fontFamily: bodyText,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -449,6 +260,7 @@ class _AddActivityState extends State<AddActivity> {
                                     "Description",
                                     style: TextStyle(
                                       fontSize: 15,
+                                      fontFamily: bodyText,
                                       color: Color(primary),
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -458,6 +270,7 @@ class _AddActivityState extends State<AddActivity> {
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: Color(secondary),
+                                      fontFamily: bodyText,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -482,6 +295,7 @@ class _AddActivityState extends State<AddActivity> {
                                     filled: true,
                                     fillColor: Color(form1),
                                     hintStyle: TextStyle(
+                                      fontFamily: bodyText,
                                       color: Color(formHint),
                                     ),
                                   ),
@@ -490,93 +304,6 @@ class _AddActivityState extends State<AddActivity> {
                             ],
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      FadeAnimation(
-                          1.9,
-                          Container(
-                            height: 50,
-                            margin: EdgeInsets.symmetric(horizontal: 30),
-                            child: FlatButton(
-                              color: Color(primary),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 30.0, vertical: 10.0),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50.0)),
-                              onPressed: () async {
-                                _formKey.currentState.save();
-                                if (_formKey.currentState.validate()) {
-                                  _formKey.currentState.save();
-                                  final user = await UserData.getUser();
-                                  Map<String, dynamic> activityDetails = {
-                                    'activity_name': activityName,
-                                    'activity_type': activity,
-                                    'admin_id': user['email'],
-                                    'admin_name': user['name'],
-                                    'participants_id': [user['email']],
-                                    'blocked_participant_id': [],
-                                    'pending_participant_id': [],
-                                    'broadcast_type': type.toLowerCase(),
-                                    'max_participant': _peopleCount,
-                                    'participant_type': selectedGender,
-                                    'activity_start':
-                                        Timestamp.fromDate(startTime),
-                                    'activity_end': Timestamp.fromDate(endTime),
-                                    'description': note,
-                                    'group_chat': null,
-                                    'location_id': null,
-                                    'address': location,
-                                    'location': GeoPoint(
-                                        activityLocation.latitude,
-                                        activityLocation.longitude),
-                                    'map_status': type == 'Public'
-                                        ? 'active'
-                                        : 'inactive',
-                                    'status': 'original',
-                                    'security_code': Random().nextInt(10000),
-                                    'timestamp': Timestamp.now(),
-                                    'plan_id': ""
-                                  };
-                                  print(activityDetails);
-                                  showDialog(
-                                      context: context,
-                                      child: Center(
-                                          child: CircularProgressIndicator()));
-                                  await Future.delayed(Duration(seconds: 1));
-                                  Navigator.pop(context);
-                                  showDialog(
-                                      context: context,
-                                      builder: (ctx) => FadeAnimation(
-                                            1,
-                                            DialogBox(
-                                                title: "Success",
-                                                description:
-                                                    "Activity successfully created",
-                                                buttonText1: "Ok",
-                                                button1Func: () {
-                                                  Navigator.pop(context);
-                                                  Navigator.pop(
-                                                      context, activityDetails);
-                                                }),
-                                          ));
-                                } else
-                                  setState(() => _autovalidate = true);
-                              },
-                              child: Center(
-                                child: Text(
-                                  "Broadcast Activity",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )),
-                      SizedBox(
-                        height: Platform.isIOS ? 10 : 40,
                       ),
                     ],
                   ),
@@ -781,7 +508,7 @@ class _AddActivityState extends State<AddActivity> {
                 ),
               ),
               Radio(
-                value: 'Followers',
+                value: 'Private',
                 activeColor: Color(primary),
                 groupValue: type,
                 onChanged: (val) {
@@ -792,7 +519,7 @@ class _AddActivityState extends State<AddActivity> {
                 },
               ),
               Text(
-                "Followers",
+                "Private",
                 style: TextStyle(
                   color: Color(secondary),
                   fontSize: 16,

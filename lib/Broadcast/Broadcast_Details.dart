@@ -1,24 +1,25 @@
-import 'package:chaloapp/Boradcast/edit_activity.dart';
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/profile/profile_page.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:chaloapp/Activites/Activity_Detail.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class BroadcardActivityDetails extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../common/global_colors.dart';
+import '../data/User.dart';
+import '../profile/profile_page.dart';
+import '../services/DatabaseService.dart';
+import '../widgets/DailogBox.dart';
+import '../Activites/Activity_Detail.dart';
+import 'edit_activity.dart';
+
+class BroadcastActivityDetails extends StatefulWidget {
   final DocumentReference planRef;
-  const BroadcardActivityDetails({Key key, @required this.planRef})
+  BroadcastActivityDetails({Key key, @required this.planRef})
       : super(key: key);
   @override
-  _BroadcardActivityDetailsState createState() =>
-      _BroadcardActivityDetailsState();
+  _BroadcastActivityDetailsState createState() =>
+      _BroadcastActivityDetailsState();
 }
 
-class _BroadcardActivityDetailsState extends State<BroadcardActivityDetails> {
+class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
   // List participants;
   @override
   Widget build(BuildContext context) {

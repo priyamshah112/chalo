@@ -1,6 +1,6 @@
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
-import 'package:chaloapp/common/global_colors.dart';
+import '../common/global_colors.dart';
 
 class DateTimePicker {
   DateTime _pickedDate;

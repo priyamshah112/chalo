@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:chaloapp/common/global_colors.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../common/global_colors.dart';
+import '../data/User.dart';
+import '../services/DatabaseService.dart';
 
 class EditProfile extends StatefulWidget {
   final String name, profilePic, gender;

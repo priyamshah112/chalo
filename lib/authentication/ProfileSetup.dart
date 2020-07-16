@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:chaloapp/home/home.dart';
-import 'package:chaloapp/services/AuthService.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
-import '../services/DatabaseService.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:chaloapp/common/global_colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
+import '../home/home.dart';
+import '../services/AuthService.dart';
+import '../widgets/DailogBox.dart';
+import '../services/DatabaseService.dart';
+import '../common/global_colors.dart';
 import '../common/activitylist.dart';
 
 class ProfileSetup extends StatefulWidget {

@@ -1,11 +1,5 @@
-import 'dart:async';
-
-import 'dart:io';
-import 'package:chaloapp/authentication/ProfileSetup.dart';
-import 'package:chaloapp/home/home.dart';
 import 'package:flutter/material.dart';
-import 'package:chaloapp/authentication/login.dart';
-import 'package:chaloapp/common/global_colors.dart';
+import '../common/global_colors.dart';
 import '../common/activitylist.dart';
 
 List<List<String>> allactivityList;

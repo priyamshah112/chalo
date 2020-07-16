@@ -1,9 +1,9 @@
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../common/global_colors.dart';
+import '../data/User.dart';
+import '../services/DatabaseService.dart';
+import '../widgets/DailogBox.dart';
 import '../Animation/FadeAnimation.dart';
 
 class Following extends StatefulWidget {

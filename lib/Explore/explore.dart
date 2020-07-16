@@ -1,11 +1,9 @@
-import 'package:chaloapp/Explore/uploadPage.dart';
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/data/User.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:chaloapp/home/home.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../common/global_colors.dart';
+import 'uploadPage.dart';
 
 class Explore extends StatefulWidget {
   final Future<bool> Function() onBack;

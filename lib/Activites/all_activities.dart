@@ -1,22 +1,13 @@
-//import 'package:chaloapp/forgot.dart';
-//import 'package:chaloapp/main.dart';
-//import 'package:chaloapp/widgets/DailogBox.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/services/dynamicLinking.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:share/share.dart';
-import 'package:toast/toast.dart';
-import 'Activity_Detail.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../data/User.dart';
+import '../services/dynamicLinking.dart';
 import '../common/global_colors.dart';
-//import 'package:chaloapp/Animation/FadeAnimation.dart';
-//import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-//import 'package:chaloapp/signup.dart';
-//import 'package:chaloapp/home.dart';
+import 'Activity_Detail.dart';
 
 class AllActivity extends StatefulWidget {
   final Future<bool> Function() onBack;
@@ -302,7 +293,6 @@ class ActivityCard extends StatelessWidget {
                           final link = await DynamicLinkService.createLink(
                               planDoc['plan_id'],
                               planDoc['admin_name'].toString().split(' ')[0]);
-                          // print(link);
                           Share.share('Check  out my activity: $link',
                               sharePositionOrigin:
                                   box.localToGlobal(Offset.zero) & box.size);

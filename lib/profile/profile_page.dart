@@ -1,18 +1,19 @@
 import 'dart:async';
-import 'package:chaloapp/Animation/FadeAnimation.dart';
-import 'package:chaloapp/Settings/setting.dart';
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/profile/edit_profile_page.dart';
-import 'package:chaloapp/profile/follow_request.dart';
-import 'package:chaloapp/profile/following.dart';
-import 'package:chaloapp/Explore/post_details.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:chaloapp/common/global_colors.dart';
+import '../Animation/FadeAnimation.dart';
+import '../Settings/setting.dart';
+import '../data/User.dart';
+import '../Explore/post_details.dart';
+import '../services/DatabaseService.dart';
+import '../common/global_colors.dart';
 import 'followers.dart';
+import 'edit_profile_page.dart';
+import 'follow_request.dart';
+import 'following.dart';
 
 class ProfilePage extends StatefulWidget {
   @override

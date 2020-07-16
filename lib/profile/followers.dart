@@ -1,10 +1,10 @@
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/profile/profile_page.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
+import '../common/global_colors.dart';
+import '../data/User.dart';
+import '../services/DatabaseService.dart';
+import '../widgets/DailogBox.dart';
 import '../Animation/FadeAnimation.dart';
+import 'profile_page.dart';
 
 class Follower extends StatefulWidget {
   @override

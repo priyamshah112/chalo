@@ -1,26 +1,26 @@
 import 'dart:async';
 
-import 'package:chaloapp/Activites/Activity_Detail.dart';
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/profile/profile_page.dart';
-import 'package:chaloapp/services/AuthService.dart';
-import 'package:chaloapp/services/dynamicLinking.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
+import 'package:share/share.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
 import 'package:toast/toast.dart';
-import 'package:chaloapp/data/User.dart';
+import '../data/User.dart';
+import '../common/global_colors.dart';
+import '../profile/profile_page.dart';
+import '../services/AuthService.dart';
+import '../services/dynamicLinking.dart';
 import '../Activites/all_activities.dart';
+import '../Activites/Activity_Detail.dart';
 import '../Explore/explore.dart';
 import '../authentication/login.dart';
 import '../widgets/DailogBox.dart';
-import 'package:chaloapp/Boradcast/broadcast.dart';
-
-import 'package:chaloapp/Chat/chats.dart';
-
+import '../Broadcast/broadcast.dart';
+import '../Broadcast/Broadcast_Details.dart';
+import '../Chat/chats.dart';
 import 'notification.dart';
 
 class MainHome extends StatefulWidget {
@@ -138,14 +138,8 @@ class _MainMapState extends State<MainMap> {
       floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.white,
           child: Icon(Icons.notifications, color: Color(primary)),
-          onPressed: () async {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => NotificationList()));
-            // _scaffoldKey.currentState.showSnackBar(SnackBar(
-            //   content: Text('user: $user\n email: $email'),
-            //   duration: Duration(seconds: 2),
-            // ));
-          }),
+          onPressed: () => Navigator.push(
+              context, MaterialPageRoute(builder: (_) => NotificationList()))),
       body: WillPopScope(
         onWillPop: () => widget.onBack(context),
         child: Stack(
@@ -194,69 +188,76 @@ class _MainMapState extends State<MainMap> {
         builder: (ctx) => new IconButton(
           icon: Image.network(documents[index].data['activity_logo']),
           onPressed: () {
-            _showModal();
-            print("marker pressed");
+            _showModal(documents[index].documentID);
           },
         ),
       ),
     );
   }
 
-  void _showModal() {
+  void _showModal(String planId) {
     showModalBottomSheet<void>(
       context: context,
       elevation: 0.0,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Container(
-          margin: EdgeInsets.only(top: 5, left: 15, right: 15, bottom: 90),
-          width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(
-                color: Colors.teal,
-                width: 1,
-              ),
-              borderRadius: BorderRadius.circular(6)),
-          height: 337,
-          child: Card(
-            elevation: 0.0,
-            child: Column(
-              children: <Widget>[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      width: 55.0,
-                      height: 55.0,
-                      child: CircleAvatar(
-//                        foregroundColor: Color(primary),
-//                        backgroundColor: Color(secondary),
-                        backgroundImage: AssetImage('images/bgcover.jpg'),
+      builder: (BuildContext context) => MapActivityCard(
+          planRef: Firestore.instance.collection('plan').document(planId)),
+    );
+  }
+}
+
+class MapActivityCard extends StatelessWidget {
+  final DocumentReference planRef;
+  MapActivityCard({@required this.planRef});
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: planRef.get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData)
+            return Center(child: CircularProgressIndicator());
+          final doc = snapshot.data;
+          final start = DateTime.fromMillisecondsSinceEpoch(
+              doc['activity_start'].seconds * 1000);
+          return Container(
+            margin: EdgeInsets.only(top: 5, left: 15, right: 15, bottom: 90),
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: Colors.teal,
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(6)),
+            child: Card(
+              elevation: 0.0,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(
+                        width: 55.0,
+                        height: 55.0,
+                        child: CircleAvatar(
+                          backgroundImage:
+                              NetworkImage(doc.data['activity_logo']),
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 10.0,
-                    ),
-                    Expanded(
-                      flex: 5,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          FittedBox(
-                            child: GestureDetector(
-                              onTap: () {
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //       builder: (BuildContext context) =>
-                                //           Chats(onBack: onack,)),
-                                // );
-                              },
+                      SizedBox(
+                        width: 10.0,
+                      ),
+                      Expanded(
+                        flex: 5,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            FittedBox(
                               child: Text(
-                                "Activity name",
+                                doc.data['admin_name'],
                                 style: TextStyle(
                                   color: Colors.teal,
                                   fontSize: 18,
@@ -264,145 +265,135 @@ class _MainMapState extends State<MainMap> {
                                 ),
                               ),
                             ),
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Icon(
-                                FontAwesomeIcons.trophy,
-                                color: Colors.amberAccent,
-                                size: 15,
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text(" 0 activities Done"),
-                            ],
-                          ),
-                        ],
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  FontAwesomeIcons.trophy,
+                                  color: Colors.amberAccent,
+                                  size: 15,
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Text(" 0 activities Done"),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        child: IconButton(
-                          icon: Icon(Icons.share),
-                          color: Colors.green,
-                          onPressed: () {},
+                      Expanded(
+                        child: Container(
+                          child: IconButton(
+                            icon: Icon(Icons.share),
+                            color: Colors.green,
+                            onPressed: () async {
+                              final RenderBox box = context.findRenderObject();
+                              final link = await DynamicLinkService.createLink(
+                                  doc.data['plan_id'],
+                                  doc.data['admin_name']
+                                      .toString()
+                                      .split(' ')[0]);
+                              Share.share('Check  out my activity: $link',
+                                  sharePositionOrigin:
+                                      box.localToGlobal(Offset.zero) &
+                                          box.size);
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text("Male, Mumbai"),
+                      Text("0.00 km away"),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Divider(
+                    thickness: 1,
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        doc.data['activity_name'],
+                        style: TextStyle(
+                          color: Colors.teal,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      Text(
+                        DateFormat('d, MMM').format(start),
+                        style: TextStyle(
+                          color: Color(primary),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      IconText(
+                          text: DateFormat('hh:mm').format(start),
+                          icon: Icons.timer),
+                      IconText(
+                          text:
+                              '${doc.data['participants_id'].length}/${doc.data['max_participant']}',
+                          icon: Icons.people),
+                      IconText(text: 'Mumbai', icon: Icons.location_on)
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Divider(
+                    thickness: 1,
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) =>
+                                doc.data['admin_id'] == CurrentUser.email
+                                    ? BroadcastActivityDetails(planRef: planRef)
+                                    : ActivityDetails(planRef: planRef)));
+                      },
+                      color: Color(primary),
+                      textColor: Colors.white,
+                      child: Text(
+                        "View Details",
+                        style: TextStyle(
+                          fontFamily: bodyText,
                         ),
                       ),
                     ),
-                  ],
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Male, Mumbai"),
-                    Text("0.00 km away"),
-                  ],
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Divider(
-                  thickness: 1,
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      "activity knwkjw",
-                      style: TextStyle(
-                        color: Colors.teal,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-//                    Text(
-//                      DateFormat('d, MMM').format(start),
-//                      style: TextStyle(
-//                        color: Color(primary),
-//                        fontWeight: FontWeight.bold,
-//                        fontSize: 18,
-//                      ),
-//                    ),
-                    Text(
-                      "2 May",
-                      style: TextStyle(
-                        color: Color(primary),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-//                Row(
-//                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                  children: <Widget>[
-//                    IconText(
-//                        text: DateFormat('hh:mm').format(start),
-//                        icon: Icons.timer),
-//                    IconText(text: count.toString(), icon: Icons.people),
-//                    IconText(text: 'Mumbai', icon: Icons.location_on)
-//                  ],
-//                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    IconText(text: "3:20 PM", icon: Icons.timer),
-                    IconText(text: "5/10", icon: Icons.people),
-                    IconText(text: 'Mumbai', icon: Icons.location_on)
-                  ],
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Divider(
-                  thickness: 1,
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: FlatButton(
-                    onPressed: () {},
-                    color: Color(primary),
-                    textColor: Colors.white,
-                    child: Text(
-                      "Join Activity",
-                      style: TextStyle(
-                        fontFamily: bodyText,
-                      ),
-                    ),
                   ),
-                ),
-                Center(
-                  child: FlatButton(
-                    highlightColor: Colors.transparent,
-                    child: Text(
-                      'Propose a new time',
-                      style: TextStyle(
-                        color: Color(primary),
-                      ),
-                    ),
-                    onPressed: () {},
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
-//    future.then((void value) => _closeModal(value));
+          );
+        });
   }
 }
 

@@ -1,14 +1,14 @@
-import 'package:chaloapp/authentication/ProfileSetup.dart';
-import 'package:chaloapp/authentication/forgot.dart';
-import 'package:chaloapp/services/AuthService.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
-import 'package:chaloapp/Animation/FadeAnimation.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:chaloapp/authentication/signup.dart';
-import 'package:chaloapp/home/home.dart';
+import '../services/AuthService.dart';
+import '../widgets/DailogBox.dart';
+import '../Animation/FadeAnimation.dart';
+import '../home/home.dart';
 import '../data/User.dart';
+import 'ProfileSetup.dart';
+import 'forgot.dart';
+import 'signup.dart';
 
 class WelcomeScreen extends StatefulWidget {
   @override

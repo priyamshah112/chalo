@@ -1,7 +1,6 @@
-import 'package:chaloapp/common/global_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:like_button/like_button.dart';
+import '../common/global_colors.dart';
 
 class PostItem extends StatefulWidget {
   final String dp;

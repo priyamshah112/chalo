@@ -1,24 +1,21 @@
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/home/home.dart';
-import 'package:chaloapp/authentication/login.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
-import 'package:chaloapp/widgets/date_time.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:chaloapp/Animation/FadeAnimation.dart';
-import 'package:chaloapp/common/global_colors.dart';
+
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gender_selection/gender_selection.dart';
-import 'package:chaloapp/authentication/ProfileSetup.dart';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../data/User.dart';
+import '../services/DatabaseService.dart';
 import '../services/AuthService.dart';
-// import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-//import 'package:flutter_localizations/flutter_localizations.dart';
-//import 'package:flutter_rounded_date_picker/rounded_picker.dart';
+import '../widgets/DailogBox.dart';
+import '../widgets/date_time.dart';
+import '../Animation/FadeAnimation.dart';
+import '../common/global_colors.dart';
+import 'login.dart';
+import 'ProfileSetup.dart';
 
 class SignUp extends StatefulWidget {
   @override
