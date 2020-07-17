@@ -4,6 +4,8 @@ import 'package:chaloapp/common/global_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'Colab_Details.dart';
+
 class CollabrationCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,12 @@ class CollabrationCarousel extends StatelessWidget {
             physics: BouncingScrollPhysics(),
             itemBuilder: (context, int index) {
               return GestureDetector(
-                onTap: () => print('card clicked'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => DetailsScreen()));
+                },
                 child: Container(
                   padding: EdgeInsets.only(right: 16),
                   child: Column(
