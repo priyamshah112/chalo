@@ -1,10 +1,12 @@
 import 'package:chaloapp/common/global_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:giffy_dialog/giffy_dialog.dart';
 
 class DetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Stack(
         children: <Widget>[
           Container(
@@ -77,7 +79,32 @@ class DetailsScreen extends StatelessWidget {
                             vertical: 16.0,
                             horizontal: 32.0,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (_) => AssetGiffyDialog(
+//                                      key: Key("Asset"),
+                                      image: Image.asset(
+                                        'images/coin.gif',
+                                        fit: BoxFit.contain,
+                                      ),
+                                      title: Text(
+                                        'Congratulations!!',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 22.0,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      entryAnimation:
+                                          EntryAnimation.BOTTOM_RIGHT,
+                                      description: Text(
+                                        'This is a men wearing jackets dialog box. This library helps you easily create fancy giffy dialog.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(),
+                                      ),
+//                                      onOkButtonPressed: null,
+                                    ));
+                          },
                         ),
                       ),
                       const SizedBox(height: 30.0),
