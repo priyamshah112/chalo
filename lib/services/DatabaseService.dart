@@ -476,11 +476,21 @@ class DataService {
       'image_url': imageUrl
     });
     await database.runTransaction((transaction) async {
-      await transaction
-          .update(ref, {'post_id': ref.documentID});
+      await transaction.update(ref, {'post_id': ref.documentID});
       await transaction
           .update(database.collection('additional_info').document(email), {
         'posts': FieldValue.arrayUnion([ref.documentID])
+      });
+    });
+  }
+
+  Future likePost(String postId, {bool like = true}) async {
+    final ref = database.collection('posts').document(postId);
+    await database.runTransaction((transaction) async {
+      await transaction.update(ref, {
+        'likes': like
+            ? FieldValue.arrayUnion([CurrentUser.email])
+            : FieldValue.arrayRemove([CurrentUser.email])
       });
     });
   }

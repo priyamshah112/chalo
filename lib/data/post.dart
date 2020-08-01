@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 class Post {
   final String email, username, caption, activityType;
   final DateTime timestamp;
-  final int likes;
+  final List<String> likes;
   final File image;
 
   Post(
@@ -15,5 +15,6 @@ class Post {
        @required this.activityType,
        @required this.image,
        @required this.timestamp,
-       @required this.likes});
+       @required this.likes
+      });
 }
