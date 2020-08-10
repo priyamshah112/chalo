@@ -24,7 +24,7 @@ class _ChatInfoState extends State<ChatInfo> {
               color: Colors.white,
               child: Center(child: CircularProgressIndicator()),
             );
-          return snapshot.data['admin_id'] == CurrentUser.email
+          return snapshot.data['admin_id'] == CurrentUser.user.email
               ? BroadcastActivityDetails(planRef: widget.planRef)
               : ActivityDetails(planRef: widget.planRef);
         });

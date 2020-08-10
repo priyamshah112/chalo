@@ -198,7 +198,7 @@ class _ActivitiesState extends State<Activities> {
           return ListView.builder(
               itemCount: count,
               itemBuilder: (context, index) {
-                return  !widget.showUserActivities && plans[index]['admin_id'] == CurrentUser.email
+                return  !widget.showUserActivities && plans[index]['admin_id'] == CurrentUser.user.email
                     ? Container()
                     : ActivityCard(
                         planDoc: plans[index],

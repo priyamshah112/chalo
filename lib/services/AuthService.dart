@@ -171,6 +171,116 @@ class AuthService {
     }
   }
 
+  Future<Map> signUp(String method) async {
+    try {
+      String email, fname, lname, photoURL;
+      AuthCredential creds;
+      switch (method) {
+        case 'google':
+          final GoogleSignIn googleSignIn = new GoogleSignIn();
+          GoogleSignInAccount googleUser;
+          GoogleSignInAuthentication googleAuth;
+          try {
+            googleUser = await googleSignIn.signIn();
+            googleAuth = await googleUser.authentication;
+          } catch (e) {
+            print(e.toString());
+            return {"success": false, 'msg': 'Google Signin Cancelled'};
+          }
+          final userDoc = await DataService().getUserDoc(googleUser.email);
+          if (userDoc != null) {
+            print('useer already exists with this email');
+            await googleSignIn.signOut();
+            return {
+              "success": false,
+              'msg':
+                  'This email is already in use by another account.\nTry with another email'
+            };
+          }
+          try {
+            email = googleUser.email;
+            fname = googleUser.displayName.split(" ").first;
+            lname = googleUser.displayName.split(" ").last;
+            photoURL = googleUser.photoUrl;
+            creds = GoogleAuthProvider.getCredential(
+              accessToken: googleAuth.accessToken,
+              idToken: googleAuth.idToken,
+            );
+            print('fetched details from google');
+          } catch (e) {
+            print(e.toString());
+            await googleSignIn.signOut();
+            return {
+              'success': false,
+              'msg': 'Something went wrong. Try again later'
+            };
+          }
+          break;
+        case 'facebook':
+          final facebookLogin = FacebookLogin();
+          facebookLogin.loginBehavior = FacebookLoginBehavior.webOnly;
+          final result = await facebookLogin
+              .logInWithReadPermissions(['email', 'public_profile']);
+          switch (result.status) {
+            case FacebookLoginStatus.loggedIn:
+              print('login successful, getting details...');
+              Response graphResponse = await get(
+                  'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email,picture.height(200)&access_token=${result.accessToken.token}');
+              Map profile = jsonDecode(graphResponse.body);
+              final userDoc = await DataService().getUserDoc(profile['email']);
+              if (userDoc != null) {
+                print('user already exists with this email');
+                await facebookLogin.logOut();
+                return {
+                  "success": false,
+                  'msg':
+                      'This email is already in use by another account.\nTry with another email'
+                };
+              }
+              try {
+                email = profile['email'];
+                fname = profile['first_name'];
+                lname = profile['last_name'];
+                photoURL = profile['picture']['data']['url'];
+                creds = FacebookAuthProvider.getCredential(
+                    accessToken: result.accessToken.token);
+                print('fetched deatils from facebook');
+              } catch (e) {
+                print(e.toString());
+                await facebookLogin.logOut();
+                return {
+                  'success': false,
+                  'msg': 'Something went wrong. Try again later'
+                };
+              }
+              break;
+            case FacebookLoginStatus.cancelledByUser:
+              return {'success': false, 'msg': 'Login was Cancelled'};
+              break;
+            case FacebookLoginStatus.error:
+              return {'success': false, 'msg': result.errorMessage};
+              break;
+            default:
+          }
+          break;
+        default:
+      }
+      return {
+        "success": true,
+        'creds': creds,
+        'email': email,
+        'fname': fname,
+        'lname': lname,
+        'photo': photoURL,
+        'type': method
+      };
+    } catch (e) {
+      print(e.toString());
+      await signOut();
+      return {"success": false, 'msg': 'Something went wrong. Try again Later'};
+    }
+  }
+
   Future<Map> resetPassword(String email) async {
     try {
       await auth.sendPasswordResetEmail(email: email);

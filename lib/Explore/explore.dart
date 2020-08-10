@@ -72,7 +72,7 @@ class _PostCardState extends State<PostCard> {
   void initState() {
     super.initState();
     List likes = widget.post['likes'];
-    isLiked = likes.contains(CurrentUser.email);
+    isLiked = likes.contains(CurrentUser.user.email);
     postTime = DateTime.fromMillisecondsSinceEpoch(
         widget.post['timestamp'].seconds * 1000);
     diff = (postTime.difference(DateTime.now())).toString().split(':');

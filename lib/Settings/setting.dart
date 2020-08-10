@@ -2,15 +2,8 @@ import 'package:chaloapp/Settings/contactus.dart';
 import 'package:chaloapp/Settings/help.dart';
 import 'package:chaloapp/Settings/terms_and_conditions.dart';
 import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/main.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
-
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:like_button/like_button.dart';
-import 'package:toast/toast.dart';
-
-import '../Animation/FadeAnimation.dart';
 
 class Setting extends StatefulWidget {
   @override
@@ -25,12 +18,6 @@ class _SettingState extends State<Setting> {
   bool isSwitched1 = false;
   bool isSwitched2 = false;
   bool isSwitched3 = false;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
+  String name;
   String fname;
   String lname;
   String email;
@@ -12,6 +13,8 @@ class User {
   String gender;
   String phone;
   String uid;
+  String photoUrl;
+  int age;
   List activities = [];
 
   void setActivities(item) => this.activities.add(item);
@@ -23,14 +26,13 @@ class User {
   void setGender(String gender) => this.gender = gender;
   void setBirthDate(String bdate) => this.birthDate = bdate;
   void setPhone(String phone) => this.phone = phone;
+  void setPhoto(String url) => this.photoUrl = url;
+  void setAge(int age) => this.age = age;
 }
 
-class CurrentUser {
-  static List _followers, _following, _followRequests, _requested;
-  static String _name,
-      _email,
-      profileUrl,
-      about,
+class CurrentUser extends User {
+  List _followers, _following, _followRequests, _requested, _posts;
+  String about,
       job,
       lang,
       country,
@@ -41,51 +43,54 @@ class CurrentUser {
       twitter,
       linkedin,
       website;
+  static CurrentUser user = CurrentUser();
   static StreamSubscription<DocumentSnapshot> _userInfo;
   static Future<void> initialize(
       String name, String email, String profilePic) async {
-    _name = name;
-    _email = email;
-    profileUrl = profilePic;
+    user.name = name;
+    user.email = email;
+    user.photoUrl = profilePic;
     _userInfo = Firestore.instance
         .collection('additional_info')
-        .document(_email)
+        .document(email)
         .snapshots()
         .listen((snapshot) {
       print('Initializing Data...');
-      _following = snapshot.data['following_id'];
-      _followers = snapshot.data['followers_id'];
-      _followRequests = snapshot.data['follow_requests'];
-      _requested = snapshot.data['follow_requested'];
-      about = snapshot.data['about'];
-      lang = snapshot.data['languages'];
-      job = snapshot.data['job'];
-      country = snapshot.data['country'];
-      state = snapshot.data['state'];
-      city = snapshot.data['city'];
-      facebook = snapshot.data['facebook_acc'];
-      insta = snapshot.data['instagram_acc'];
-      linkedin = snapshot.data['linkedin_acc'];
-      twitter = snapshot.data['twitter_acc'];
-      website = snapshot.data['website'];
+      user._following = snapshot.data['following_id'];
+      user._followers = snapshot.data['followers_id'];
+      user._followRequests = snapshot.data['follow_requests'];
+      user._posts = snapshot.data['posts'] ?? [];
+      user._requested = snapshot.data['follow_requested'];
+      user.about = snapshot.data['about'];
+      user.lang = snapshot.data['languages'];
+      user.job = snapshot.data['job'];
+      user.country = snapshot.data['country'];
+      user.state = snapshot.data['state'];
+      user.city = snapshot.data['city'];
+      user.facebook = snapshot.data['facebook_acc'];
+      user.insta = snapshot.data['instagram_acc'];
+      user.linkedin = snapshot.data['linkedin_acc'];
+      user.twitter = snapshot.data['twitter_acc'];
+      user.website = snapshot.data['website'];
     });
   }
 
   static void discard() {
     _userInfo.cancel();
-    _followers = _following = _followRequests = _requested = [];
+    user._followers = user._following = user._followRequests = user._requested = [];
   }
 
-  static List get followers => _followers;
-  static List get following => _following;
-  static List get followRequests => _followRequests;
-  static List get requested => _requested;
-  static String get email => _email;
-  static String get name => _name;
-  static void setFollowers(List temp) => _followers = temp;
-  static void setFollowing(List temp) => _following = temp;
-  static void setFollowRequests(List temp) => _followRequests = temp;
-  static void setRequested(List temp) => _requested = temp;
+  static List get followers => user._followers;
+  static List get following => user._following;
+  static List get followRequests => user._followRequests;
+  static List get requested => user._requested;
+  static List get posts => user._posts;
+  static String get userEmail => user.email;
+  static String get username => user.name;
+  static void setFollowers(List temp) => user._followers = temp;
+  static void setFollowing(List temp) => user._following = temp;
+  static void setFollowRequests(List temp) => user._followRequests = temp;
+  static void setRequested(List temp) => user._requested = temp;
 }
 
 class UserData {
@@ -98,7 +103,8 @@ class UserData {
     prefs.setString('dob', userData['email']);
     prefs.setString('profile_pic', userData['profile_pic']);
     prefs.setBool('verified', userData['verified']);
-    CurrentUser.initialize(userData['name'],userData['email'], userData['profile_pic']);
+    CurrentUser.initialize(
+        userData['name'], userData['email'], userData['profile_pic']);
   }
 
   Future deleteData() async {

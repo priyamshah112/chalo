@@ -11,7 +11,7 @@ import 'Hashing.dart';
 
 class DataService {
   static final database = Firestore.instance;
-  Future createUser(User user) async {
+  Future createUser(User user, String type) async {
     await database.collection('users').document(user.email).setData({
       'name': user.fname + ' ' + user.lname,
       'first_name': user.fname,
@@ -27,6 +27,7 @@ class DataService {
       'profile_pic': null,
       'followers': 0,
       'following': 0,
+      'type': type,
       'activities_completed': 0
     });
     await database.collection('user_plans').document(user.email).setData({
@@ -50,6 +51,7 @@ class DataService {
       'followers_id': [],
       'follow_requests': [],
       'follow_requested': [],
+      'posts': [],
       'facebook_acc': "",
       'instagram_acc': "",
       'linkedin_acc': "",
@@ -378,7 +380,7 @@ class DataService {
 
   Future leaveActivity(DocumentSnapshot planDoc, {bool delete = false}) async {
     final batch = database.batch();
-    final current = CurrentUser.email;
+    final current = CurrentUser.user.email;
     final planId = planDoc['plan_id'];
     final groupchatRef = database.collection('group_chat').document(planId);
     if (delete) {
@@ -462,7 +464,7 @@ class DataService {
   }
 
   Future uploadPost(Post post) async {
-    final email = CurrentUser.email;
+    final email = CurrentUser.user.email;
     final postName = DateFormat('yyyyMMdd_HHmmss').format(post.timestamp);
     final imageUrl =
         await StorageService.uploadPostPic(email, postName, post.image);
@@ -489,8 +491,8 @@ class DataService {
     await database.runTransaction((transaction) async {
       await transaction.update(ref, {
         'likes': like
-            ? FieldValue.arrayUnion([CurrentUser.email])
-            : FieldValue.arrayRemove([CurrentUser.email])
+            ? FieldValue.arrayUnion([CurrentUser.user.email])
+            : FieldValue.arrayRemove([CurrentUser.user.email])
       });
     });
   }

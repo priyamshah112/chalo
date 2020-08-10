@@ -1,3 +1,4 @@
+import 'package:chaloapp/authentication/phone_verification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -21,13 +22,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void initState() {
     super.initState();
     myImage = 'images/bgcover.jpg';
-  }
-
-  @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-//    precacheImage(myImage.image, context);
   }
 
   Future<bool> _onWillPop() {

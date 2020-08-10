@@ -59,17 +59,17 @@ class _EditProfileState extends State<EditProfile> {
     super.initState();
     _gender = widget.gender;
     _name = widget.name;
-    _about = CurrentUser.about;
-    _lang = CurrentUser.lang;
-    _job = CurrentUser.job;
-    _country = CurrentUser.country;
-    _state = CurrentUser.state;
-    _city = CurrentUser.city;
-    _fb = CurrentUser.facebook;
-    _insta = CurrentUser.insta;
-    _linkedin = CurrentUser.linkedin;
-    _twitter = CurrentUser.twitter;
-    _web = CurrentUser.website;
+    _about = CurrentUser.user.about;
+    _lang = CurrentUser.user.lang;
+    _job = CurrentUser.user.job;
+    _country = CurrentUser.user.country;
+    _state = CurrentUser.user.state;
+    _city = CurrentUser.user.city;
+    _fb = CurrentUser.user.facebook;
+    _insta = CurrentUser.user.insta;
+    _linkedin = CurrentUser.user.linkedin;
+    _twitter = CurrentUser.user.twitter;
+    _web = CurrentUser.user.website;
   }
 
   @override

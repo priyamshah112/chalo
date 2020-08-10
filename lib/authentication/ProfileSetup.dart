@@ -38,9 +38,9 @@ class _ProfileSetupState extends State<ProfileSetup> {
   Widget build(BuildContext context) {
     Future getImage() async {
       try {
-        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+        PickedFile image = await ImagePicker().getImage(source: ImageSource.gallery);
         setState(() {
-          _image = image;
+          _image = File(image.path);
           print("Image Path $_image");
         });
       } catch (e) {

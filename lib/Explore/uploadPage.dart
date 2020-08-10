@@ -73,8 +73,8 @@ class _UploadPageState extends State<UploadPage> {
                       child: Center(child: CircularProgressIndicator())));
               setState(() => _uploading = true);
               Post post = Post(
-                  email: CurrentUser.email,
-                  username: CurrentUser.name,
+                  email: CurrentUser.user.email,
+                  username: CurrentUser.user.name,
                   activityType: _activity,
                   caption: _caption ?? '',
                   image: file,

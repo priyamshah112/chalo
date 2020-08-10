@@ -35,7 +35,7 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
                 color: Colors.white,
                 child: Center(child: CircularProgressIndicator()));
           final DocumentSnapshot planDoc = snapshot.data.documents[0];
-          final String email = CurrentUser.email;
+          final String email = CurrentUser.user.email;
           final start = DateTime.fromMillisecondsSinceEpoch(
               planDoc['activity_start'].seconds * 1000);
           final end = DateTime.fromMillisecondsSinceEpoch(

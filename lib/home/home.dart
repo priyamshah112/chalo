@@ -375,7 +375,7 @@ class MapActivityCard extends StatelessWidget {
                         Navigator.pop(context);
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) =>
-                                doc.data['admin_id'] == CurrentUser.email
+                                doc.data['admin_id'] == CurrentUser.user.email
                                     ? BroadcastActivityDetails(planRef: planRef)
                                     : ActivityDetails(planRef: planRef)));
                       },
@@ -518,7 +518,7 @@ class _UserSearchBarState extends State<UserSearchBar> {
                                 return Card(
                                   child: ListTile(
                                     onTap: () => user['email'] ==
-                                            CurrentUser.email
+                                            CurrentUser.user.email
                                         ? Navigator.of(context).push(
                                             MaterialPageRoute(
                                                 builder: ((_) =>
@@ -593,7 +593,7 @@ class _UserSearchBarState extends State<UserSearchBar> {
                         padding: const EdgeInsets.only(left: 5),
                         child: CircleAvatar(
                           child: ClipOval(
-                            child: CurrentUser.profileUrl == null
+                            child: CurrentUser.user.photoUrl == null
                                 ? Image.asset(
                                     'images/bgcover.jpg',
                                     height: 50,
@@ -601,7 +601,7 @@ class _UserSearchBarState extends State<UserSearchBar> {
                                     fit: BoxFit.cover,
                                   )
                                 : Image.network(
-                                    CurrentUser.profileUrl,
+                                    CurrentUser.user.photoUrl,
                                     height: 50,
                                     width: 50,
                                     fit: BoxFit.cover,

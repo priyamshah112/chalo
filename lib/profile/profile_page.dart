@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:chaloapp/Explore/explore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,7 +9,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../Animation/FadeAnimation.dart';
 import '../Settings/setting.dart';
 import '../data/User.dart';
-import '../Explore/post_details.dart';
 import '../services/DatabaseService.dart';
 import '../common/global_colors.dart';
 import 'followers.dart';
@@ -121,7 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         builder: (BuildContext context) => EditProfile(
                             name: _name,
                             gender: _gender,
-                            profilePic: CurrentUser.profileUrl)));
+                            profilePic: CurrentUser.user.photoUrl)));
                 if (updated) {
                   _scaffoldKey.currentState.showSnackBar(SnackBar(
                       content: Text(
@@ -207,9 +208,9 @@ class _ProfilePageState extends State<ProfilePage> {
                             email: _email,
                             username: _name,
                             gender: _gender,
-                            job: CurrentUser.job,
-                            lang: CurrentUser.lang,
-                            profilePic: CurrentUser.profileUrl,
+                            job: CurrentUser.user.job,
+                            lang: CurrentUser.user.lang,
+                            profilePic: CurrentUser.user.photoUrl,
                             follower: CurrentUser.followers.length,
                             following: CurrentUser.following.length,
                           ),
@@ -627,7 +628,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         margin: const EdgeInsets.only(
                                             top: 10.0, bottom: 5.0),
                                         child: Text(
-                                          CurrentUser.about ?? 'Add about',
+                                          CurrentUser.user.about ?? 'Add about',
                                           style: TextStyle(
                                             fontSize: 13,
                                             fontFamily: bodyText,
@@ -638,14 +639,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                       Divider(
                                         thickness: 1,
                                       ),
-                                      if (CurrentUser.job != null)
+                                      if (CurrentUser.user.job != null)
                                         InfoDetail(
                                             title: 'Job Title',
-                                            text: CurrentUser.job),
-                                      if (CurrentUser.lang != null)
+                                            text: CurrentUser.user.job),
+                                      if (CurrentUser.user.lang != null)
                                         InfoDetail(
                                             title: 'Language',
-                                            text: CurrentUser.lang),
+                                            text: CurrentUser.user.lang),
                                       InfoDetail(title: 'Email', text: _email),
                                       InfoDetail(
                                           title: 'Contact', text: _phone),
@@ -665,7 +666,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ),
                                       GestureDetector(
                                         onTap: () {
-                                          print(CurrentUser.linkedin);
+                                          print(CurrentUser.user.linkedin);
                                         },
                                         child: Text(
                                           "Social Information",
@@ -680,72 +681,100 @@ class _ProfilePageState extends State<ProfilePage> {
                                       SizedBox(height: 5),
                                       InfoDetail(
                                           title: 'Facebook',
-                                          text: CurrentUser.facebook),
+                                          text: CurrentUser.user.facebook),
                                       InfoDetail(
                                           title: 'Instagram',
-                                          text: CurrentUser.insta),
+                                          text: CurrentUser.user.insta),
                                       InfoDetail(
                                           title: 'LinkedIn',
-                                          text: CurrentUser.linkedin),
+                                          text: CurrentUser.user.linkedin),
                                       InfoDetail(
                                           title: 'Twitter',
-                                          text: CurrentUser.twitter),
+                                          text: CurrentUser.user.twitter),
                                       InfoDetail(
                                           title: 'Website/Blog',
-                                          text: CurrentUser.website),
+                                          text: CurrentUser.user.website),
                                     ],
                                   ),
                                 ),
                               ),
                             ),
                             //Post Tab
-                            ListView(
-                              children: <Widget>[
-                                Container(
-                                  child: Wrap(
-                                    children: <Widget>[
-                                      for (int i = 0; i < postList.length; i++)
+                            SingleChildScrollView(
+                              child: Wrap(
+                                children: CurrentUser.posts.length == 0
+                                    ? [
                                         Container(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              3,
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              3,
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: AssetImage(postList[i][0]),
-                                              fit: BoxFit.cover,
+                                          margin:
+                                              const EdgeInsets.only(top: 50),
+                                          padding: const EdgeInsets.all(20),
+                                          alignment: Alignment.center,
+                                          child: FittedBox(
+                                            child: Text(
+                                              "You haven't posted anything",
+                                              style: TextStyle(fontSize: 18),
                                             ),
                                           ),
-                                          child: InkWell(
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder:
-                                                      (BuildContext context) =>
-                                                          PostItem(
-                                                    dp: 'images/bgcover.jpg',
-                                                    name: _name,
-                                                    img: postList[i][0],
-                                                    activityName: postList[i]
-                                                        [1],
-                                                    caption: postList[i][2],
-                                                    time: postList[i][3],
+                                        )
+                                      ]
+                                    : CurrentUser.posts
+                                        .map(
+                                          (post) => FutureBuilder(
+                                              future: Firestore.instance
+                                                  .collection('posts')
+                                                  .document(post)
+                                                  .get(),
+                                              builder: (context,
+                                                  AsyncSnapshot<
+                                                          DocumentSnapshot>
+                                                      snapshot) {
+                                                return Container(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      3,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      3,
+                                                  decoration: BoxDecoration(
+                                                      image: snapshot.hasData
+                                                          ? DecorationImage(
+                                                              image: NetworkImage(
+                                                                  snapshot.data
+                                                                          .data[
+                                                                      'image_url']),
+                                                              fit: BoxFit.cover,
+                                                            )
+                                                          : null,
+                                                      color: !snapshot.hasData
+                                                          ? Colors.grey
+                                                          : null),
+                                                  child: InkWell(
+                                                    onTap: () => Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (BuildContext
+                                                                context) =>
+                                                            Scaffold(
+                                                          body: SafeArea(
+                                                            child: Center(
+                                                              child: PostCard(
+                                                                post: snapshot
+                                                                    .data.data,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                                                );
+                                              }),
+                                        )
+                                        .toList(),
+                              ),
+                            )
                           ],
                         ),
                       ),

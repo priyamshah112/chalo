@@ -29,10 +29,10 @@ class _ActivityDetailsState extends State<ActivityDetails> {
       final snapshot = await widget.planRef.get();
       if (snapshot.data == null) return {'doc': null};
       setState(() => requestSent =
-          snapshot.data['pending_participant_id'].contains(CurrentUser.email)
+          snapshot.data['pending_participant_id'].contains(CurrentUser.user.email)
               ? true
               : false);
-      return {'doc': snapshot, 'email': CurrentUser.email};
+      return {'doc': snapshot, 'email': CurrentUser.user.email};
     } catch (e) {
       print(e.toString());
       return null;
