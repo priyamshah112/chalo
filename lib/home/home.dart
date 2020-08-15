@@ -169,7 +169,7 @@ class _MainMapState extends State<MainMap> {
                     );
                   }),
             ),
-            UserSearchBar()
+            UserSearchBar(forHome: true),
           ],
         ),
       ),
@@ -398,6 +398,8 @@ class MapActivityCard extends StatelessWidget {
 }
 
 class UserSearchBar extends StatefulWidget {
+  UserSearchBar({this.forHome = false});
+  final bool forHome;
   @override
   _UserSearchBarState createState() => _UserSearchBarState();
 }
@@ -446,6 +448,7 @@ class _UserSearchBarState extends State<UserSearchBar> {
   @override
   void initState() {
     super.initState();
+    if (!widget.forHome) _isSearch = true;
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -469,16 +472,18 @@ class _UserSearchBarState extends State<UserSearchBar> {
           Scaffold(
             appBar: AppBar(
               backgroundColor: Color(primary),
+              leading: Icon(Icons.search),
               title: TextField(
                 controller: _searchController,
                 focusNode: _searchFocus,
                 cursorColor: Colors.white,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                    hintText: "Search Users",
-                    hintStyle: TextStyle(color: Colors.white),
-                    contentPadding: EdgeInsets.only(left: 10.0),
-                    border: InputBorder.none),
+                  hintText: "Search Users",
+                  hintStyle: TextStyle(color: Colors.white),
+                  contentPadding: EdgeInsets.only(left: 10.0),
+                  border: InputBorder.none,
+                ),
               ),
               actions: <Widget>[
                 IconButton(
@@ -486,7 +491,10 @@ class _UserSearchBarState extends State<UserSearchBar> {
                   onPressed: () {
                     _searchController.clear();
                     FocusScope.of(context).unfocus();
-                    setState(() => _isSearch = false);
+                    if (!widget.forHome)
+                      Navigator.of(context).pop();
+                    else
+                      setState(() => _isSearch = false);
                   },
                 )
               ],

@@ -5,16 +5,15 @@ import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 
 import 'ProfileSetup.dart';
 import 'login.dart';
 
 class PhoneVerification extends StatefulWidget {
-  final AuthCredential creds;
-  final String email, password;
-  const PhoneVerification(
-      {Key key, @required this.email, this.creds, this.password})
-      : super(key: key);
+  final String email, photoUrl;
+  const PhoneVerification({@required this.email, this.photoUrl})
+      : assert(email != null);
   @override
   _PhoneVerificationState createState() => _PhoneVerificationState();
 }
@@ -22,17 +21,19 @@ class PhoneVerification extends StatefulWidget {
 class _PhoneVerificationState extends State<PhoneVerification> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final auth = AuthService();
   bool _autovalidate = false;
   bool _codeSent = false;
+  bool _sendingOTP = false;
   String _verificaionId;
   String _phone;
   String _smsCode;
   int _resendToken;
 
   Future<bool> onBack() async {
-    final user = await FirebaseAuth.instance.currentUser();
-    if (user != null) await AuthService().signOut();
-    await Navigator.pushReplacement(
+    final user = await auth.currentUser;
+    if (user != null) await auth.signOut(flushData: false);
+    Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => HomePage()));
     return false;
   }
@@ -115,6 +116,9 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                                     },
                                     onSaved: (value) => _phone = value,
                                     keyboardType: TextInputType.phone,
+                                    inputFormatters: [
+                                      WhitelistingTextInputFormatter.digitsOnly
+                                    ],
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
                                       hintText: "Phone Number",
@@ -143,8 +147,10 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                                             validator: (value) {
                                               if (value.isEmpty && _codeSent)
                                                 return "Please Enter OTP";
-                                              else
-                                                return null;
+                                              if (value.length != 6 &&
+                                                  _codeSent)
+                                                return "Must be 6 Digits";
+                                              return null;
                                             },
                                             onSaved: (value) =>
                                                 _smsCode = value,
@@ -199,74 +205,91 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                         SizedBox(
                           height: 20,
                         ),
-                        FadeAnimation(
-                            1.9,
-                            Container(
-                              height: 50,
-                              margin: EdgeInsets.symmetric(horizontal: 10),
-                              child: FlatButton(
-                                color: Color(secondary),
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 60.0, vertical: 10.0),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(50.0)),
-                                onPressed: () async {
-                                  if (_formKey.currentState.validate()) {
-                                    _formKey.currentState.save();
-                                    FocusScope.of(context).unfocus();
-                                    showDialog(
-                                        builder: (ctx) => Center(
-                                            child: CircularProgressIndicator()),
-                                        context: context);
-                                    bool result =
-                                        await DataService().verifyPhone(_phone);
-                                    if (result) {
-                                      _codeSent
-                                          ? await signInwithOTP(_verificaionId,
-                                              _smsCode, _phone, widget.email)
-                                          : await sendOTP(widget.email, _phone);
-                                    } else {
-                                      Navigator.of(context, rootNavigator: true)
-                                          .pop();
-                                      showDialog(
-                                          context: context,
-                                          builder: (ctx) => DialogBox(
-                                              title: "Error :(",
-                                              description:
-                                                  "This Phone number is already registered and verified \nTry again with another phone number ",
-                                              buttonText1: "OK",
-                                              button1Func: () => Navigator.of(
-                                                      context,
-                                                      rootNavigator: true)
-                                                  .pop()));
-                                    }
-                                  } else
-                                    setState(() => _autovalidate = true);
-                                },
-                                child: Text(
-                                  _codeSent ? "Verify" : "Send OTP",
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                        _sendingOTP
+                            ? CircularProgressIndicator()
+                            : Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  FadeAnimation(
+                                      1.9,
+                                      Container(
+                                        height: 50,
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        child: FlatButton(
+                                          color: Color(secondary),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 60.0, vertical: 10.0),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(50.0)),
+                                          onPressed: () async {
+                                            if (_formKey.currentState
+                                                .validate()) {
+                                              _formKey.currentState.save();
+                                              FocusScope.of(context).unfocus();
+                                              if (!_codeSent)
+                                                setState(
+                                                    () => _sendingOTP = true);
+                                              bool result = await DataService()
+                                                  .verifyPhone(_phone);
+                                              if (result) {
+                                                _codeSent
+                                                    ? await signInwithOTP(
+                                                        _verificaionId,
+                                                        _smsCode,
+                                                        _phone,
+                                                        widget.email)
+                                                    : await sendOTP(
+                                                        widget.email, _phone);
+                                              } else {
+                                                setState(
+                                                    () => _sendingOTP = false);
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (ctx) => DialogBox(
+                                                        title: "Error :(",
+                                                        description:
+                                                            "This Phone number is already registered and verified \nTry again with another phone number ",
+                                                        buttonText1: "OK",
+                                                        button1Func: () =>
+                                                            Navigator.of(
+                                                                    context,
+                                                                    rootNavigator:
+                                                                        true)
+                                                                .pop()));
+                                              }
+                                            } else
+                                              setState(
+                                                  () => _autovalidate = true);
+                                          },
+                                          child: Text(
+                                            _codeSent ? "Verify" : "Send OTP",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      )),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  FadeAnimation(
+                                    2,
+                                    Center(
+                                      child: GestureDetector(
+                                        onTap: () => onBack(),
+                                        child: Text(
+                                          "Back",
+                                          style: TextStyle(
+                                              color: Color(secondary),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            )),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        FadeAnimation(
-                          2,
-                          Center(
-                            child: GestureDetector(
-                              onTap: () => onBack(),
-                              child: Text(
-                                "Back",
-                                style: TextStyle(
-                                    color: Color(secondary),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18),
-                              ),
-                            ),
-                          ),
-                        ),
                         SizedBox(
                           height: 30,
                         ),
@@ -288,56 +311,58 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                         ),
                         FadeAnimation(
                           2.2,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              FlatButton(
-                                padding: EdgeInsets.all(0),
-                                textColor: Color(primary),
-                                child: Text(
-                                  'Terms and Conditions ',
+                          FittedBox(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                FlatButton(
+                                  padding: EdgeInsets.all(0),
+                                  textColor: Color(primary),
+                                  child: Text(
+                                    'Terms and Conditions ',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              HomePage()),
+                                    );
+                                  },
+                                ),
+                                Text(
+                                  "and",
                                   style: TextStyle(
+                                    color: Color(text3),
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            HomePage()),
-                                  );
-                                },
-                              ),
-                              Text(
-                                "and",
-                                style: TextStyle(
-                                  color: Color(text3),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              FlatButton(
-                                padding: EdgeInsets.all(0),
-                                textColor: Color(primary),
-                                child: Text(
-                                  ' Privacy Policy',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                                FlatButton(
+                                  padding: EdgeInsets.all(0),
+                                  textColor: Color(primary),
+                                  child: Text(
+                                    ' Privacy Policy',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
+                                  onPressed: () {
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute(
+                                    //       builder: (BuildContext context) =>
+                                    //           HomePage()),
+                                    // );
+                                  },
                                 ),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            HomePage()),
-                                  );
-                                },
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -354,20 +379,23 @@ class _PhoneVerificationState extends State<PhoneVerification> {
 
   Future<void> sendOTP(String email, String phone, [int resendToken]) async {
     FirebaseAuth auth = FirebaseAuth.instance;
+    AuthService authService = AuthService();
     phone = "+91" + phone;
     await auth.verifyPhoneNumber(
         phoneNumber: phone,
         forceResendingToken: resendToken,
-        timeout: Duration(seconds: 60),
+        timeout: Duration(seconds: 0),
         verificationCompleted: (AuthCredential creds) async {
-          FirebaseUser user = await AuthService().credsSignIn(creds);
+          FirebaseUser user = await authService.credsSignIn(creds);
           DataService().verifyUser(email, phone);
-          AuthService().deleteUser(user);
+          authService.deleteUser(user);
+          setState(() => _sendingOTP = false);
           if (isLoading) Navigator.of(context, rootNavigator: true).pop();
-          showSuccess(context, email, widget.password, widget.creds);
+          showSuccess(context);
         },
         verificationFailed: (AuthException e) {
           print(e.code + "\n" + e.message);
+          setState(() => _sendingOTP = false);
           if (isLoading) Navigator.of(context, rootNavigator: true).pop();
           showFail(context);
         },
@@ -377,8 +405,8 @@ class _PhoneVerificationState extends State<PhoneVerification> {
             _verificaionId = verID;
             _resendToken = forceResend;
             _codeSent = true;
+            _sendingOTP = false;
           });
-          Navigator.of(context, rootNavigator: true).pop();
           _scaffoldKey.currentState.showSnackBar(new SnackBar(
             content: Text('Verification Code Sent'),
             duration: Duration(seconds: 2),
@@ -395,12 +423,13 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     isLoading = true;
     AuthCredential creds = PhoneAuthProvider.getCredential(
         verificationId: verID, smsCode: smsCode);
+    AuthService authService = AuthService();
     try {
-      FirebaseUser user = await AuthService().credsSignIn(creds);
+      FirebaseUser user = await authService.credsSignIn(creds);
       DataService().verifyUser(email, phone);
-      AuthService().deleteUser(user);
+      authService.deleteUser(user);
       Navigator.of(context, rootNavigator: true).pop();
-      showSuccess(context, email, widget.password, widget.creds);
+      showSuccess(context);
     } catch (e) {
       print(e.toString());
       Navigator.of(context, rootNavigator: true).pop();
@@ -408,36 +437,37 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     }
   }
 
-  void showSuccess(BuildContext context, String email, String password,
-      AuthCredential creds) async {
+  void showSuccess(BuildContext ctx) async {
+    isLoading = false;
     showDialog(
-        builder: (ctx) => DialogBox(
-            title: "Verification",
-            description: "Phone Verification Successful",
-            icon: Icons.check,
-            iconColor: Colors.teal,
-            buttonText1: "",
-            button1Func: () {}),
-        context: context);
+      context: ctx,
+      builder: (ctx) => DialogBox(
+          title: "Verification",
+          description: "Phone Verification Successful",
+          icon: Icons.check,
+          iconColor: Colors.teal,
+          buttonText1: "",
+          button1Func: () {}),
+    );
     await Future.delayed(Duration(seconds: 2));
-    Navigator.of(context, rootNavigator: true).pop();
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (contex) =>
-                ProfileSetup(email: email, password: password, creds: creds)));
+    Navigator.of(ctx, rootNavigator: true).pop();
+    Navigator.of(ctx).pushReplacement(
+        MaterialPageRoute(builder: (_) => ProfileSetup(widget.email)));
   }
 
-  void showFail(BuildContext context) {
+  void showFail(BuildContext ctx) {
+    isLoading = false;
     showDialog(
-        builder: (ctx) => DialogBox(
-            title: "Verification",
-            description: "Phone Verification Failed",
-            icon: Icons.clear,
-            iconColor: Colors.red,
-            buttonText1: "OK",
-            button1Func: () =>
-                Navigator.of(context, rootNavigator: true).pop()),
-        context: context);
+      context: ctx,
+      builder: (ctx) => DialogBox(
+          title: "Verification",
+          description: "Phone Verification Failed",
+          icon: Icons.clear,
+          iconColor: Colors.red,
+          buttonText1: "OK",
+          button1Func: () {
+            Navigator.of(ctx, rootNavigator: true).pop();
+          }),
+    );
   }
 }

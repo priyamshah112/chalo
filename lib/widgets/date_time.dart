@@ -7,11 +7,11 @@ class DateTimePicker {
   TimeOfDay _pickedTime;
 
   Future<DateTime> presentDatePicker(
-      BuildContext ctx, DateTime first, DateTime last) async {
+      BuildContext ctx, DateTime initial, DateTime first, DateTime last) async {
     _pickedDate = await showDatePicker(
       context: ctx,
       firstDate: first,
-      initialDate: _pickedDate ?? DateTime.now(),
+      initialDate: initial ?? last ?? DateTime.now(),
       lastDate: last,
       builder: (BuildContext context, Widget child) {
         return Theme(

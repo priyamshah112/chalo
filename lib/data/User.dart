@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,7 +26,6 @@ class User {
   void setBirthDate(String bdate) => this.birthDate = bdate;
   void setPhone(String phone) => this.phone = phone;
   void setPhoto(String url) => this.photoUrl = url;
-  void setAge(int age) => this.age = age;
 }
 
 class CurrentUser extends User {
@@ -45,17 +43,21 @@ class CurrentUser extends User {
       website;
   static CurrentUser user = CurrentUser();
   static StreamSubscription<DocumentSnapshot> _userInfo;
-  static Future<void> initialize(
-      String name, String email, String profilePic) async {
-    user.name = name;
-    user.email = email;
-    user.photoUrl = profilePic;
+  static Future<void> initialize(SharedPreferences prefs) async {
+    user.name = prefs.getString('name');
+    user.email = prefs.getString('email');
+    user.photoUrl = prefs.getString('profile_pic');
+    user.gender = prefs.getString('gender');
+    user.birthDate = prefs.getString('dob');
+    user._followers = user._following = user._followRequests = [];
+    user.age = DateTime.now().year - int.parse(user.birthDate.split("/").last);
+    print('set basic data');
     _userInfo = Firestore.instance
         .collection('additional_info')
-        .document(email)
+        .document(user.email)
         .snapshots()
         .listen((snapshot) {
-      print('Initializing Data...');
+      print('Initializing Additional Info...');
       user._following = snapshot.data['following_id'];
       user._followers = snapshot.data['followers_id'];
       user._followRequests = snapshot.data['follow_requests'];
@@ -77,7 +79,8 @@ class CurrentUser extends User {
 
   static void discard() {
     _userInfo.cancel();
-    user._followers = user._following = user._followRequests = user._requested = [];
+    user._followers =
+        user._following = user._followRequests = user._requested = [];
   }
 
   static List get followers => user._followers;
@@ -100,11 +103,11 @@ class UserData {
     prefs.setString('email', userData['email']);
     prefs.setString('phone', userData['mobile_no']);
     prefs.setString('gender', userData['gender']);
-    prefs.setString('dob', userData['email']);
+    prefs.setString('dob', userData['dob']);
     prefs.setString('profile_pic', userData['profile_pic']);
     prefs.setBool('verified', userData['verified']);
-    CurrentUser.initialize(
-        userData['name'], userData['email'], userData['profile_pic']);
+    prefs.setBool('profile_setup', userData['profile_setup']);
+    CurrentUser.initialize(prefs);
   }
 
   Future deleteData() async {
@@ -122,6 +125,11 @@ class UserData {
   static Future checkVerified() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool('verified');
+  }
+
+  static Future checkProfileSetup() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('profile_setup');
   }
 
   static Future<Map> getUser() async {

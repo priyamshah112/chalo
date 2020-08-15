@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:chaloapp/common/cropper.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -26,7 +29,6 @@ class _SignUpState extends State<SignUp> {
   final emailController = TextEditingController();
   User user;
   DateTime picked;
-  bool _showPasswordField = true;
   bool _autovalidate = false;
   bool _viewPassword = false;
 
@@ -256,16 +258,22 @@ class _SignUpState extends State<SignUp> {
                                       horizontal: 1.0, vertical: 10.0),
                                   child: DateTimeField(
                                     format: DateFormat('d/MM/y'),
-                                    onShowPicker: (context, _) =>
+                                    onShowPicker: (context, initial) =>
                                         DateTimePicker().presentDatePicker(
                                             context,
+                                            initial,
                                             DateTime(1900),
-                                            DateTime.now()),
+                                            DateTime(
+                                                DateTime.now().year - 10,
+                                                DateTime.now().month,
+                                                DateTime.now().day)),
                                     validator: (value) {
                                       DateTime now = DateTime.now();
                                       if (value == null)
                                         return "Select Date of Birth";
-                                      else if (value.day == now.day && value.month == now.month && value.year == now.year){
+                                      else if (value.day == now.day &&
+                                          value.month == now.month &&
+                                          value.year == now.year) {
                                         print(value.toString());
                                         return "Select Valid Date of Birth";
                                       }
@@ -330,87 +338,81 @@ class _SignUpState extends State<SignUp> {
                                     ),
                                   ),
                                 ),
-                                Visibility(
-                                  visible: _showPasswordField,
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 1.0, vertical: 10.0),
-                                    child: TextFormField(
-                                      validator: (value) {
-                                        if (value.trim().length < 6)
-                                          return "Minimum 6 characters";
-                                        password = value.trim();
-                                        return null;
-                                      },
-                                      obscureText: !_viewPassword,
-                                      keyboardType: TextInputType.text,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Color(form1),
-                                        contentPadding: const EdgeInsets.only(
-                                            left: 30.0,
-                                            bottom: 18.0,
-                                            top: 18.0,
-                                            right: 30.0),
-                                        border: InputBorder.none,
-                                        prefixIcon: Icon(
-                                          Icons.lock,
-                                          color: Color(primary),
-                                        ),
-                                        suffixIcon: GestureDetector(
-                                            onTap: () => setState(() =>
-                                                _viewPassword = !_viewPassword),
-                                            child: Icon(
-                                              !_viewPassword
-                                                  ? Icons.visibility
-                                                  : Icons.visibility_off,
-                                              color: Color(primary),
-                                            )),
-                                        hintText: "Password",
-                                        hintStyle: TextStyle(
-                                          color: Color(formHint),
-                                        ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 1.0, vertical: 10.0),
+                                  child: TextFormField(
+                                    validator: (value) {
+                                      if (value.trim().length < 6)
+                                        return "Minimum 6 characters";
+                                      password = value.trim();
+                                      return null;
+                                    },
+                                    obscureText: !_viewPassword,
+                                    keyboardType: TextInputType.text,
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Color(form1),
+                                      contentPadding: const EdgeInsets.only(
+                                          left: 30.0,
+                                          bottom: 18.0,
+                                          top: 18.0,
+                                          right: 30.0),
+                                      border: InputBorder.none,
+                                      prefixIcon: Icon(
+                                        Icons.lock,
+                                        color: Color(primary),
+                                      ),
+                                      suffixIcon: GestureDetector(
+                                          onTap: () => setState(() =>
+                                              _viewPassword = !_viewPassword),
+                                          child: Icon(
+                                            !_viewPassword
+                                                ? Icons.visibility
+                                                : Icons.visibility_off,
+                                            color: Color(primary),
+                                          )),
+                                      hintText: "Password",
+                                      hintStyle: TextStyle(
+                                        color: Color(formHint),
                                       ),
                                     ),
                                   ),
                                 ),
-                                Visibility(
-                                  visible: _showPasswordField,
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 1.0, vertical: 10.0),
-                                    child: TextFormField(
-                                      validator: (value) {
-                                        if (value.trim() != password)
-                                          return "Passwords need to match";
-                                        return null;
-                                      },
-                                      onChanged: (value) => setState(
-                                          () => confirmPassword = value.trim()),
-                                      onSaved: (value) =>
-                                          user.setPassword(password),
-                                      obscureText: true,
-                                      keyboardType: TextInputType.text,
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: "Confirm Password",
-                                        prefixIcon: Icon(
-                                          confirmPassword == password &&
-                                                  password != null
-                                              ? Icons.check_circle
-                                              : Icons.lock,
-                                          color: Color(primary),
-                                        ),
-                                        contentPadding: const EdgeInsets.only(
-                                            left: 30.0,
-                                            bottom: 18.0,
-                                            top: 18.0,
-                                            right: 30.0),
-                                        filled: true,
-                                        fillColor: Color(form1),
-                                        hintStyle: TextStyle(
-                                          color: Color(formHint),
-                                        ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 1.0, vertical: 10.0),
+                                  child: TextFormField(
+                                    validator: (value) {
+                                      if (value.trim() != password)
+                                        return "Passwords need to match";
+                                      return null;
+                                    },
+                                    onChanged: (value) => setState(
+                                        () => confirmPassword = value.trim()),
+                                    onSaved: (value) =>
+                                        user.setPassword(password),
+                                    obscureText: true,
+                                    keyboardType: TextInputType.text,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Confirm Password",
+                                      prefixIcon: Icon(
+                                        confirmPassword == password &&
+                                                password != null
+                                            ? Icons.check_circle
+                                            : Icons.lock,
+                                        color: Color(primary),
+                                      ),
+                                      contentPadding: const EdgeInsets.only(
+                                          left: 30.0,
+                                          bottom: 18.0,
+                                          top: 18.0,
+                                          right: 30.0),
+                                      filled: true,
+                                      fillColor: Color(form1),
+                                      hintStyle: TextStyle(
+                                        color: Color(formHint),
                                       ),
                                     ),
                                   ),
@@ -557,7 +559,6 @@ class _SignUpState extends State<SignUp> {
         lnameController.text = result['lname'].substring(0, 1).toUpperCase() +
             result['lname'].substring(1);
         user.photoUrl = result['photo'];
-        _showPasswordField = false;
       });
     } else {
       Navigator.of(context, rootNavigator: true).pop();
@@ -581,7 +582,7 @@ class _SignUpState extends State<SignUp> {
         .createUser(user.email, user.password, (user.fname + " " + user.lname));
     if (result['success']) {
       user.setUid(result['uid']);
-      await DataService().createUser(user, 'email');
+      await DataService().createUser(user);
       Navigator.of(context, rootNavigator: true).pop();
       showDialog(
           context: context,
@@ -596,7 +597,7 @@ class _SignUpState extends State<SignUp> {
                   MaterialPageRoute(
                       builder: (BuildContext context) => PhoneVerification(
                             email: user.email,
-                            password: user.password,
+                            photoUrl: user.photoUrl
                           )),
                 );
               }));

@@ -1,9 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:chaloapp/Explore/uploadPage.dart';
+import 'package:chaloapp/common/add_location.dart';
+import 'package:chaloapp/common/cropper.dart';
+import 'package:chaloapp/data/User.dart';
+import 'package:chaloapp/profile/edit_profile_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import '../home/home.dart';
 import '../services/AuthService.dart';
@@ -13,9 +20,8 @@ import '../common/global_colors.dart';
 import '../common/activitylist.dart';
 
 class ProfileSetup extends StatefulWidget {
-  final String email, password;
-  final AuthCredential creds;
-  ProfileSetup({this.email, this.password, this.creds});
+  final String email;
+  ProfileSetup(this.email);
   @override
   _ProfileSetupState createState() => _ProfileSetupState();
 }
@@ -24,6 +30,7 @@ List<List<String>> selectedActivityList;
 List<List<String>> activityList;
 
 class _ProfileSetupState extends State<ProfileSetup> {
+  final auth = AuthService();
   @override
   void initState() {
     super.initState();
@@ -33,21 +40,13 @@ class _ProfileSetupState extends State<ProfileSetup> {
   }
 
   File _image;
-
+  String _photo, address;
+  bool addressSelected = true;
+  Position position;
+  final addressController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    Future getImage() async {
-      try {
-        PickedFile image = await ImagePicker().getImage(source: ImageSource.gallery);
-        setState(() {
-          _image = File(image.path);
-          print("Image Path $_image");
-        });
-      } catch (e) {
-        print(e.toString());
-      }
-    }
-
+    _photo = CurrentUser.user.photoUrl;
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -74,102 +73,145 @@ class _ProfileSetupState extends State<ProfileSetup> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  SizedBox(
-                    height: 40,
-                  ),
-                  Card(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0)),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      padding:
-                          EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Color(primary),
-                          ),
-                          borderRadius: BorderRadius.circular(6)),
-                      child: Column(
-                        children: <Widget>[
-                          SizedBox(
-                            height: 15.0,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text(
-                                "Abdul Quadir",
-                                style: TextStyle(
-                                  color: Color(secondary),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                  Stack(
+                    overflow: Overflow.visible,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 50.0),
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            padding: EdgeInsets.symmetric(
+                                vertical: 20, horizontal: 20),
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Color(primary),
                                 ),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.edit,
+                                borderRadius: BorderRadius.circular(6)),
+                            child: Column(
+                              children: <Widget>[
+                                SizedBox(
+                                  height: 15.0,
                                 ),
-                                color: Color(primary),
-                                onPressed: () {},
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text("Male, 22"),
-                              Text("English"),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Divider(
-                            thickness: 1,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              InkWell(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 5),
-                                  child: Text(
-                                    "0 Followers",
-                                    style: TextStyle(
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                      CurrentUser.user.name,
+                                      style: TextStyle(
+                                        color: Color(secondary),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
+                                    IconButton(
+                                        icon: Icon(
+                                          Icons.edit,
+                                        ),
+                                        color: Color(primary),
+                                        onPressed: () async {
+                                          await Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      EditProfile()));
+                                          setState(() {});
+                                        }),
+                                  ],
                                 ),
-                                onTap: () {},
-                                splashColor: Colors.redAccent.shade50,
-                              ),
-                              InkWell(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 5),
-                                  child: Text(
-                                    "0 Following",
-                                    style: TextStyle(
-                                      color: Color(primary),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                        "${CurrentUser.user.gender}, ${CurrentUser.user.age}"),
+                                    Text("English"),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Divider(
+                                  thickness: 1,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    InkWell(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 5, vertical: 5),
+                                        child: Text(
+                                          "0 Followers",
+                                          style: TextStyle(
+                                            color: Color(primary),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                      onTap: () {},
+                                      splashColor: Colors.redAccent.shade50,
                                     ),
-                                  ),
+                                    InkWell(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 5, vertical: 5),
+                                        child: Text(
+                                          "0 Following",
+                                          style: TextStyle(
+                                            color: Color(primary),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                      onTap: () {},
+                                      splashColor: Colors.redAccent.shade50,
+                                    ),
+                                  ],
                                 ),
-                                onTap: () {},
-                                splashColor: Colors.redAccent.shade50,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                      Positioned(
+                        top: 10,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Color(primary)),
+                              boxShadow: [
+                                BoxShadow(
+                                    offset: Offset(2, 2),
+                                    color: Colors.grey,
+                                    blurRadius: 5)
+                              ]),
+                          child: CircleAvatar(
+                            radius: 36,
+                            backgroundImage: _image != null
+                                ? FileImage(_image)
+                                : _photo != null ? NetworkImage(_photo) : null,
+                            child: (_image != null || _photo != null)
+                                ? null
+                                : Icon(
+                                    Icons.account_circle,
+                                    size: 50,
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(
                     height: 15,
@@ -177,7 +219,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                   TextField(
                     keyboardType: TextInputType.text,
                     autofocus: false,
-                    //obscureText: true,
+                    onTap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => UserSearchBar())),
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: "Search users",
@@ -191,6 +234,73 @@ class _ProfileSetupState extends State<ProfileSetup> {
                       fillColor: Color(form1),
                       hintStyle: TextStyle(
                         color: Color(formHint),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Text(
+                    "Your Location",
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(primary),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 1.0, vertical: 10.0),
+                    child: TextField(
+                      controller: addressController,
+                      keyboardType: TextInputType.text,
+                      onTap: () async {
+                        FocusScope.of(context).unfocus();
+                        Map result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GetLocation(
+                              position,
+                              zoom: position == null ? 10 : 13,
+                              showMarker:
+                                  position == null ? false : true,
+                            ),
+                          ),
+                        );
+                        if (result != null)
+                          setState(() {
+                            addressController.text = result['location'];
+                            position = result['position'];
+                            addressSelected = true;
+                          });
+                      },
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Search for a place",
+                        errorText:
+                            addressSelected ? null : 'Please Select a Location',
+                        suffixIcon: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Color(primary),
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Icon(
+                            Icons.location_on,
+                            color: Color(primary),
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.only(
+                            left: 10.0, bottom: 18.0, top: 18.0, right: 30.0),
+                        filled: true,
+                        fillColor: Color(form1),
+                        hintStyle: TextStyle(
+                          color: Color(formHint),
+                        ),
                       ),
                     ),
                   ),
@@ -309,26 +419,18 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                                     height: 60,
                                                   ),
                                                   SizedBox(height: 7),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: <Widget>[
-                                                      FittedBox(
-                                                        child: Text(
-                                                          activity[1],
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color: Color(
-                                                                secondary),
-                                                          ),
-                                                        ),
+                                                  FittedBox(
+                                                    child: Text(
+                                                      activity[1],
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Color(secondary),
                                                       ),
-                                                    ],
+                                                    ),
                                                   ),
                                                 ],
                                               ),
@@ -407,99 +509,19 @@ class _ProfileSetupState extends State<ProfileSetup> {
                   Center(
                     child: Container(
                       height: 50,
-                      margin: EdgeInsets.symmetric(horizontal: 60),
+                      margin: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 60),
                       child: FlatButton(
                         color: Color(secondary),
                         padding: EdgeInsets.symmetric(
                             horizontal: 60.0, vertical: 10.0),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50.0)),
-                        onPressed: () async {
-                          if (selectedActivityList.length == 0) {
-                            showDialog(
-                                context: context,
-                                builder: (ctx) => DialogBox(
-                                    title: "Activities",
-                                    description: "Atleast Select one activity",
-                                    buttonText1: "Ok",
-                                    button1Func: () => Navigator.of(context,
-                                            rootNavigator: true)
-                                        .pop()));
-                          } else {
-                            DataService().userActivities(
-                                widget.email, selectedActivityList);
-                            try {
-                              showDialog(
-                                  builder: (ctx) => Center(
-                                      child: CircularProgressIndicator()),
-                                  context: context);
-                              widget.creds != null
-                                  ? AuthService().credsSignIn(widget.creds)
-                                  : AuthService()
-                                      .signIn(widget.email, widget.password);
-                              await Future.delayed(Duration(seconds: 2));
-                              Navigator.of(context, rootNavigator: true).pop();
-                              showDialog(
-                                  context: context,
-                                  builder: ((ctx) => DialogBox(
-                                      title: "Done !",
-                                      description:
-                                          "You've Successfully Signed Up",
-                                      buttonText1: "Ok",
-                                      button1Func: () {
-                                        Navigator.of(context,
-                                                rootNavigator: true)
-                                            .pop();
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: ((ctx) =>
-                                                    MainHome())));
-                                      })));
-                            } catch (e) {
-                              print(e);
-                              Navigator.of(context, rootNavigator: true).pop();
-                            }
-                          }
-                        },
+                        onPressed: _handleProfileSetup,
                         child: Center(
                           child: Text(
                             "Finish",
                             style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      getImage();
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 1.5,
-                          color: Color(primary),
-                        ),
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      margin: EdgeInsets.only(top: 20),
-                      width: 55.0,
-                      height: 55.0,
-                      child: CircleAvatar(
-                        radius: 100,
-                        child: ClipOval(
-                          child: new SizedBox(
-                            width: 180.0,
-                            height: 180.0,
-                            child: (_image != null)
-                                ? Image.file(
-                                    _image,
-                                    fit: BoxFit.fill,
-                                  )
-                                : Icon(
-                                    Icons.person,
-                                  ),
                           ),
                         ),
                       ),
@@ -510,6 +532,55 @@ class _ProfileSetupState extends State<ProfileSetup> {
             ),
           ),
         ])));
+  }
+
+  _showErrorMessage(String title, String msg) => showDialog(
+      context: context,
+      builder: (ctx) => DialogBox(
+          title: title,
+          description: msg,
+          buttonText1: "Ok",
+          button1Func: () => Navigator.of(context, rootNavigator: true).pop()));
+
+  _handleProfileSetup() async {
+    setState(() => addressSelected = addressController.text == null ||
+            addressController.text.isEmpty ||
+            position.latitude == null ||
+            position.longitude == null
+        ? false
+        : true);
+    if (!addressSelected) return;
+    if (selectedActivityList.length == 0) {
+      _showErrorMessage("Activities", "Atleast Select one activity");
+      return;
+    }
+    if (_photo == null && _image == null) {
+      _showErrorMessage("Error", "Please add a profile picture");
+      return;
+    }
+    showDialog(
+        builder: (ctx) => Center(child: CircularProgressIndicator()),
+        context: context);
+    await DataService().completeProfile(widget.email, selectedActivityList, {
+      'coordinates': GeoPoint(position.latitude, position.longitude),
+      'address': addressController.text
+    });
+    await Future.delayed(Duration(seconds: 2));
+    Navigator.of(context, rootNavigator: true).pop();
+    showDialog(
+        context: context,
+        builder: ((ctx) => WillPopScope(
+              onWillPop: () => Future.value(false),
+              child: DialogBox(
+                  title: "Done !",
+                  description: "You've Successfully Signed Up",
+                  buttonText1: "Ok",
+                  button1Func: () {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: ((ctx) => MainHome())));
+                  }),
+            )));
   }
 }
 

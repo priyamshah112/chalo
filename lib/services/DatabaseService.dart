@@ -11,8 +11,8 @@ import 'Hashing.dart';
 
 class DataService {
   static final database = Firestore.instance;
-  Future createUser(User user, String type) async {
-    await database.collection('users').document(user.email).setData({
+  Future createUser(User user) async {
+    Map<String, dynamic> userData = {
       'name': user.fname + ' ' + user.lname,
       'first_name': user.fname,
       'last_name': user.lname,
@@ -24,30 +24,22 @@ class DataService {
       'uid': user.uid,
       'timestamp': Timestamp.now(),
       'verified': false,
-      'profile_pic': null,
+      'profile_setup': false,
+      'profile_pic': user.photoUrl,
       'followers': 0,
       'following': 0,
-      'type': type,
+      'coins': 10,
       'activities_completed': 0
-    });
-    await database.collection('user_plans').document(user.email).setData({
+    };
+    Map<String, dynamic> userPlan = {
       'cancelled_plans': [],
       'completed_plans': [],
       'current_plans': [],
       'requested_plans': [],
       'your_adminplans': []
-    });
-    await database.collection('user_reputation').document(user.email).setData({
-      'behaviour': 0,
-      'activity_completed': 0,
-      'activity_last_month': 0,
-      'followers': 0,
-      'following': 0,
-      'payment': 0,
-      'punctuality': 0
-    });
-    await database.collection('additional_info').document(user.email).setData({
-      'follwoing_id': [],
+    };
+    Map<String, dynamic> userInfo = {
+      'following_id': [],
       'followers_id': [],
       'follow_requests': [],
       'follow_requested': [],
@@ -59,7 +51,30 @@ class DataService {
       'website': "",
       'profile_pic': null,
       'interested_activity': []
-    });
+    };
+    Map<String, dynamic> userRep = {
+      'behaviour': 0,
+      'activity_completed': 0,
+      'activity_last_month': 0,
+      'followers': 0,
+      'following': 0,
+      'payment': 0,
+      'punctuality': 0
+    };
+    await database.collection('users').document(user.email).setData(userData);
+    await database
+        .collection('user_plans')
+        .document(user.email)
+        .setData(userPlan);
+    await database
+        .collection('additional_info')
+        .document(user.email)
+        .setData(userInfo);
+    await database
+        .collection('user_reputation')
+        .document(user.email)
+        .setData(userRep);
+    await UserData().setData(userData);
   }
 
   Future updateUserInfo(Map<String, dynamic> additionalInfo, String name,
@@ -90,7 +105,10 @@ class DataService {
     prefs.setString('fname', name.split(' ').first);
     prefs.setString('lname', name.split(' ').last);
     prefs.setString('gender', gender);
-    if (profilePic != null) prefs.setString('profile_pic', profilePic);
+    if (profilePic != null) {
+      prefs.setString('profile_pic', profilePic);
+      CurrentUser.user.photoUrl = profilePic;
+    }
   }
 
   Future createPlan(Map details) async {
@@ -177,15 +195,6 @@ class DataService {
     return doc.data;
   }
 
-  Future userActivities(String email, List activities) async {
-    activities = List<String>.generate(
-        activities.length, (index) => activities[index][1]);
-    database.runTransaction((transaction) async {
-      final docRef = database.collection('additional_info').document(email);
-      await transaction.update(docRef, {'interested_activities': activities});
-    });
-  }
-
   Future<bool> verifyPhone(phone) async {
     bool contains = false;
     phone = '+91' + phone;
@@ -202,17 +211,30 @@ class DataService {
     return !contains;
   }
 
-  void verifyUser(String email, String phone) {
-    database.runTransaction((transaction) async {
+  Future verifyUser(String email, String phone) async {
+    await database.runTransaction((transaction) async {
       final DocumentReference doc =
           database.collection('users').document(email);
       await transaction.update(doc, {'mobile_no': phone, 'verified': true});
     });
   }
 
-  void updateToken(bool update) async {
-    Map user = await UserData.getUser();
-    final email = user['email'];
+  Future completeProfile(
+      String email, List activities, Map<String, dynamic> details) async {
+    activities = List<String>.generate(
+        activities.length, (index) => activities[index][1]);
+    await database.runTransaction((transaction) async {
+      await transaction.update(
+          database.collection('additional_info').document(email),
+          {'interested_activities': activities});
+      details['profile_setup'] = true;
+      await transaction.update(
+          database.collection('users').document(email), details);
+    });
+  }
+
+  Future updateToken(bool update) async {
+    final email = CurrentUser.user.email;
     final userplan =
         await database.collection('user_plans').document(email).get();
     List plans = userplan.data['current_plans'];

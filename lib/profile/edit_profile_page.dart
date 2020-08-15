@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:chaloapp/Explore/uploadPage.dart';
+import 'package:chaloapp/common/cropper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../common/global_colors.dart';
@@ -10,23 +13,16 @@ import '../data/User.dart';
 import '../services/DatabaseService.dart';
 
 class EditProfile extends StatefulWidget {
-  final String name, profilePic, gender;
-
-  const EditProfile({
-    Key key,
-    @required this.name,
-    @required this.gender,
-    this.profilePic,
-  }) : super(key: key);
-
   @override
   _EditProfileState createState() => _EditProfileState();
 }
 
 class _EditProfileState extends State<EditProfile> {
-  String _name, _gender;
   bool _hideAge = false;
-  String _about,
+  String _name,
+      _gender,
+      _photo,
+      _about,
       _lang,
       _job,
       _country,
@@ -39,15 +35,15 @@ class _EditProfileState extends State<EditProfile> {
       _web;
 
   File _image;
-  Future getImage() async {
+  Future getImage({bool isCamera = false}) async {
     try {
-      var image = await ImagePicker().getImage(
-          source: ImageSource.gallery,
-          maxHeight: 150,
-          maxWidth: 150,
-          imageQuality: 50);
+      PickedFile image = await ImagePicker().getImage(
+          source: isCamera ? ImageSource.camera : ImageSource.gallery,
+          maxHeight: 800,
+          maxWidth: 800);
+      File croppedImage = await cropImage(image, CropAspectRatioPreset.square);
       setState(() {
-        _image = File(image.path);
+        _image = croppedImage;
       });
     } catch (e) {
       print(e.toString());
@@ -57,8 +53,9 @@ class _EditProfileState extends State<EditProfile> {
   @override
   void initState() {
     super.initState();
-    _gender = widget.gender;
-    _name = widget.name;
+    _name = CurrentUser.user.name;
+    _gender = CurrentUser.user.gender;
+    _photo = CurrentUser.user.photoUrl;
     _about = CurrentUser.user.about;
     _lang = CurrentUser.user.lang;
     _job = CurrentUser.user.job;
@@ -107,44 +104,37 @@ class _EditProfileState extends State<EditProfile> {
                 children: <Widget>[
                   Center(
                     child: GestureDetector(
-                      onTap: getImage,
+                      onTap: () => takeImage(context, getImage),
                       child: Container(
                         decoration: BoxDecoration(
+                          shape: BoxShape.circle,
                           border: Border.all(
                             width: 1.5,
                             color: Color(primary),
                           ),
-                          borderRadius: BorderRadius.circular(100),
                         ),
                         margin: EdgeInsets.only(top: 20),
-                        width: 70.0,
-                        height: 70.0,
                         child: Stack(
                           overflow: Overflow.visible,
                           children: <Widget>[
                             CircleAvatar(
-                                radius: 35,
+                                radius: 40,
                                 foregroundColor: Color(primary),
                                 backgroundColor: Color(background1),
                                 backgroundImage: _image != null
-                                    ? FileImage(
-                                        _image,
-                                      )
-                                    : widget.profilePic != null
-                                        ? NetworkImage(
-                                            widget.profilePic,
-                                          )
+                                    ? FileImage(_image)
+                                    : _photo != null
+                                        ? NetworkImage(_photo)
                                         : null,
-                                child:
-                                    _image == null && widget.profilePic == null
-                                        ? Icon(
-                                            Icons.account_circle,
-                                            size: 60,
-                                          )
-                                        : null),
+                                child: _image == null && _photo == null
+                                    ? Icon(
+                                        Icons.account_circle,
+                                        size: 60,
+                                      )
+                                    : null),
                             Positioned(
                                 bottom: -5,
-                                right: -7,
+                                right: 0,
                                 child: CircleAvatar(
                                     backgroundColor: Color(primary),
                                     radius: 13,

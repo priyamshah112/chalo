@@ -5,33 +5,50 @@ import 'global_colors.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_search/mapbox_search.dart';
+import 'package:location/location.dart' as loc;
 import '../widgets/Mapbox_Search.dart';
 
 const kApiKey =
     'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw';
 
 class GetLocation extends StatefulWidget {
-  GetLocation(this.initialPosition, {Key key}) : super(key: key);
+  GetLocation(this.initialPosition,
+      {this.zoom, this.showMarker = true, Key key})
+      : super(key: key);
   final Position initialPosition;
+  final double zoom;
+  final bool showMarker;
   @override
   _GetLocationState createState() => _GetLocationState();
 }
 
 class _GetLocationState extends State<GetLocation> {
   String mapSearchValue;
-  bool istap = false;
+  bool _showMarker, istap = false;
   Position position;
+  loc.Location location;
   TextEditingController locationTextController;
   @override
   void initState() {
     super.initState();
+    _showMarker = widget.showMarker;
+    location = loc.Location();
     position =
         widget.initialPosition ?? Position(latitude: null, longitude: null);
     locationTextController = TextEditingController();
+    if (position.latitude == null || position.longitude == null)
+      getUserLocation();
   }
 
   void getUserLocation() async {
     try {
+      bool _serviceEnabled = await location.serviceEnabled();
+      if (!_serviceEnabled) {
+        _serviceEnabled = await location.requestService();
+        if (!_serviceEnabled) {
+          return;
+        }
+      }
       Position userPosition = await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       final coordinates =
@@ -42,7 +59,7 @@ class _GetLocationState extends State<GetLocation> {
       setState(() {
         position = userPosition;
         mapSearchValue = first.addressLine;
-        isSelected = true;
+        _showMarker = isSelected = true;
         locationTextController.text = mapSearchValue;
       });
       LatLng latlog = new LatLng(position.latitude, position.longitude);
@@ -58,6 +75,7 @@ class _GetLocationState extends State<GetLocation> {
         await Geocoder.local.findAddressesFromQuery(address);
     Coordinates coordinates = results.first.coordinates;
     setState(() {
+      _showMarker = true;
       position = Position(
           latitude: coordinates.latitude, longitude: coordinates.longitude);
       print('${coordinates.latitude} ${coordinates.longitude}');
@@ -137,7 +155,8 @@ class _GetLocationState extends State<GetLocation> {
                   interactive: true,
                   center: new LatLng(position.latitude ?? 19.0760,
                       position.longitude ?? 72.8777),
-                  minZoom: 10.0),
+                  minZoom: 10.0,
+                  zoom: widget.zoom ?? 13.0),
               layers: [
                 new TileLayerOptions(
                   urlTemplate:
@@ -148,21 +167,22 @@ class _GetLocationState extends State<GetLocation> {
                     'id': 'mapbox.mapbox-streets-v8'
                   },
                 ),
-                new MarkerLayerOptions(
+                MarkerLayerOptions(
                   markers: [
-                    new Marker(
-                      width: 80.0,
-                      height: 80.0,
-                      point: new LatLng(position.latitude ?? 19.0760,
-                          position.longitude ?? 72.8777),
-                      builder: (ctx) => new Container(
-                        child: Icon(
-                          Icons.location_on,
-                          color: Colors.teal,
-                          size: 45.0,
+                    if (_showMarker)
+                      Marker(
+                        width: 80.0,
+                        height: 80.0,
+                        point: LatLng(position.latitude ?? 19.0760,
+                            position.longitude ?? 72.8777),
+                        builder: (ctx) => Container(
+                          child: Icon(
+                            Icons.location_on,
+                            color: Colors.teal,
+                            size: 45.0,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ],

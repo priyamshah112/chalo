@@ -119,10 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 bool updated = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (BuildContext context) => EditProfile(
-                            name: _name,
-                            gender: _gender,
-                            profilePic: CurrentUser.user.photoUrl)));
+                        builder: (BuildContext context) => EditProfile()));
                 if (updated) {
                   _scaffoldKey.currentState.showSnackBar(SnackBar(
                       content: Text(

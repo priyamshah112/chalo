@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chaloapp/common/cropper.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -102,7 +103,7 @@ class _UploadPageState extends State<UploadPage> {
       body: ListView(
         children: <Widget>[
           GestureDetector(
-            onTap: () => takeImage(context),
+            onTap: () => takeImage(context, getImage),
             child: AspectRatio(
               aspectRatio: 1,
               child: Container(
@@ -232,7 +233,23 @@ class _UploadPageState extends State<UploadPage> {
         isExpanded: true,
       );
 
-  Future takeImage(mContext) {
+  File file;
+  void getImage({bool isCamera = false}) async {
+    PickedFile temp = await ImagePicker().getImage(
+      source: isCamera ? ImageSource.camera : ImageSource.gallery,
+      maxWidth: 600,
+      maxHeight: 600,
+    );
+    File imageFile = await cropImage(temp, CropAspectRatioPreset.square);
+    if (mounted)
+      setState(() {
+        this.file = imageFile;
+      });
+  }
+
+}
+
+Future takeImage(BuildContext mContext, Function getImage) {
     return showModalBottomSheet(
       context: mContext,
       backgroundColor: Colors.transparent,
@@ -267,37 +284,3 @@ class _UploadPageState extends State<UploadPage> {
       },
     );
   }
-
-  File file;
-  void getImage({bool isCamera = false}) async {
-    PickedFile temp = await ImagePicker().getImage(
-      source: isCamera ? ImageSource.camera : ImageSource.gallery,
-      maxWidth: 600,
-      maxHeight: 600,
-    );
-    File imageFile = await _cropImage(temp, CropAspectRatioPreset.square);
-    if (mounted)
-      setState(() {
-        this.file = imageFile;
-      });
-  }
-
-  Future<File> _cropImage(
-      PickedFile imageFile, CropAspectRatioPreset ratio) async {
-    File croppedFile = await ImageCropper.cropImage(
-        sourcePath: imageFile.path,
-        aspectRatioPresets: [ratio],
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Color(primary),
-            toolbarWidgetColor: Colors.white,
-            activeControlsWidgetColor: Color(primary),
-            initAspectRatio: ratio,
-            lockAspectRatio: true,
-            hideBottomControls: false),
-        iosUiSettings: IOSUiSettings(
-          title: 'Cropper',
-        ));
-    return croppedFile;
-  }
-}

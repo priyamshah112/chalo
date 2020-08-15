@@ -17,11 +17,10 @@ import 'data/User.dart';
 void main() => runApp(
       MaterialApp(
         theme: ThemeData(
-          primaryColor: Color(primary),
-          accentColor: Color(primary),
-          cursorColor: Color(primary),
-          primarySwatch: Colors.teal
-        ),
+            primaryColor: Color(primary),
+            accentColor: Color(primary),
+            cursorColor: Color(primary),
+            primarySwatch: Colors.teal),
         debugShowCheckedModeBanner: false,
         home: SplashScreen(),
       ),
@@ -33,8 +32,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  Future<bool> _showOnBoarding() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<bool> _showOnBoarding(SharedPreferences prefs) async {
     prefs.containsKey('onBoarding')
         ? prefs.setBool('onBoarding', false)
         : prefs.setBool('onBoarding', true);
@@ -43,18 +41,18 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void checkUser(DocumentReference ref) async {
+    final prefs = await SharedPreferences.getInstance();
     await Future.delayed(Duration(seconds: 2));
-    _showOnBoarding().then((show) async {
+    _showOnBoarding(prefs).then((show) async {
       if (show)
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => OnBoarding()));
       else {
-        final prefs = await SharedPreferences.getInstance();
         bool verified = prefs.getBool('verified');
-        final user = await AuthService().isUserLoggedIn();
-        if (verified && user != null) {
-          await CurrentUser.initialize( prefs.getString('name'),
-              user.email, prefs.getString('profile_pic'));
+        bool profileSetupCompleted = prefs.getBool('profile_setup') ?? false;
+        bool loggedIn = await AuthService().isUserLoggedIn();
+        if (verified && profileSetupCompleted && loggedIn) {
+          await CurrentUser.initialize(prefs);
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(

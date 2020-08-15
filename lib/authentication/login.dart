@@ -205,66 +205,66 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 4),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Text(
-                                      'By continuing you agree to our',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
+                                child: FittedBox(
+                                  child: Text(
+                                    'By continuing you agree to our',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 5),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    GestureDetector(
-                                      onTap: () => Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: ((ctx) => HomePage()))),
-                                      child: FittedBox(
-                                        child: Text(
-                                          'Terms and Conditions',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.red),
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      "  and  ",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () => Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: ((ctx) =>
-                                                  ProfileSetup()))),
-                                      child: FittedBox(
-                                        child: Text(
-                                          'Privacy Policy',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.red,
+                                child: FittedBox(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      GestureDetector(
+                                        onTap: () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: ((ctx) =>
+                                                    HomePage()))),
+                                        child: FittedBox(
+                                          child: Text(
+                                            'Terms and Conditions',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.red),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      Text(
+                                        "  and  ",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        // onTap: () => Navigator.push(
+                                        //     context,
+                                        //     MaterialPageRoute(
+                                        //         builder: ((ctx) =>
+                                        //             ProfileSetup()))),
+                                        child: FittedBox(
+                                          child: Text(
+                                            'Privacy Policy',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -303,13 +303,13 @@ class _HomePageState extends State<HomePage> {
             context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
         return true;
       },
-      child: Form(
-        key: _formKey,
-        autovalidate: _autovalidate,
-        child: Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: Colors.white,
-          body: SingleChildScrollView(
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            autovalidate: _autovalidate,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
@@ -661,20 +661,16 @@ class _HomePageState extends State<HomePage> {
               button1Func: () {})));
       await Future.delayed(Duration(seconds: 2));
       bool verified = await UserData.checkVerified();
+      bool completed = await UserData.checkProfileSetup();
       Navigator.of(context, rootNavigator: true).pop();
       Navigator.pushReplacement(
-          _scaffoldKey.currentContext,
-          MaterialPageRoute(
-              builder: (BuildContext context) => verified
-                  ? MainHome()
-                  : PhoneVerification(
-                      creds: result.containsKey('credentials')
-                          ? result['credentials']
-                          : null,
-                      password: result.containsKey('password')
-                          ? result['password']
-                          : null,
-                      email: result['email'])));
+        _scaffoldKey.currentContext,
+        MaterialPageRoute(
+          builder: (BuildContext context) => verified
+              ? completed ? MainHome() : ProfileSetup(result['email'])
+              : PhoneVerification(email: result['email']),
+        ),
+      );
     } else {
       Navigator.of(context, rootNavigator: true).pop();
       showDialog(

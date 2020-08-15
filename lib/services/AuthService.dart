@@ -32,8 +32,7 @@ class AuthService {
       }
       final userDoc = await DataService().getUserDoc(googleUser.email);
       if (userDoc != null) {
-        FirebaseUser user = await credsSignIn(credential);
-        await UserData().setData(userDoc.data);
+        FirebaseUser user = await credsSignIn(credential, userDoc);
         DataService().updateToken(true);
         return {
           "success": true,
@@ -71,8 +70,7 @@ class AuthService {
         try {
           final credentials = FacebookAuthProvider.getCredential(
               accessToken: result.accessToken.token);
-          final user = await credsSignIn(credentials);
-          await UserData().setData(userDoc.data);
+          final user = await credsSignIn(credentials, userDoc);
           DataService().updateToken(true);
           return {
             'success': true,
@@ -126,13 +124,15 @@ class AuthService {
     }
   }
 
-  Future<FirebaseUser> credsSignIn(AuthCredential creds) async {
+  Future<FirebaseUser> credsSignIn(AuthCredential creds,
+      [DocumentSnapshot userDoc]) async {
     FirebaseUser user = (await auth.signInWithCredential(creds)).user;
+    if (userDoc != null) await UserData().setData(userDoc.data);
     return user;
   }
 
-  Future<bool> signOut() async {
-    DataService().updateToken(false);
+  Future<bool> signOut({bool flushData = true}) async {
+    if (flushData) DataService().updateToken(false);
     try {
       await UserData().deleteData();
       await GoogleSignIn().signOut();
@@ -145,9 +145,9 @@ class AuthService {
     }
   }
 
-  Future<FirebaseUser> isUserLoggedIn() async {
-    final user = await auth.currentUser();
-    return user;
+  Future<bool> isUserLoggedIn() async {
+    final user = await currentUser;
+    return user != null;
   }
 
   Future<Map> createUser(email, password, name) async {
@@ -303,4 +303,6 @@ class AuthService {
       print(e.toString());
     }
   }
+
+  Future<FirebaseUser> get currentUser async => await auth.currentUser();
 }
