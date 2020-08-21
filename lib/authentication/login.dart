@@ -668,7 +668,14 @@ class _HomePageState extends State<HomePage> {
         MaterialPageRoute(
           builder: (BuildContext context) => verified
               ? completed ? MainHome() : ProfileSetup(result['email'])
-              : PhoneVerification(email: result['email']),
+              : PhoneVerification(creds: result.containsKey('credentials')
+                          ? result['credentials']
+                          : null,
+                      password: result.containsKey('password')
+                          ? result['password']
+                          : null,
+                      email: result['email']
+),
         ),
       );
     } else {

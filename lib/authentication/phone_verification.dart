@@ -11,8 +11,10 @@ import 'ProfileSetup.dart';
 import 'login.dart';
 
 class PhoneVerification extends StatefulWidget {
-  final String email, photoUrl;
-  const PhoneVerification({@required this.email, this.photoUrl})
+  final AuthCredential creds;
+  final String email, password, photoUrl;
+  const PhoneVerification(
+      {@required this.email, this.password, this.creds, this.photoUrl})
       : assert(email != null);
   @override
   _PhoneVerificationState createState() => _PhoneVerificationState();
@@ -384,7 +386,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     await auth.verifyPhoneNumber(
         phoneNumber: phone,
         forceResendingToken: resendToken,
-        timeout: Duration(seconds: 0),
+        timeout: Duration(seconds: 60),
         verificationCompleted: (AuthCredential creds) async {
           FirebaseUser user = await authService.credsSignIn(creds);
           DataService().verifyUser(email, phone);
@@ -452,7 +454,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     await Future.delayed(Duration(seconds: 2));
     Navigator.of(ctx, rootNavigator: true).pop();
     Navigator.of(ctx).pushReplacement(
-        MaterialPageRoute(builder: (_) => ProfileSetup(widget.email)));
+        MaterialPageRoute(builder: (_) => ProfileSetup(widget.email, widget.password, widget.creds)));
   }
 
   void showFail(BuildContext ctx) {

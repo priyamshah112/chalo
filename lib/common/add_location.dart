@@ -156,6 +156,7 @@ class _GetLocationState extends State<GetLocation> {
                   center: new LatLng(position.latitude ?? 19.0760,
                       position.longitude ?? 72.8777),
                   minZoom: 10.0,
+                  maxZoom: 18,
                   zoom: widget.zoom ?? 13.0),
               layers: [
                 new TileLayerOptions(

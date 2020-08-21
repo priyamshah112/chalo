@@ -62,6 +62,11 @@ class AuthService {
             'https://graph.facebook.com/v7.0/me?fields=name,first_name,last_name,email,picture.height(200)&access_token=';
         Response response = await get(url + token);
         Map profile = jsonDecode(response.body);
+        if (profile['email'] == null)
+          return {
+            "success": false,
+            'msg': 'Your facebook email is neede for login'
+          };
         final userDoc = await DataService().getUserDoc(profile['email']);
         if (userDoc == null) {
           await facebookLogin.logOut();
@@ -227,6 +232,11 @@ class AuthService {
               Response graphResponse = await get(
                   'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email,picture.height(200)&access_token=${result.accessToken.token}');
               Map profile = jsonDecode(graphResponse.body);
+              if (profile['email'] == null)
+                return {
+                  "success": false,
+                  'msg': 'Your facebook email is neede for login'
+                };
               final userDoc = await DataService().getUserDoc(profile['email']);
               if (userDoc != null) {
                 print('user already exists with this email');

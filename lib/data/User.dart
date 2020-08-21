@@ -41,9 +41,10 @@ class CurrentUser extends User {
       twitter,
       linkedin,
       website;
-  static CurrentUser user = CurrentUser();
+  static CurrentUser user;
   static StreamSubscription<DocumentSnapshot> _userInfo;
   static Future<void> initialize(SharedPreferences prefs) async {
+    user = CurrentUser();
     user.name = prefs.getString('name');
     user.email = prefs.getString('email');
     user.photoUrl = prefs.getString('profile_pic');
@@ -81,6 +82,7 @@ class CurrentUser extends User {
     _userInfo.cancel();
     user._followers =
         user._following = user._followRequests = user._requested = [];
+    user = null;
   }
 
   static List get followers => user._followers;
@@ -120,6 +122,7 @@ class UserData {
     prefs.remove('profile_pic');
     prefs.setBool('verified', false);
     CurrentUser.discard();
+    print('user Info Discarded');
   }
 
   static Future checkVerified() async {

@@ -7,6 +7,7 @@ import 'package:chaloapp/common/cropper.dart';
 import 'package:chaloapp/data/User.dart';
 import 'package:chaloapp/profile/edit_profile_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -20,8 +21,9 @@ import '../common/global_colors.dart';
 import '../common/activitylist.dart';
 
 class ProfileSetup extends StatefulWidget {
-  final String email;
-  ProfileSetup(this.email);
+  final String email, password;
+  final AuthCredential creds;
+  ProfileSetup(this.email, [this.password, this.creds]);
   @override
   _ProfileSetupState createState() => _ProfileSetupState();
 }
@@ -265,8 +267,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             builder: (context) => GetLocation(
                               position,
                               zoom: position == null ? 10 : 13,
-                              showMarker:
-                                  position == null ? false : true,
+                              showMarker: position == null ? false : true,
                             ),
                           ),
                         );
@@ -565,6 +566,11 @@ class _ProfileSetupState extends State<ProfileSetup> {
       'coordinates': GeoPoint(position.latitude, position.longitude),
       'address': addressController.text
     });
+    bool loggedIn = await auth.isUserLoggedIn();
+    if (!loggedIn)
+      widget.creds != null
+          ? await auth.credsSignIn(widget.creds)
+          : await auth.signIn(widget.email, widget.password);
     await Future.delayed(Duration(seconds: 2));
     Navigator.of(context, rootNavigator: true).pop();
     showDialog(

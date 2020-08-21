@@ -597,6 +597,7 @@ class _SignUpState extends State<SignUp> {
                   MaterialPageRoute(
                       builder: (BuildContext context) => PhoneVerification(
                             email: user.email,
+                            password: user.password,
                             photoUrl: user.photoUrl
                           )),
                 );
