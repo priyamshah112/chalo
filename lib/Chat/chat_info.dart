@@ -25,8 +25,8 @@ class _ChatInfoState extends State<ChatInfo> {
               child: Center(child: CircularProgressIndicator()),
             );
           return snapshot.data['admin_id'] == CurrentUser.user.email
-              ? BroadcastActivityDetails(planRef: widget.planRef)
-              : ActivityDetails(planRef: widget.planRef);
+              ? BroadcastActivityDetails(planDoc: snapshot.data)
+              : ActivityDetails(planDoc: snapshot.data);
         });
   }
 }

@@ -117,11 +117,12 @@ class _PostCardState extends State<PostCard> {
             },
             child: AspectRatio(
               aspectRatio: 1,
-              child: Image.network(
-                widget.post['image_url'],
-                width: MediaQuery.of(context).size.width,
-                fit: BoxFit.cover,
-              ),
+              child: Container()
+              // Image.network(
+              //   widget.post['image_url'],
+              //   width: MediaQuery.of(context).size.width,
+              //   fit: BoxFit.cover,
+              // ),
             ),
           ),
           SizedBox(

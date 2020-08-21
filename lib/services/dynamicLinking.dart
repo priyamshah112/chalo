@@ -11,12 +11,12 @@ class DynamicLinkService {
     final PendingDynamicLinkData data =
         await FirebaseDynamicLinks.instance.getInitialLink();
     final Uri deepLink = data?.link;
-    if (deepLink != null) ref = handleLink(deepLink);
+    if (deepLink != null) ref = await handleLink(deepLink);
     FirebaseDynamicLinks.instance.onLink(
         onSuccess: (PendingDynamicLinkData data) async {
       final Uri deepLink = data?.link;
       if (deepLink != null)
-        ref = handleLink(deepLink, onResume: true, context: context);
+        ref = await handleLink(deepLink, onResume: true, context: context);
     }, onError: (OnLinkErrorException e) async {
       print('onLinkError');
       print(e.message);
@@ -61,8 +61,8 @@ class DynamicLinkService {
   }
 }
 
-DocumentReference handleLink(Uri deepLink,
-    {bool onResume = false, BuildContext context}) {
+Future<DocumentReference> handleLink(Uri deepLink,
+    {bool onResume = false, BuildContext context}) async {
   DocumentReference ref;
   // print('deep link: $deepLink');
   bool isActivity = deepLink.pathSegments.contains('activity');
@@ -70,9 +70,11 @@ DocumentReference handleLink(Uri deepLink,
     String activityId = deepLink.queryParameters['id'];
     if (activityId != null) {
       ref = Firestore.instance.collection('plan').document(activityId);
-      if (onResume)
+      if (onResume) {
+        final doc = await ref.get();
         Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => ActivityDetails(planRef: ref)));
+            MaterialPageRoute(builder: (_) => ActivityLink(activity : doc)));
+      }
     }
   }
   return ref;

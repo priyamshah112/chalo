@@ -48,16 +48,18 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => OnBoarding()));
       else {
+        DocumentSnapshot doc;
         bool verified = prefs.getBool('verified');
         bool profileSetupCompleted = prefs.getBool('profile_setup') ?? false;
         bool loggedIn = await AuthService().isUserLoggedIn();
         if (verified && profileSetupCompleted && loggedIn) {
           await CurrentUser.initialize(prefs);
+          if (ref != null) doc = await ref.get();
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                   builder: (context) => ref != null
-                      ? ActivityDetails(planRef: ref)
+                      ? ActivityLink(activity: doc)
                       : MainHome()));
         } else
           Navigator.pushReplacement(

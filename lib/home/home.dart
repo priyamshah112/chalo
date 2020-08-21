@@ -208,9 +208,8 @@ class MapActivityCard extends StatelessWidget {
                       Container(
                         width: 55.0,
                         height: 55.0,
-                        child: CircleAvatar(
-                          backgroundImage:
-                              NetworkImage(doc.data['activity_logo']),
+                        child: Image(
+                          image: NetworkImage(doc.data['activity_logo']),
                         ),
                       ),
                       SizedBox(
@@ -292,7 +291,7 @@ class MapActivityCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
-                        doc.data['activity_name'],
+                        doc.data['activity_type'],
                         style: TextStyle(
                           color: Colors.teal,
                           fontWeight: FontWeight.bold,
@@ -342,8 +341,8 @@ class MapActivityCard extends StatelessWidget {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) =>
                                 doc.data['admin_id'] == CurrentUser.user.email
-                                    ? BroadcastActivityDetails(planRef: planRef)
-                                    : ActivityDetails(planRef: planRef)));
+                                    ? BroadcastActivityDetails(planDoc: doc)
+                                    : ActivityDetails(planDoc: doc)));
                       },
                       color: Color(primary),
                       textColor: Colors.white,

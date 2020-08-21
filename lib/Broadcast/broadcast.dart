@@ -14,21 +14,12 @@ class Broadcast extends StatefulWidget {
 }
 
 class _BroadcastState extends State<Broadcast> {
-  String email;
-  Future getdata() async {
-    try {
-      final user = await UserData.getUser();
-      await Future.delayed(Duration(seconds: 1));
-      setState(() => email = user['email']);
-    } catch (e) {
-      print(e.toString());
-    }
-  }
+  String curr;
 
   @override
   void initState() {
     super.initState();
-    getdata();
+    curr = CurrentUser.userEmail;
   }
 
   @override
@@ -66,18 +57,14 @@ class _BroadcastState extends State<Broadcast> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   FlatButton(
-                    onPressed: () async {
-                      Map<String, dynamic> result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                AddActivity()),
-                      );
-                      if (result != null) DataService().createPlan(result);
-                    },
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => AddActivity()),
+                    ),
                     color: Colors.teal,
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 30.0, vertical: 14.0),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 30.0, vertical: 14.0),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0)),
                     child: Row(
@@ -120,23 +107,18 @@ class _BroadcastState extends State<Broadcast> {
               SizedBox(
                 height: 10,
               ),
-              email == null
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 30.0),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  : Expanded(
+              Expanded(
                       child: Activities(
                       stream: Firestore.instance
                           .collection('plan')
-                          .where('admin_id', isEqualTo: email)
+                          .where('admin_id', isEqualTo: curr)
                           .snapshots(),
                       showUserActivities: true,
-                      onTapGoto: (planRef) => Navigator.push(
+                      onTapGoto: (doc) => Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
-                                BroadcastActivityDetails(planRef: planRef)),
+                                BroadcastActivityDetails(planDoc: doc)),
                       ),
                     )),
             ],

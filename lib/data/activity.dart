@@ -2,21 +2,31 @@ import 'package:flutter/material.dart';
 import '../common/global_colors.dart';
 import '../common/activitylist.dart';
 
-List<List<String>> allactivityList;
-List<String> activityNames;
-String selectedActivity;
-
 class ViewActivity extends StatefulWidget {
+  final String selected;
+  ViewActivity(this.selected);
   @override
   _ViewActivityState createState() => _ViewActivityState();
 }
 
 class _ViewActivityState extends State<ViewActivity> {
+  List<List<String>> allactivityList;
+  List<String> activityNames;
+  String selectedActivity;
   @override
   void initState() {
     super.initState();
     ActivityList.getActivityList().then((list) {
-      setState(() => allactivityList = list);
+      setState(() {
+        allactivityList = list;
+        if (widget.selected != null) {
+          var temp = allactivityList
+              .where((activity) => activity[1] == widget.selected)
+              .toList()
+              .last;
+          allactivityList[allactivityList.indexOf(temp)][2] = 'true';
+        }
+      });
       activityNames = List<String>.generate(
           allactivityList.length, (index) => allactivityList[index][1]);
     });

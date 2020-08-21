@@ -154,12 +154,12 @@ class _AllActivityState extends State<AllActivity> {
                       .where('broadcast_type', isEqualTo: "public")
                       .orderBy('activity_start', descending: true)
                       .snapshots(),
-                  onTapGoto: (docRef) => Navigator.push(
+                  onTapGoto: (doc) => Navigator.push(
                     context,
                     MaterialPageRoute(
                         settings: RouteSettings(name: 'Activity'),
                         builder: (BuildContext context) =>
-                            ActivityDetails(planRef: docRef)),
+                            ActivityDetails(planDoc: doc)),
                   ),
                 )),
               ],
@@ -172,7 +172,7 @@ class _AllActivityState extends State<AllActivity> {
 class Activities extends StatefulWidget {
   final Stream stream;
   final bool showUserActivities;
-  final Function(DocumentReference planRef) onTapGoto;
+  final Function(DocumentSnapshot planDoc) onTapGoto;
   Activities(
       {@required this.stream,
       @required this.onTapGoto,
@@ -196,12 +196,11 @@ class _ActivitiesState extends State<Activities> {
               itemCount: count,
               itemBuilder: (context, index) {
                 return !widget.showUserActivities &&
-                        plans[index]['admin_id'] == CurrentUser.user.email
+                        plans[index]['admin_id'] == CurrentUser.userEmail
                     ? Container()
                     : ActivityCard(
                         planDoc: plans[index],
-                        activityDetails: () =>
-                            widget.onTapGoto(plans[index].reference),
+                        activityDetails: () => widget.onTapGoto(plans[index]),
                       );
               });
         });
@@ -287,7 +286,8 @@ class ActivityCard extends StatelessWidget {
                           final RenderBox box = context.findRenderObject();
                           showDialog(
                               context: context,
-                              builder: (_) => Center(child: CircularProgressIndicator()));
+                              builder: (_) =>
+                                  Center(child: CircularProgressIndicator()));
                           final link = await DynamicLinkService.createLink(
                               planDoc['plan_id'],
                               planDoc['admin_name'].toString().split(' ')[0]);
@@ -324,7 +324,7 @@ class ActivityCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
-                    planDoc['activity_name'],
+                    planDoc['activity_type'],
                     style: TextStyle(
                       color: Color(primary),
                       fontWeight: FontWeight.bold,

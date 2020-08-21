@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,9 +10,8 @@ import '../Activites/Activity_Detail.dart';
 import 'edit_activity.dart';
 
 class BroadcastActivityDetails extends StatefulWidget {
-  final DocumentReference planRef;
-  BroadcastActivityDetails({Key key, @required this.planRef})
-      : super(key: key);
+  final DocumentSnapshot planDoc;
+  BroadcastActivityDetails({Key key, @required this.planDoc}) : super(key: key);
   @override
   _BroadcastActivityDetailsState createState() =>
       _BroadcastActivityDetailsState();
@@ -23,119 +21,130 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
   // List participants;
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: Firestore.instance
-            .collection('plan')
-            .where('plan_id', isEqualTo: widget.planRef.documentID)
-            .limit(1)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData)
-            return Container(
-                color: Colors.white,
-                child: Center(child: CircularProgressIndicator()));
-          final DocumentSnapshot planDoc = snapshot.data.documents[0];
-          final String email = CurrentUser.user.email;
-          final start = DateTime.fromMillisecondsSinceEpoch(
-              planDoc['activity_start'].seconds * 1000);
-          final end = DateTime.fromMillisecondsSinceEpoch(
-              planDoc['activity_end'].seconds * 1000);
-          return Scaffold(
-            appBar: AppBar(
-              centerTitle: true,
-              automaticallyImplyLeading: false,
-              title: Center(
-                child: Text(
-                  planDoc['activity_name'],
-                  style: TextStyle(
+    return deleting
+        ? Material(
+            child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 20),
+              Text('Deleting...')
+            ],
+          ))
+        : StreamBuilder<QuerySnapshot>(
+            stream: Firestore.instance
+                .collection('plan')
+                .where('plan_id', isEqualTo: widget.planDoc.documentID)
+                .limit(1)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData)
+                return Container(
                     color: Colors.white,
-                    fontFamily: bodyText,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              leading: InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Icon(
-                  Icons.arrow_back,
-                  color: Colors.white,
-                ),
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) => EditActivity()),
-                    );
-                  },
-                  child: Text(
-                    "Edit",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontFamily: bodyText,
-                      fontWeight: FontWeight.bold,
+                    child: Center(child: CircularProgressIndicator()));
+              final DocumentSnapshot planDoc = snapshot.data.documents[0];
+              final String email = CurrentUser.user.email;
+              final start = DateTime.fromMillisecondsSinceEpoch(
+                  planDoc['activity_start'].seconds * 1000);
+              final end = DateTime.fromMillisecondsSinceEpoch(
+                  planDoc['activity_end'].seconds * 1000);
+              return Scaffold(
+                appBar: AppBar(
+                  centerTitle: true,
+                  automaticallyImplyLeading: false,
+                  title: Center(
+                    child: Text(
+                      planDoc['activity_type'],
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: bodyText,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-              ],
-              elevation: 1.0,
-            ),
-            backgroundColor: Colors.white,
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                ),
-                child: Column(
-                  children: <Widget>[
-                    ActivityDetailCard(
-                        planDoc: planDoc, start: start, end: end),
-                    SizedBox(height: 10),
-                    if (planDoc['pending_participant_id'].length > 0)
-                      JoinRequestList(
-                        planId: planDoc['plan_id'],
-                        admin: planDoc['admin_name'],
-                        requests: planDoc['pending_participant_id'],
+                  leading: InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                    ),
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  EditActivity()),
+                        );
+                      },
+                      child: Text(
+                        "Edit",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontFamily: bodyText,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    SizedBox(height: 10),
-                    ParticipantList(
-                        participants: planDoc['participants_id'],
-                        admin: planDoc['admin_name'],
-                        adminId: planDoc['admin_id'],
-                        planId: planDoc['plan_id'],
-                        current: email,
-                        showRemove: true),
-                    Container(
-                      width: double.infinity,
-                      child: RaisedButton(
-                          onPressed: () =>
-                              handleDeleteActivity(context, planDoc),
-                          elevation: 2,
-                          textColor: Colors.white,
-                          color: Colors.red,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Text(
-                            'Delete Activity',
-                            style: TextStyle(
-                              fontFamily: bodyText,
-                            ),
-                          )),
                     ),
                   ],
+                  elevation: 1.0,
                 ),
-              ),
-            ),
-          );
-        });
+                backgroundColor: Colors.white,
+                body: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20,
+                    ),
+                    child: Column(
+                      children: <Widget>[
+                        ActivityDetailCard(
+                            planDoc: planDoc, start: start, end: end),
+                        SizedBox(height: 10),
+                        if (planDoc['pending_participant_id'].length > 0)
+                          JoinRequestList(
+                            planId: planDoc['plan_id'],
+                            admin: planDoc['admin_name'],
+                            requests: planDoc['pending_participant_id'],
+                          ),
+                        SizedBox(height: 10),
+                        ParticipantList(
+                            participants: planDoc['participants_id'],
+                            admin: planDoc['admin_name'],
+                            adminId: planDoc['admin_id'],
+                            planId: planDoc['plan_id'],
+                            current: email,
+                            showRemove: true),
+                        Container(
+                          width: double.infinity,
+                          child: RaisedButton(
+                              onPressed: () =>
+                                  handleDeleteActivity(context, planDoc),
+                              elevation: 2,
+                              textColor: Colors.white,
+                              color: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Text(
+                                'Delete Activity',
+                                style: TextStyle(
+                                  fontFamily: bodyText,
+                                ),
+                              )),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            });
   }
 
-  bool deleting;
+  bool deleting = false;
   void handleDeleteActivity(
       BuildContext context, DocumentSnapshot planDoc) async {
     bool deleteActivity = await showDialog<bool>(
@@ -152,24 +161,17 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
               button2Func: () =>
                   Navigator.of(context, rootNavigator: true).pop(true),
             ));
-    if (deleteActivity) {
-      deleting = true;
-      showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (_) => Container(
-            // width: MediaQuery.of(context).,
-            child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-          ));
-      await DataService().leaveActivity(planDoc, delete: true);
-      await Future.delayed(Duration(milliseconds: 500));
-      Navigator.of(context, rootNavigator: true).pop();
-      deleting = false;
-      // Navigator.of(context).pop();
-    } else
+    if (deleteActivity)
+      _deletePlan(planDoc);
+    else
       return;
+  }
+
+  void _deletePlan(DocumentSnapshot plan) async {
+    setState(() => deleting = true);
+    await Future.delayed(Duration(seconds: 1));
+    await DataService().leaveActivity(plan, delete: true);
+    Navigator.of(context).pop();
   }
 }
 

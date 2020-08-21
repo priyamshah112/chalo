@@ -140,7 +140,6 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                         child: CircularProgressIndicator());
                                   final DocumentSnapshot planSnap =
                                       snapshot.data;
-                                  print(planSnap.data);
                                   return FadeAnimation(
                                     index - 8.0,
                                     Container(

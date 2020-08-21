@@ -52,7 +52,7 @@ class DateTimePicker {
     _pickedDate = await showDatePicker(
       context: ctx,
       firstDate: first,
-      initialDate: _pickedDate ?? DateTime.now(),
+      initialDate: _pickedDate ?? first,
       lastDate: last,
       builder: (BuildContext context, Widget child) {
         return Theme(

@@ -24,7 +24,7 @@ class GetLocation extends StatefulWidget {
 
 class _GetLocationState extends State<GetLocation> {
   String mapSearchValue;
-  bool _showMarker, istap = false;
+  bool _showMarker, locating = false, istap = false;
   Position position;
   loc.Location location;
   TextEditingController locationTextController;
@@ -41,6 +41,7 @@ class _GetLocationState extends State<GetLocation> {
   }
 
   void getUserLocation() async {
+    setState(() => locating = true);
     try {
       bool _serviceEnabled = await location.serviceEnabled();
       if (!_serviceEnabled) {
@@ -49,6 +50,22 @@ class _GetLocationState extends State<GetLocation> {
           return;
         }
       }
+      showDialog(
+          context: context,
+          builder: (_) => WillPopScope(
+              onWillPop: () => Future.value(false),
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 10),
+                    Text('Getting your Location', style: TextStyle(color: Colors.white),)
+                  ],
+                )),
+              )));
       Position userPosition = await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       final coordinates =
@@ -64,9 +81,12 @@ class _GetLocationState extends State<GetLocation> {
       });
       LatLng latlog = new LatLng(position.latitude, position.longitude);
       _mapController.onReady.then((value) => _mapController.move(latlog, 12));
-      print("${first.featureName} : ${first.addressLine}");
+      Navigator.of(context, rootNavigator: true).pop();
+      setState(() => locating = false);
+      // print("${first.featureName} : ${first.addressLine}");
     } catch (e) {
       print(e.toString());
+      setState(() => locating = false);
     }
   }
 
@@ -78,7 +98,7 @@ class _GetLocationState extends State<GetLocation> {
       _showMarker = true;
       position = Position(
           latitude: coordinates.latitude, longitude: coordinates.longitude);
-      print('${coordinates.latitude} ${coordinates.longitude}');
+      // print('${coordinates.latitude} ${coordinates.longitude}');
       LatLng latlog = new LatLng(coordinates.latitude, coordinates.longitude);
       _mapController.move(latlog, 12);
     });
@@ -151,15 +171,15 @@ class _GetLocationState extends State<GetLocation> {
             ),
             child: FlutterMap(
               mapController: _mapController,
-              options: new MapOptions(
+              options: MapOptions(
                   interactive: true,
-                  center: new LatLng(position.latitude ?? 19.0760,
+                  center: LatLng(position.latitude ?? 19.0760,
                       position.longitude ?? 72.8777),
                   minZoom: 10.0,
                   maxZoom: 18,
                   zoom: widget.zoom ?? 13.0),
               layers: [
-                new TileLayerOptions(
+                TileLayerOptions(
                   urlTemplate:
                       "https://api.mapbox.com/styles/v1/abdulquadir123/ck9kbtkmm0ngc1ipif8vq6qbv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw",
                   additionalOptions: {
@@ -246,7 +266,7 @@ class _GetLocationState extends State<GetLocation> {
                         MapBoxPlace temp = place;
                         mapSearchValue = temp.placeName;
                         getLocation(mapSearchValue);
-                        print("search value  : $mapSearchValue");
+                        // print("search value  : $mapSearchValue");
                       });
                     },
                     context: context,

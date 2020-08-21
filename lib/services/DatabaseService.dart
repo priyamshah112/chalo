@@ -152,9 +152,9 @@ class DataService {
           'participant_type': details['participant_type']
         });
       }
-      print(plandoc.documentID);
-      print(groupchatdoc.documentID);
-      print(locationdoc.documentID);
+      // print(plandoc.documentID);
+      // print(groupchatdoc.documentID);
+      // print(locationdoc.documentID);
       await database.runTransaction((transaction) async {
         await transaction.update(plandoc, {
           'group_chat': groupchatdoc,

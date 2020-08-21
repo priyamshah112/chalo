@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:io';
 
+import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,7 +27,7 @@ class _AddActivityState extends State<AddActivity> {
   final _formKey = GlobalKey<FormState>();
   final activityController = TextEditingController();
   TextEditingController address = TextEditingController();
-  String activityName, activity, location, note, type = 'Public';
+  String activity, location, note, type = 'Public';
   Position activityLocation;
   List<String> activities;
   DateTime startTime = DateTime.now().add(Duration(minutes: 29));
@@ -104,35 +105,6 @@ class _AddActivityState extends State<AddActivity> {
                                 child: TextFormField(
                                   validator: (value) {
                                     if (value.isEmpty)
-                                      return 'Please Enter a title';
-                                    else
-                                      return null;
-                                  },
-                                  onSaved: (value) => activityName = value,
-                                  keyboardType: TextInputType.text,
-                                  autofocus: false,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "A name for your Activity",
-                                    prefixIcon: Icon(
-                                      Icons.directions_bike,
-                                    ),
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 30.0, bottom: 18.0, top: 18.0),
-                                    filled: true,
-                                    fillColor: Color(form1),
-                                    hintStyle: TextStyle(
-                                      color: Color(formHint),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 1.0, vertical: 10.0),
-                                child: TextFormField(
-                                  validator: (value) {
-                                    if (value.isEmpty)
                                       return 'Please Select an Activity';
                                     else {
                                       bool contains = true;
@@ -146,18 +118,19 @@ class _AddActivityState extends State<AddActivity> {
                                           : 'Make sure to select an activity from the list';
                                     }
                                   },
-                                  onSaved: (value) => activity = value,
+                                  onChanged: (value) => activity = value,
                                   keyboardType: TextInputType.text,
                                   autofocus: false,
                                   onTap: () async {
                                     var result = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => ViewActivity(),
+                                        builder: (context) =>
+                                            ViewActivity(activity ?? null),
                                       ),
                                     );
                                     if (result == null) return;
-                                    activityController.text =
+                                    activity = activityController.text =
                                         result['selected'];
                                     activities = result['activityList'];
                                     FocusScope.of(context).unfocus();
@@ -228,7 +201,9 @@ class _AddActivityState extends State<AddActivity> {
                                     Map result = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => GetLocation(activityLocation ?? null),
+                                        builder: (context) => GetLocation(
+                                          
+                                            activityLocation ?? null,  zoom: 9,showMarker: false),
                                       ),
                                     );
                                     if (result != null) {
@@ -304,10 +279,7 @@ class _AddActivityState extends State<AddActivity> {
                                         return null;
                                     }
                                   },
-                                  onSaved: (value) {
-                                    // print('start: ' + value.toString());
-                                    startTime = value;
-                                  },
+                                  onChanged: (value) => startTime = value,
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
@@ -335,11 +307,10 @@ class _AddActivityState extends State<AddActivity> {
                                   onShowPicker: (context, time) =>
                                       end.presentDateTimePicker(
                                           context,
-                                          DateTime.now(),
+                                          startTime,
                                           DateTime.now()
                                               .add(Duration(days: 60)),
-                                          DateTime.now()
-                                              .add(Duration(minutes: 60))),
+                                          startTime.add(Duration(minutes: 30))),
                                   format: DateFormat("EEE, d MMM yyyy hh:mm a"),
                                   validator: (value) {
                                     if (value == null)
@@ -356,10 +327,7 @@ class _AddActivityState extends State<AddActivity> {
                                         return null;
                                     }
                                   },
-                                  onSaved: (value) {
-                                    // print('end: ' + value.toString());
-                                    endTime = value;
-                                  },
+                                  onChanged: (value) => endTime = value,
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
@@ -512,7 +480,6 @@ class _AddActivityState extends State<AddActivity> {
                                   _formKey.currentState.save();
                                   final user = await UserData.getUser();
                                   Map<String, dynamic> activityDetails = {
-                                    'activity_name': activityName,
                                     'activity_type': activity,
                                     'admin_id': user['email'],
                                     'admin_name': user['name'],
@@ -520,7 +487,7 @@ class _AddActivityState extends State<AddActivity> {
                                     'blocked_participant_id': [],
                                     'pending_participant_id': [],
                                     'broadcast_type': type.toLowerCase(),
-                                    'max_participant': _peopleCount,
+                                    'max_participant': _peopleCount + 1,
                                     'participant_type': selectedGender,
                                     'activity_start':
                                         Timestamp.fromDate(startTime),
@@ -540,13 +507,16 @@ class _AddActivityState extends State<AddActivity> {
                                     'timestamp': Timestamp.now(),
                                     'plan_id': ""
                                   };
-                                  print(activityDetails);
+                                  // print(activityDetails);
                                   showDialog(
                                       context: context,
                                       child: Center(
                                           child: CircularProgressIndicator()));
+                                  await DataService()
+                                      .createPlan(activityDetails);
                                   await Future.delayed(Duration(seconds: 1));
-                                  Navigator.pop(context);
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
                                   showDialog(
                                       context: context,
                                       builder: (ctx) => FadeAnimation(
@@ -557,9 +527,12 @@ class _AddActivityState extends State<AddActivity> {
                                                     "Activity successfully created",
                                                 buttonText1: "Ok",
                                                 button1Func: () {
-                                                  Navigator.pop(context);
-                                                  Navigator.pop(
-                                                      context, activityDetails);
+                                                  Navigator.of(context,
+                                                          rootNavigator: true)
+                                                      .pop();
+                                                  Navigator.of(context,
+                                                          rootNavigator: true)
+                                                      .pop();
                                                 }),
                                           ));
                                 } else

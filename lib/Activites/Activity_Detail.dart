@@ -1,3 +1,4 @@
+import 'package:chaloapp/Broadcast/Broadcast_Details.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -10,8 +11,8 @@ import '../widgets/DailogBox.dart';
 import '../Animation/FadeAnimation.dart';
 
 class ActivityDetails extends StatefulWidget {
-  final DocumentReference planRef;
-  const ActivityDetails({Key key, @required this.planRef}) : super(key: key);
+  final DocumentSnapshot planDoc;
+  const ActivityDetails({Key key, @required this.planDoc}) : super(key: key);
   @override
   _ActivityDetailsState createState() => _ActivityDetailsState();
 }
@@ -20,24 +21,11 @@ class _ActivityDetailsState extends State<ActivityDetails> {
   @override
   void initState() {
     super.initState();
+    plan = widget.planDoc;
   }
 
   bool requestSent = false;
-
-  Future<Map<String, dynamic>> getData() async {
-    try {
-      final snapshot = await widget.planRef.get();
-      if (snapshot.data == null) return {'doc': null};
-      setState(() => requestSent =
-          snapshot.data['pending_participant_id'].contains(CurrentUser.user.email)
-              ? true
-              : false);
-      return {'doc': snapshot, 'email': CurrentUser.user.email};
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
-  }
+  DocumentSnapshot plan;
 
   @override
   void setState(fn) {
@@ -47,223 +35,183 @@ class _ActivityDetailsState extends State<ActivityDetails> {
   }
 
   bool isLoading = false;
-  Future<bool> onBackPressed() async {
-    if (deleting) return false;
-    bool notLastScreen = Navigator.of(context).canPop();
-    if (notLastScreen)
-      Navigator.of(context).pop();
-    else
-      Navigator.of(context)
-          .pushReplacement(MaterialPageRoute(builder: (_) => MainHome()));
-    return true;
-  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget buildActivityDetails(BuildContext context) {
+    final String email = CurrentUser.userEmail;
+    final List participants = plan['participants_id'];
+    final start = DateTime.fromMillisecondsSinceEpoch(
+        plan['activity_start'].seconds * 1000);
+    final end = DateTime.fromMillisecondsSinceEpoch(
+        plan['activity_end'].seconds * 1000);
+    if (plan['pending_participant_id'].contains(email))
+      setState(() => requestSent = true);
     return WillPopScope(
-      onWillPop: onBackPressed,
-      child: FutureBuilder(
-          future: getData(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData)
-              return Container(
-                  color: Colors.white,
-                  child: Center(child: CircularProgressIndicator()));
-            if (snapshot.data['doc'] == null)
-              return Scaffold(
-                  body: Center(
-                      child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text('No Such Actiivity'),
-                  SizedBox(height: 10),
-                  RaisedButton(
-                    onPressed: onBackPressed,
-                    color: Color(primary),
-                    textColor: Colors.white,
-                    child: Text(
-                      'Go to Home',
-                      style: TextStyle(
-                        fontFamily: bodyText,
-                      ),
-                    ),
-                  ),
-                ],
-              )));
-            final DocumentSnapshot planDoc = snapshot.data['doc'];
-            final String email = snapshot.data['email'];
-            final List participants = planDoc['participants_id'];
-            final start = DateTime.fromMillisecondsSinceEpoch(
-                planDoc['activity_start'].seconds * 1000);
-            final end = DateTime.fromMillisecondsSinceEpoch(
-                planDoc['activity_end'].seconds * 1000);
-            return Scaffold(
-              appBar: AppBar(
-                backgroundColor: Color(primary),
-                elevation: 0.0,
-                automaticallyImplyLeading: false,
-                title: Text(
-                  planDoc.data['activity_name'],
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: bodyText,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                centerTitle: true,
+        onWillPop: () =>
+            deleting ? Future.value(false) : onBackPressed(context),
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Color(primary),
+            elevation: 0.0,
+            automaticallyImplyLeading: false,
+            title: Text(
+              plan.data['admin_name'].toString().split(" ").first + "'s Activity",
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: bodyText,
               ),
-              backgroundColor: Colors.white,
-              body: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
-                child: FadeAnimation(
-                  1,
-                  Container(
-                    height: MediaQuery.of(context).size.height,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                      ),
-                      child: Column(
-                        children: <Widget>[
-                          ActivityDetailCard(
-                              planDoc: planDoc, start: start, end: end),
-                          if (!participants.contains(email) &&
-                              participants.length <
-                                  planDoc.data['max_participant'])
-                            isLoading
-                                ? Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: CircularProgressIndicator(),
-                                  )
-                                : Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: requestSent
-                                            ? Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: <Widget>[
-                                                    Icon(Icons.access_time,
-                                                        color: Color(primary)),
-                                                    SizedBox(width: 10),
-                                                    Text('Request Pending',
-                                                        style: TextStyle(
-                                                            fontFamily:
-                                                                bodyText,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color: Color(
-                                                                primary))),
-                                                  ],
-                                                ),
-                                              )
-                                            : FlatButton(
-                                                onPressed: () async {
-                                                  setState(
-                                                      () => isLoading = true);
-                                                  await DataService()
-                                                      .requestJoin(
-                                                          widget.planRef,
-                                                          email,
-                                                          true);
-                                                  await Future.delayed(
-                                                      Duration(seconds: 1));
-                                                  setState(() {
-                                                    isLoading = false;
-                                                    requestSent = true;
-                                                  });
-                                                },
-                                                color: Color(primary),
-                                                textColor: Colors.white,
-                                                child: Text(
-                                                  'Join Activity',
-                                                  style: TextStyle(
-                                                    fontFamily: bodyText,
-                                                  ),
-                                                ),
-                                              ),
-                                      ),
-                                      SizedBox(height: 5),
-                                      requestSent
-                                          ? FlatButton(
-                                              onPressed: () async {
-                                                await DataService().requestJoin(
-                                                    widget.planRef,
-                                                    email,
-                                                    false);
-                                                setState(
-                                                    () => requestSent = false);
-                                              },
-                                              color: Color(primary),
-                                              textColor: Colors.white,
+            ),
+            centerTitle: true,
+          ),
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: FadeAnimation(
+                1,
+                Container(
+                  height: MediaQuery.of(context).size.height,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20,
+                    ),
+                    child: Column(
+                      children: <Widget>[
+                        ActivityDetailCard(
+                            planDoc: plan, start: start, end: end),
+                        if (!participants.contains(email) &&
+                            participants.length < plan.data['max_participant'])
+                          isLoading
+                              ? Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: CircularProgressIndicator(),
+                                )
+                              : Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      child: requestSent
+                                          ? Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
                                               child: Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,
                                                 children: <Widget>[
-                                                  Icon(Icons.clear),
+                                                  Icon(Icons.access_time,
+                                                      color: Color(primary)),
                                                   SizedBox(width: 10),
-                                                  Text(
-                                                    'Canel Request',
-                                                    style: TextStyle(
-                                                      fontFamily: bodyText,
-                                                    ),
-                                                  ),
+                                                  Text('Request Pending',
+                                                      style: TextStyle(
+                                                          fontFamily: bodyText,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color:
+                                                              Color(primary))),
                                                 ],
                                               ),
                                             )
                                           : FlatButton(
-                                              highlightColor:
-                                                  Colors.transparent,
+                                              onPressed: () async {
+                                                setState(
+                                                    () => isLoading = true);
+                                                await DataService().requestJoin(
+                                                    plan.reference,
+                                                    email,
+                                                    true);
+                                                await Future.delayed(
+                                                    Duration(seconds: 1));
+                                                setState(() {
+                                                  isLoading = false;
+                                                  requestSent = true;
+                                                });
+                                              },
+                                              color: Color(primary),
+                                              textColor: Colors.white,
                                               child: Text(
-                                                'Propose a new time',
+                                                'Join Activity',
                                                 style: TextStyle(
-                                                  color: Color(primary),
+                                                  fontFamily: bodyText,
                                                 ),
                                               ),
-                                              onPressed: () {},
                                             ),
-                                    ],
-                                  ),
-                          SizedBox(height: 20),
-                          ParticipantList(
-                              participants: participants,
-                              admin: planDoc['admin_name'],
-                              adminId: planDoc['admin_id'],
-                              planId: planDoc['plan_id'],
-                              current: email),
-                          if (participants.contains(email))
-                            Container(
-                              width: double.infinity,
-                              child: RaisedButton(
-                                  onPressed: () =>
-                                      handleLeaveActivity(context, planDoc),
-                                  elevation: 2,
-                                  textColor: Colors.white,
-                                  color: Colors.red,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Text(
-                                    'Leave Activity',
-                                    style: TextStyle(
-                                      fontFamily: bodyText,
                                     ),
-                                  )),
-                            ),
-                        ],
-                      ),
+                                    SizedBox(height: 5),
+                                    requestSent
+                                        ? FlatButton(
+                                            onPressed: () async {
+                                              await DataService().requestJoin(
+                                                  plan.reference, email, false);
+                                              setState(
+                                                  () => requestSent = false);
+                                            },
+                                            color: Color(primary),
+                                            textColor: Colors.white,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                Icon(Icons.clear),
+                                                SizedBox(width: 10),
+                                                Text(
+                                                  'Canel Request',
+                                                  style: TextStyle(
+                                                    fontFamily: bodyText,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        : FlatButton(
+                                            highlightColor: Colors.transparent,
+                                            child: Text(
+                                              'Propose a new time',
+                                              style: TextStyle(
+                                                color: Color(primary),
+                                              ),
+                                            ),
+                                            onPressed: () {},
+                                          ),
+                                  ],
+                                ),
+                        SizedBox(height: 20),
+                        ParticipantList(
+                            participants: participants,
+                            admin: plan['admin_name'],
+                            adminId: plan['admin_id'],
+                            planId: plan['plan_id'],
+                            current: email),
+                        if (participants.contains(email))
+                          Container(
+                            width: double.infinity,
+                            child: RaisedButton(
+                                onPressed: () =>
+                                    handleLeaveActivity(context, plan),
+                                elevation: 2,
+                                textColor: Colors.white,
+                                color: Colors.red,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Text(
+                                  'Leave Activity',
+                                  style: TextStyle(
+                                    fontFamily: bodyText,
+                                  ),
+                                )),
+                          ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            );
-          }),
-    );
+            ),
+          ),
+        ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return buildActivityDetails(context);
   }
 
   bool deleting = false;
@@ -457,7 +405,7 @@ class ActivityDetailCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  planDoc['activity_name'],
+                  planDoc['activity_type'],
                   style: TextStyle(
                     color: Color(primary),
                     fontWeight: FontWeight.bold,
@@ -606,4 +554,52 @@ class Detail extends StatelessWidget {
       ],
     );
   }
+}
+
+class ActivityLink extends StatelessWidget {
+  final DocumentSnapshot activity;
+  const ActivityLink({Key key, @required this.activity}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    if (activity.data == null) return activityNotFoundPage(context);
+    return activity.data['admin_id'] == CurrentUser.userEmail
+        ? BroadcastActivityDetails(planDoc: activity)
+        : ActivityDetails(planDoc: activity);
+  }
+
+  Widget activityNotFoundPage(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () => onBackPressed(context),
+      child: Scaffold(
+          body: Center(
+              child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text('No Such Actiivity'),
+          SizedBox(height: 10),
+          RaisedButton(
+            onPressed: () => onBackPressed(context),
+            color: Color(primary),
+            textColor: Colors.white,
+            child: Text(
+              'Go to Home',
+              style: TextStyle(
+                fontFamily: bodyText,
+              ),
+            ),
+          ),
+        ],
+      ))),
+    );
+  }
+}
+
+Future<bool> onBackPressed(BuildContext context) async {
+  bool notLastScreen = Navigator.of(context).canPop();
+  if (notLastScreen)
+    Navigator.of(context).pop();
+  else
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => MainHome()));
+  return true;
 }
