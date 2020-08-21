@@ -8,8 +8,6 @@ import '../services/DatabaseService.dart';
 import 'uploadPage.dart';
 
 class Explore extends StatefulWidget {
-  final Future<bool> Function() onBack;
-  Explore({@required this.onBack});
   @override
   _ExploreState createState() => _ExploreState();
 }
@@ -17,23 +15,26 @@ class Explore extends StatefulWidget {
 class _ExploreState extends State<Explore> {
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: widget.onBack,
-      child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () => Navigator.push(
-              context, MaterialPageRoute(builder: (context) => UploadPage())),
-        ),
-        appBar: AppBar(
-          backgroundColor: Color(primary),
-          title: Center(
-            child: Text(
-              "Social Wall",
-            ),
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () => Navigator.push(
+            context, MaterialPageRoute(builder: (context) => UploadPage())),
+      ),
+      appBar: AppBar(
+        backgroundColor: Color(primary),
+        title: Center(
+          child: Text(
+            "Social Wall",
           ),
         ),
-        body: SafeArea(
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Future.delayed(Duration(seconds: 2));
+          setState(() {});
+        },
+        child: SafeArea(
           child: StreamBuilder(
               stream: Firestore.instance
                   .collection('posts')
@@ -114,10 +115,13 @@ class _PostCardState extends State<PostCard> {
               DataService().likePost(widget.post['post_id']);
               setState(() => isLiked = true);
             },
-            child: Image.network(
-              widget.post['image_url'],
-              width: MediaQuery.of(context).size.width,
-              fit: BoxFit.cover,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Image.network(
+                widget.post['image_url'],
+                width: MediaQuery.of(context).size.width,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           SizedBox(

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:share/share.dart';
@@ -10,8 +9,6 @@ import '../common/global_colors.dart';
 import 'Activity_Detail.dart';
 
 class AllActivity extends StatefulWidget {
-  final Future<bool> Function() onBack;
-  AllActivity({@required this.onBack});
   @override
   _AllActivityState createState() => _AllActivityState();
 }
@@ -101,77 +98,74 @@ class _AllActivityState extends State<AllActivity> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: widget.onBack,
-      child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Color(primary),
-            elevation: 0.0,
-            automaticallyImplyLeading: false,
-            title: Center(
-              child: Text(
-                'All Activity',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color(primary),
+          elevation: 0.0,
+          automaticallyImplyLeading: false,
+          title: Center(
+            child: Text(
+              'All Activity',
+              style: TextStyle(
+                color: Colors.white,
               ),
             ),
           ),
-          backgroundColor: Colors.white70,
-          body: Container(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 20,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  SizedBox(height: 10.0),
-                  Text(
-                    "Sort By Activity",
-                    style: TextStyle(
-                        color: Color(primary),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  FilterByActivity(),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    "All Broadcasted Activities",
-                    style: TextStyle(
-                        color: Color(primary),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Expanded(
-                      child: Activities(
-                              stream: Firestore.instance
-                                  .collection('plan')
-                                  .where('broadcast_type', isEqualTo: "public")
-                                  .orderBy('activity_start', descending: true)
-                                  .snapshots(),
-                              onTapGoto: (docRef) => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    settings: RouteSettings(name: 'Activity'),
-                                    builder: (BuildContext context) =>
-                                        ActivityDetails(planRef: docRef)),
-                              ),
-                            )),
-                ],
-              ),
+        ),
+        backgroundColor: Colors.white70,
+        body: Container(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 20,
             ),
-          )),
-    );
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(height: 10.0),
+                Text(
+                  "Sort By Activity",
+                  style: TextStyle(
+                      color: Color(primary),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                FilterByActivity(),
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  "All Broadcasted Activities",
+                  style: TextStyle(
+                      color: Color(primary),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Expanded(
+                    child: Activities(
+                  stream: Firestore.instance
+                      .collection('plan')
+                      .where('broadcast_type', isEqualTo: "public")
+                      .orderBy('activity_start', descending: true)
+                      .snapshots(),
+                  onTapGoto: (docRef) => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        settings: RouteSettings(name: 'Activity'),
+                        builder: (BuildContext context) =>
+                            ActivityDetails(planRef: docRef)),
+                  ),
+                )),
+              ],
+            ),
+          ),
+        ));
   }
 }
 
@@ -179,7 +173,10 @@ class Activities extends StatefulWidget {
   final Stream stream;
   final bool showUserActivities;
   final Function(DocumentReference planRef) onTapGoto;
-  Activities({@required this.stream, @required this.onTapGoto, this.showUserActivities = false});
+  Activities(
+      {@required this.stream,
+      @required this.onTapGoto,
+      this.showUserActivities = false});
   @override
   _ActivitiesState createState() => _ActivitiesState();
 }
@@ -198,7 +195,8 @@ class _ActivitiesState extends State<Activities> {
           return ListView.builder(
               itemCount: count,
               itemBuilder: (context, index) {
-                return  !widget.showUserActivities && plans[index]['admin_id'] == CurrentUser.user.email
+                return !widget.showUserActivities &&
+                        plans[index]['admin_id'] == CurrentUser.user.email
                     ? Container()
                     : ActivityCard(
                         planDoc: plans[index],
@@ -240,11 +238,8 @@ class ActivityCard extends StatelessWidget {
                   Container(
                     width: 55.0,
                     height: 55.0,
-                    child: CircleAvatar(
-                      foregroundColor: Color(primary),
-                      radius: 5,
-                      backgroundColor: Colors.white,
-                      backgroundImage: planDoc.data['activity_logo'] != null
+                    child: Image(
+                      image: planDoc.data['activity_logo'] != null
                           ? NetworkImage(planDoc.data['activity_logo'])
                           : AssetImage('images/bgcover.jpg'),
                     ),
@@ -290,9 +285,13 @@ class ActivityCard extends StatelessWidget {
                         color: Colors.green,
                         onPressed: () async {
                           final RenderBox box = context.findRenderObject();
+                          showDialog(
+                              context: context,
+                              builder: (_) => Center(child: CircularProgressIndicator()));
                           final link = await DynamicLinkService.createLink(
                               planDoc['plan_id'],
                               planDoc['admin_name'].toString().split(' ')[0]);
+                          Navigator.of(context, rootNavigator: true).pop();
                           Share.share('Check  out my activity: $link',
                               sharePositionOrigin:
                                   box.localToGlobal(Offset.zero) & box.size);

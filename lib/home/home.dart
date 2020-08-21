@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chaloapp/data/screens.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -30,91 +31,63 @@ class MainHome extends StatefulWidget {
 
 class _MainHomeState extends State<MainHome> {
   int _currentIndex = 0;
-  List tabs;
   String profilePic;
   @override
   void initState() {
     super.initState();
     DynamicLinkService.retrieveDynamicLink(context);
-    tabs = [
-      MainMap(onBack: _onWillPop),
-      AllActivity(onBack: onBack),
-      Broadcast(onBack: onBack),
-      Explore(onBack: onBack),
-      Chats(onBack: onBack)
-    ];
-  }
-
-  Future<bool> onBack() async {
-    setState(() => _currentIndex = 0);
-    return Future.value(false);
   }
 
   DateTime currentBackPressTime;
-  Future<bool> _onWillPop(BuildContext context) {
-    DateTime now = DateTime.now();
-    if (currentBackPressTime == null ||
-        now.difference(currentBackPressTime) > Duration(seconds: 1)) {
-      currentBackPressTime = now;
-      Toast.show("Press back again to exit", context);
+  Future<bool> _onWillPop(BuildContext ctx) async {
+    if (_currentIndex == 0) {
+      DateTime now = DateTime.now();
+      if (currentBackPressTime == null ||
+          now.difference(currentBackPressTime) > Duration(seconds: 1)) {
+        currentBackPressTime = now;
+        Toast.show("Press back again to exit", ctx);
+        return Future.value(false);
+      }
+      CurrentUser.discard();
+      return Future.value(true);
+    } else {
+      setState(() => _currentIndex = 0);
       return Future.value(false);
     }
-    CurrentUser.discard();
-    return Future.value(true);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: tabs[_currentIndex],
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.symmetric(vertical: 13),
-        color: Colors.white,
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          iconSize: 25,
-          backgroundColor: Colors.white,
-          unselectedItemColor: Color(secondary),
-          fixedColor: Color(primary),
-          elevation: 0.0,
-          currentIndex: _currentIndex,
-          onTap: (int index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          items: [
-            BottomNavigationBarItem(
-              title: Text("Map"),
-              icon: Icon(
-                FontAwesomeIcons.mapMarkerAlt,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text("Activities"),
-              icon: Icon(
-                FontAwesomeIcons.list,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text("Broadcast"),
-              icon: Icon(
-                Icons.wifi_tethering,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text("Explore"),
-              icon: Icon(
-                Icons.dashboard,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text("chats"),
-              icon: Icon(
-                FontAwesomeIcons.commentDots,
-              ),
-            ),
-          ],
+    return WillPopScope(
+      onWillPop: () => _onWillPop(context),
+      child: Scaffold(
+        bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            type: BottomNavigationBarType.fixed,
+            iconSize: 25,
+            backgroundColor: Colors.white,
+            unselectedItemColor: Color(secondary),
+            fixedColor: Color(primary),
+            elevation: 10.0,
+            onTap: (index) => setState(() => _currentIndex = index),
+            items: Screen.pages.map((p) {
+              return BottomNavigationBarItem(
+                  icon: Icon(p.icon),
+                  activeIcon: Column(
+                    children: <Widget>[
+                      if (_currentIndex == p.index)
+                        Container(height: 2, width: 50, color: Color(primary)),
+                      SizedBox(height: 5),
+                      Icon(p.activeIcon),
+                    ],
+                  ),
+                  title: Text(p.title));
+            }).toList()),
+        body: SafeArea(
+          top: false,
+          child: IndexedStack(
+              index: _currentIndex,
+              children: Screen.pages.map((p) => p.page).toList()),
         ),
       ),
     );
@@ -122,56 +95,49 @@ class _MainHomeState extends State<MainHome> {
 }
 
 class MainMap extends StatefulWidget {
-  final Future<bool> Function(BuildContext context) onBack;
-  MainMap({@required this.onBack});
   @override
   _MainMapState createState() => _MainMapState();
 }
 
 class _MainMapState extends State<MainMap> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       floatingActionButton: FloatingActionButton(
+          heroTag: 'notifications',
           backgroundColor: Colors.white,
           child: Icon(Icons.notifications, color: Color(primary)),
           onPressed: () => Navigator.push(
               context, MaterialPageRoute(builder: (_) => NotificationList()))),
-      body: WillPopScope(
-        onWillPop: () => widget.onBack(context),
-        child: Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            Container(
-              child: StreamBuilder<Object>(
-                  stream:
-                      Firestore.instance.collection('map_activity').snapshots(),
-                  builder: (context, AsyncSnapshot snapshot) {
-                    return FlutterMap(
-                      options: MapOptions(
-                          center: LatLng(19.0760, 72.8777), zoom: 13),
-                      layers: [
-                        TileLayerOptions(
-                            urlTemplate:
-                                "https://api.mapbox.com/styles/v1/abdulquadir123/ck9kbtkmm0ngc1ipif8vq6qbv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw",
-                            additionalOptions: {
-                              'accessToken':
-                                  'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw',
-                              'id': 'mapbox.mapbox-streets-v8'
-                            }),
-                        if (snapshot.hasData)
-                          MarkerLayerOptions(
-                              markers: getMarkers(snapshot.data.documents))
-                      ],
-                    );
-                  }),
-            ),
-            UserSearchBar(forHome: true),
-          ],
-        ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          Container(
+            child: StreamBuilder<Object>(
+                stream:
+                    Firestore.instance.collection('map_activity').snapshots(),
+                builder: (context, AsyncSnapshot snapshot) {
+                  return FlutterMap(
+                    options:
+                        MapOptions(center: LatLng(19.0760, 72.8777), zoom: 13),
+                    layers: [
+                      TileLayerOptions(
+                          urlTemplate:
+                              "https://api.mapbox.com/styles/v1/abdulquadir123/ck9kbtkmm0ngc1ipif8vq6qbv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw",
+                          additionalOptions: {
+                            'accessToken':
+                                'pk.eyJ1IjoiYWJkdWxxdWFkaXIxMjMiLCJhIjoiY2s5a2FmNHM3MDRudTNmbHIxMXJnazljbCJ9.znqRJyK_9-nzvIoPaSrmjw',
+                            'id': 'mapbox.mapbox-streets-v8'
+                          }),
+                      if (snapshot.hasData)
+                        MarkerLayerOptions(
+                            markers: getMarkers(snapshot.data.documents))
+                    ],
+                  );
+                }),
+          ),
+          UserSearchBar(forHome: true),
+        ],
       ),
     );
   }
