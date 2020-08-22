@@ -137,23 +137,12 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-class OnBoarding extends StatelessWidget {
+class OnBoarding extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'App onboarding',
-      home: Home(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
+  _OnBoardingState createState() => _OnBoardingState();
 }
 
-class Home extends StatefulWidget {
-  @override
-  _HomeState createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
+class _OnBoardingState extends State<OnBoarding> {
   List<SliderModel> slide = new List<SliderModel>();
   int currentIndex = 0;
   PageController pageController = new PageController(initialPage: 0);

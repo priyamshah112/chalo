@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Animation/FadeAnimation.dart';
 import '../data/chat_model.dart';
@@ -113,14 +114,12 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                         .document(email)
                         .snapshots(),
                     builder: (ctx, snapshot) {
-                      if (snapshot.connectionState ==
-                              ConnectionState.waiting ||
+                      if (snapshot.connectionState == ConnectionState.waiting ||
                           !snapshot.hasData)
                         return Center(child: CircularProgressIndicator());
                       List plans = snapshot.data['current_plans'];
                       if (plans.length == 0)
-                        return Center(
-                            child: Text('No Current Plans to show!'));
+                        return Center(child: Text('No Current Plans to show!'));
                       return ListView.builder(
                           padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
                           itemCount: plans.length,
@@ -131,24 +130,76 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                     .document(plans[index])
                                     .get(),
                                 builder: (ctx,
-                                    AsyncSnapshot<DocumentSnapshot>
-                                        snapshot) {
+                                    AsyncSnapshot<DocumentSnapshot> snapshot) {
                                   if (!snapshot.hasData ||
                                       snapshot.connectionState ==
                                           ConnectionState.waiting)
-                                    return Center(
-                                        child: CircularProgressIndicator());
+                                    return Shimmer.fromColors(
+                                        enabled: true,
+                                        baseColor: Colors.grey[400],
+                                        highlightColor: Colors.grey[100],
+                                        child: Container(
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            padding: EdgeInsets.all(5),
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 4),
+                                            decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: Color(primary),
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(6)),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                CircleAvatar(
+                                                  backgroundColor: Colors.white,
+                                                  radius: 27.5,
+                                                ),
+                                                SizedBox(width: 10),
+                                                Expanded(
+                                                  child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        SizedBox(height: 10),
+                                                        Container(
+                                                            color: Colors.white,
+                                                            width:
+                                                                double.infinity,
+                                                            height: 10),
+                                                        SizedBox(height: 10),
+                                                        Container(
+                                                            color: Colors.white,
+                                                            child: SizedBox(
+                                                              height: 5,
+                                                              width: 80,
+                                                            )),
+                                                      ]),
+                                                ),
+                                                Container(
+                                                  margin: EdgeInsets.all(10),
+                                                  height: 20,
+                                                  width: 50,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
+                                                      color: Colors.white),
+                                                )
+                                              ],
+                                            )));
                                   final DocumentSnapshot planSnap =
                                       snapshot.data;
                                   return FadeAnimation(
                                     index - 8.0,
                                     Container(
-                                      width:
-                                          MediaQuery.of(context).size.width,
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 0),
-                                      margin:
-                                          EdgeInsets.symmetric(vertical: 4),
+                                      width: MediaQuery.of(context).size.width,
+                                      margin: EdgeInsets.symmetric(vertical: 4),
                                       decoration: BoxDecoration(
                                           border: Border.all(
                                             color: Color(primary),
@@ -162,31 +213,27 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                     builder: (BuildContext
                                                             context) =>
                                                         ChatItemPage(
-                                                            planId: planSnap
-                                                                    .data[
-                                                                'plan_id'],
+                                                            planId:
+                                                                planSnap.data[
+                                                                    'plan_id'],
                                                             chatTitle: planSnap
                                                                     .data[
-                                                                'activity_name'])),
+                                                                'activity_type'])),
                                               ),
                                           leading: Container(
                                             width: 55.0,
                                             height: 55.0,
-                                            child: CircleAvatar(
-                                              foregroundColor: Color(primary),
-                                              radius: 5,
-                                              backgroundColor: Colors.white,
-                                              backgroundImage: planSnap.data[
-                                                          'activity_logo'] !=
-                                                      null
-                                                  ? NetworkImage(planSnap
-                                                      .data['activity_logo'])
-                                                  : AssetImage(
-                                                      'images/bgcover.jpg'),
-                                            ),
+                                            child: planSnap.data[
+                                                        'activity_logo'] !=
+                                                    null
+                                                ? Image.network(planSnap
+                                                    .data['activity_logo'])
+                                                : Image.asset(
+                                                    'images/bgcover.jpg',
+                                                  ),
                                           ),
                                           title: Text(
-                                            planSnap.data['activity_name'],
+                                            planSnap.data['activity_type'],
                                             style: TextStyle(
                                               color: Color(primary),
                                               fontSize: 18,
@@ -194,8 +241,7 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                             ),
                                           ),
                                           trailing: Container(
-                                            margin:
-                                                EdgeInsets.only(bottom: 30),
+                                            margin: EdgeInsets.only(bottom: 30),
                                             child: FittedBox(
                                               child: Text(
                                                 DateFormat('MMM d').format(DateTime
@@ -248,8 +294,7 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                             child: Text(
                                                               message
                                                                   .data
-                                                                  .documents[
-                                                                      0][
+                                                                  .documents[0][
                                                                       'message_content']
                                                                   .toString()
                                                                   .split(
@@ -423,16 +468,15 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                     ),
                                                   ),
                                                   subtitle: Container(
-                                                    padding: EdgeInsets.only(
-                                                        top: 5),
+                                                    padding:
+                                                        EdgeInsets.only(top: 5),
                                                     child: Text(
                                                       "You",
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: TextStyle(
                                                         fontSize: 12,
-                                                        color:
-                                                            Color(secondary),
+                                                        color: Color(secondary),
                                                       ),
                                                     ),
                                                   ),
@@ -446,8 +490,7 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                 width: 20,
                                                 height: 20,
                                                 child: CircleAvatar(
-                                                  backgroundColor:
-                                                      Colors.green,
+                                                  backgroundColor: Colors.green,
                                                   child: Icon(
                                                     Icons.star,
                                                     color: Colors.white,
@@ -484,16 +527,15 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                     ),
                                                   ),
                                                   subtitle: Container(
-                                                    padding: EdgeInsets.only(
-                                                        top: 5),
+                                                    padding:
+                                                        EdgeInsets.only(top: 5),
                                                     child: Text(
                                                       "Abdul Quadir",
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: TextStyle(
                                                         fontSize: 12,
-                                                        color:
-                                                            Color(secondary),
+                                                        color: Color(secondary),
                                                       ),
                                                     ),
                                                   ),
@@ -647,16 +689,15 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                     ),
                                                   ),
                                                   subtitle: Container(
-                                                    padding: EdgeInsets.only(
-                                                        top: 5),
+                                                    padding:
+                                                        EdgeInsets.only(top: 5),
                                                     child: Text(
                                                       "You",
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: TextStyle(
                                                         fontSize: 12,
-                                                        color:
-                                                            Color(secondary),
+                                                        color: Color(secondary),
                                                       ),
                                                     ),
                                                   ),
@@ -670,8 +711,7 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                 width: 20,
                                                 height: 20,
                                                 child: CircleAvatar(
-                                                  backgroundColor:
-                                                      Colors.green,
+                                                  backgroundColor: Colors.green,
                                                   child: Icon(
                                                     Icons.star,
                                                     color: Colors.white,
@@ -708,16 +748,15 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                     ),
                                                   ),
                                                   subtitle: Container(
-                                                    padding: EdgeInsets.only(
-                                                        top: 5),
+                                                    padding:
+                                                        EdgeInsets.only(top: 5),
                                                     child: Text(
                                                       "Abdul Quadir",
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: TextStyle(
                                                         fontSize: 12,
-                                                        color:
-                                                            Color(secondary),
+                                                        color: Color(secondary),
                                                       ),
                                                     ),
                                                   ),
@@ -871,16 +910,15 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                     ),
                                                   ),
                                                   subtitle: Container(
-                                                    padding: EdgeInsets.only(
-                                                        top: 5),
+                                                    padding:
+                                                        EdgeInsets.only(top: 5),
                                                     child: Text(
                                                       "You",
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: TextStyle(
                                                         fontSize: 12,
-                                                        color:
-                                                            Color(secondary),
+                                                        color: Color(secondary),
                                                       ),
                                                     ),
                                                   ),
@@ -894,8 +932,7 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                 width: 20,
                                                 height: 20,
                                                 child: CircleAvatar(
-                                                  backgroundColor:
-                                                      Colors.green,
+                                                  backgroundColor: Colors.green,
                                                   child: Icon(
                                                     Icons.star,
                                                     color: Colors.white,
@@ -932,16 +969,15 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                                     ),
                                                   ),
                                                   subtitle: Container(
-                                                    padding: EdgeInsets.only(
-                                                        top: 5),
+                                                    padding:
+                                                        EdgeInsets.only(top: 5),
                                                     child: Text(
                                                       "Abdul Quadir",
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: TextStyle(
                                                         fontSize: 12,
-                                                        color:
-                                                            Color(secondary),
+                                                        color: Color(secondary),
                                                       ),
                                                     ),
                                                   ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../common/global_colors.dart';
@@ -18,8 +19,11 @@ class _ExploreState extends State<Explore> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () => Navigator.push(
-            context, MaterialPageRoute(builder: (context) => UploadPage())),
+        onPressed: () async {
+          bool refresh = await Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => UploadPage()));
+          if (refresh) setState(() {});
+        },
       ),
       appBar: AppBar(
         backgroundColor: Color(primary),
@@ -35,21 +39,24 @@ class _ExploreState extends State<Explore> {
           setState(() {});
         },
         child: SafeArea(
-          child: StreamBuilder(
-              stream: Firestore.instance
+          child: FutureBuilder(
+              future: Firestore.instance
                   .collection('posts')
                   .orderBy('timestamp', descending: true)
-                  .snapshots(),
+                  .getDocuments(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData)
+                if (snapshot.connectionState == ConnectionState.waiting ||
+                    !snapshot.hasData)
                   return Center(child: CircularProgressIndicator());
                 List<DocumentSnapshot> posts = snapshot.data.documents;
-                return ListView.builder(
-                    itemCount: posts.length,
-                    itemBuilder: (_, i) {
-                      var post = posts[i].data;
-                      return PostCard(post: post);
-                    });
+                return posts.length == 0
+                    ? Center(child: Text('Nothing to show :('))
+                    : ListView.builder(
+                        itemCount: posts.length,
+                        itemBuilder: (_, i) {
+                          DocumentSnapshot post = posts[i];
+                          return PostCard(post: post.data);
+                        });
               }),
         ),
       ),
@@ -65,21 +72,34 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  bool isLiked;
+  bool wasLiked = false, isLiked = false, _loading = true;
   List<String> diff;
   int hrs, min, sec;
   DateTime postTime;
+  Image _image;
+  List likedBy;
+  int likes;
   @override
   void initState() {
     super.initState();
-    List likes = widget.post['likes'];
-    isLiked = likes.contains(CurrentUser.user.email);
+    likedBy = widget.post['likes'];
+    likes = likedBy.length;
+    wasLiked = isLiked = likedBy.contains(CurrentUser.user.email);
     postTime = DateTime.fromMillisecondsSinceEpoch(
         widget.post['timestamp'].seconds * 1000);
     diff = (postTime.difference(DateTime.now())).toString().split(':');
     hrs = int.parse(diff[0]).abs();
     min = int.parse(diff[1]).abs();
     sec = int.parse(diff[2].substring(0, 2)).abs();
+    _image = Image.network(
+      widget.post['image_url'],
+      fit: BoxFit.cover,
+    );
+    _image.image
+        .resolve(ImageConfiguration())
+        .addListener(ImageStreamListener((info, call) {
+      if (mounted) setState(() => _loading = false);
+    }));
   }
 
   @override
@@ -113,32 +133,41 @@ class _PostCardState extends State<PostCard> {
           GestureDetector(
             onDoubleTap: () {
               DataService().likePost(widget.post['post_id']);
-              setState(() => isLiked = true);
+              setState(() {
+                isLiked = true;
+                if (!wasLiked) {
+                  likes++;
+                  wasLiked = true;
+                }
+              });
             },
             child: AspectRatio(
-              aspectRatio: 1,
-              child: Container()
-              // Image.network(
-              //   widget.post['image_url'],
-              //   width: MediaQuery.of(context).size.width,
-              //   fit: BoxFit.cover,
-              // ),
-            ),
+                aspectRatio: 1,
+                child: _loading
+                    ? Shimmer.fromColors(
+                        baseColor: Colors.grey[300],
+                        highlightColor: Colors.grey[100],
+                        child: Container(
+                          color: Colors.white,
+                        ),
+                      )
+                    : _image),
           ),
           SizedBox(
             height: 10,
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-            child: Text(
-              widget.post['caption'],
-              style: TextStyle(
-                fontFamily: bodyText,
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
+          if (widget.post['caption'] != null)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+              child: Text(
+                widget.post['caption'],
+                style: TextStyle(
+                  fontFamily: bodyText,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
           SizedBox(
             width: 15,
           ),
@@ -151,7 +180,18 @@ class _PostCardState extends State<PostCard> {
                     onPressed: () {
                       DataService()
                           .likePost(widget.post['post_id'], like: !isLiked);
-                      setState(() => isLiked = !isLiked);
+                      setState(() {
+                        isLiked = !isLiked;
+                        if (wasLiked) {
+                          if (!isLiked) {
+                            likes--;
+                            wasLiked = false;
+                          }
+                        } else if (isLiked) {
+                          likes++;
+                          wasLiked = true;
+                        }
+                      });
                     },
                     icon: Icon(
                       isLiked
@@ -165,7 +205,7 @@ class _PostCardState extends State<PostCard> {
                   width: 7,
                 ),
                 Text(
-                  "${widget.post['likes'].length} likes",
+                  "$likes likes",
                   style: TextStyle(
                     fontFamily: bodyText,
                     fontSize: 17,

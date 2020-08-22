@@ -35,7 +35,7 @@ List<SliderModel> getSlide() {
   SliderModel sliderM = new SliderModel();
   //1
   sliderM.setImagePath('images/loginbg.png');
-  sliderM.setTitle('Acrivities');
+  sliderM.setTitle('Activities');
   sliderM
       .setDes('Select your activity, Select the Time and Select the Location');
   slides.add(sliderM);
