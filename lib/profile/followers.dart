@@ -62,7 +62,7 @@ class _FollowerState extends State<Follower> {
   @override
   void initState() {
     super.initState();
-    followers = CurrentUser.followers;
+    followers = CurrentUser.user.followers;
   }
 
   @override
@@ -111,8 +111,10 @@ class _FollowerState extends State<Follower> {
                                                         '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
                                                     gender:
                                                         snapshot.data['gender'],
-                                                    follower: 0,
-                                                    following: 0,
+                                                    follower: snapshot.data['followers'],
+                                                    following: snapshot.data['followers'],
+                                                    activities: snapshot.data['activities_completed'],
+                                                    age: CurrentUser.ageFromDob(snapshot.data['dob']),
                                                     isCurrent: false,
                                                   )
                                                 ])),

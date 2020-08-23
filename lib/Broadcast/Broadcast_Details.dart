@@ -216,11 +216,15 @@ class _JoinRequestListState extends State<JoinRequestList> {
                                   children: <Widget>[
                                     ProfileCard(
                                       email: snapshot.data['email'],
-                                      username:
-                                          '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                                      username: snapshot.data['name'],
+                                      profilePic: snapshot.data['profile_pic'],
                                       gender: snapshot.data['gender'],
                                       follower: snapshot.data['followers'],
                                       following: snapshot.data['following'],
+                                      activities:
+                                          snapshot.data['activities_completed'],
+                                      age: CurrentUser.ageFromDob(
+                                          snapshot.data['dob']),
                                       isCurrent: false,
                                     ),
                                     Padding(

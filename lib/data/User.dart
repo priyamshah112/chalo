@@ -3,18 +3,31 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
-  String name;
-  String fname;
-  String lname;
-  String email;
-  String password;
-  String birthDate;
-  String gender;
-  String phone;
-  String uid;
-  String photoUrl;
-  int age;
-  List activities = [];
+  String name,
+      fname,
+      lname,
+      email,
+      password,
+      birthDate,
+      gender,
+      phone,
+      address,
+      uid,
+      photoUrl,
+      about,
+      job,
+      lang,
+      country,
+      state,
+      city,
+      facebook,
+      insta,
+      twitter,
+      linkedin,
+      website;
+  int age, coins, activityCompleted;
+  GeoPoint location;
+  List activities = [], followers, following, followRequests, requested, posts;
 
   void setActivities(item) => this.activities.add(item);
   void setUid(String uid) => this.uid = uid;
@@ -29,29 +42,22 @@ class User {
 }
 
 class CurrentUser extends User {
-  List _followers, _following, _followRequests, _requested, _posts;
-  String about,
-      job,
-      lang,
-      country,
-      state,
-      city,
-      facebook,
-      insta,
-      twitter,
-      linkedin,
-      website;
   static CurrentUser user;
   static StreamSubscription<DocumentSnapshot> _userInfo;
   static Future<void> initialize(SharedPreferences prefs) async {
     user = CurrentUser();
     user.name = prefs.getString('name');
     user.email = prefs.getString('email');
+    user.phone = prefs.getString('phone');
     user.photoUrl = prefs.getString('profile_pic');
     user.gender = prefs.getString('gender');
     user.birthDate = prefs.getString('dob');
-    user._followers = user._following = user._followRequests = [];
-    user.age = DateTime.now().year - int.parse(user.birthDate.split("/").last);
+    user.address = prefs.getString('address');
+    user.coins = prefs.getInt('coins');
+    user.activityCompleted = prefs.getInt('activityCompleted');
+    user.location = GeoPoint(prefs.getDouble('lat'), prefs.getDouble('long'));
+    user.age = ageFromDob(user.birthDate);
+    user.followers = user.following = user.followRequests = [];
     print('set basic data');
     _userInfo = Firestore.instance
         .collection('additional_info')
@@ -59,11 +65,11 @@ class CurrentUser extends User {
         .snapshots()
         .listen((snapshot) {
       print('Initializing Additional Info...');
-      user._following = snapshot.data['following_id'];
-      user._followers = snapshot.data['followers_id'];
-      user._followRequests = snapshot.data['follow_requests'];
-      user._posts = snapshot.data['posts'] ?? [];
-      user._requested = snapshot.data['follow_requested'];
+      user.following = snapshot.data['following_id'];
+      user.followers = snapshot.data['followers_id'];
+      user.followRequests = snapshot.data['follow_requests'];
+      user.posts = snapshot.data['posts'] ?? [];
+      user.requested = snapshot.data['follow_requested'];
       user.about = snapshot.data['about'];
       user.lang = snapshot.data['languages'];
       user.job = snapshot.data['job'];
@@ -80,22 +86,22 @@ class CurrentUser extends User {
 
   static void discard() {
     _userInfo.cancel();
-    user._followers =
-        user._following = user._followRequests = user._requested = [];
     user = null;
   }
 
-  static List get followers => user._followers;
-  static List get following => user._following;
-  static List get followRequests => user._followRequests;
-  static List get requested => user._requested;
-  static List get posts => user._posts;
+  // static List get followers => user.followers;
+  // static List get following => user.following;
+  // static List get followRequests => user.followRequests;
+  // static List get requested => user.requested;
+  // static List get posts => user.posts;
   static String get userEmail => user.email;
   static String get username => user.name;
-  static void setFollowers(List temp) => user._followers = temp;
-  static void setFollowing(List temp) => user._following = temp;
-  static void setFollowRequests(List temp) => user._followRequests = temp;
-  static void setRequested(List temp) => user._requested = temp;
+  static set setFollowers(List temp) => user.followers = temp;
+  static set setFollowing(List temp) => user.following = temp;
+  static set setFollowRequests(List temp) => user.followRequests = temp;
+  static set setRequested(List temp) => user.requested = temp;
+  static int ageFromDob(String dob) =>
+      DateTime.now().year - int.parse(dob.split("/").last);
 }
 
 class UserData {
@@ -106,9 +112,15 @@ class UserData {
     prefs.setString('phone', userData['mobile_no']);
     prefs.setString('gender', userData['gender']);
     prefs.setString('dob', userData['dob']);
+    prefs.setString('address', userData['address']);
     prefs.setString('profile_pic', userData['profile_pic']);
     prefs.setBool('verified', userData['verified']);
     prefs.setBool('profile_setup', userData['profile_setup']);
+    prefs.setInt('activityCompleted', userData['activities_completed']);
+    prefs.setInt('coins', userData['coins']);
+    GeoPoint coordinates = userData['coordinates'];
+    prefs.setDouble('lat', coordinates.latitude);
+    prefs.setDouble('long', coordinates.longitude);
     CurrentUser.initialize(prefs);
   }
 

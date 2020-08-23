@@ -383,17 +383,15 @@ class _UserSearchBarState extends State<UserSearchBar> {
         if (_searchController.text.isNotEmpty) {
           _query = _searchController.text.toLowerCase();
           //for one word
-          _query = _query.length == 1
-              ? _query.toUpperCase()
-              : _query.substring(0, 1).toUpperCase() + _query.substring(1);
+          _query =
+              _query.length == 1 ? _query.toUpperCase() : capitalize(_query);
           // for multiple words
           List<String> words = _query.split(' ');
           if (words.length > 1) {
             for (var i = 1; i < words.length; i++)
               words[i] = words[i].length == 1
                   ? words[i].toUpperCase()
-                  : words[i].substring(0, 1).toUpperCase() +
-                      words[i].substring(1);
+                  : capitalize(words[i]);
             _query = words.join(' ');
           }
         } else {
@@ -491,11 +489,11 @@ class _UserSearchBarState extends State<UserSearchBar> {
                                 return Card(
                                   child: ListTile(
                                     onTap: () => user['email'] ==
-                                            CurrentUser.user.email
+                                            CurrentUser.userEmail
                                         ? Navigator.of(context).push(
                                             MaterialPageRoute(
-                                                builder: ((_) =>
-                                                    ProfilePage())))
+                                                builder: ((_) => ProfilePage(
+                                                    user: CurrentUser.user))))
                                         : showDialog(
                                             context: context,
                                             builder: (ctx) => Column(
@@ -508,13 +506,18 @@ class _UserSearchBarState extends State<UserSearchBar> {
                                                       ProfileCard(
                                                           email: user['email'],
                                                           username:
-                                                              '${user['name']}',
+                                                              user['name'],
+                                                          profilePic: user[
+                                                              'profile_pic'],
                                                           gender:
                                                               user['gender'],
                                                           follower:
                                                               user['followers'],
                                                           following:
                                                               user['following'],
+                                                          activities: user[
+                                                              'activities_completed'],
+                                                    age: CurrentUser.ageFromDob(user['dob']),
                                                           isCurrent: false),
                                                     ])),
                                     title: Text(user['name']),
@@ -559,7 +562,8 @@ class _UserSearchBarState extends State<UserSearchBar> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (BuildContext context) => ProfilePage()),
+                              builder: (BuildContext context) =>
+                                  ProfilePage(user: CurrentUser.user)),
                         );
                       },
                       child: Padding(
@@ -627,4 +631,8 @@ class _UserSearchBarState extends State<UserSearchBar> {
                       builder: (context) => HomePage())); // To close the dialog
             }));
   }
+}
+
+String capitalize(String s) {
+  return s.substring(0, 1).toUpperCase() + s.substring(1);
 }

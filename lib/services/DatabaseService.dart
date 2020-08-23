@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chaloapp/home/home.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,8 +13,9 @@ import 'Hashing.dart';
 class DataService {
   static final database = Firestore.instance;
   Future createUser(User user) async {
+    String name = capitalize(user.fname) + ' ' + capitalize(user.lname);
     Map<String, dynamic> userData = {
-      'name': user.fname + ' ' + user.lname,
+      'name': name,
       'first_name': user.fname,
       'last_name': user.lname,
       'email': user.email,
@@ -189,10 +191,10 @@ class DataService {
     return userDoc;
   }
 
-  Future<Map<String, dynamic>> getUserInfo(String email) async {
+  Future<DocumentSnapshot> getUserInfo(String email) async {
     final doc =
         await database.collection('additional_info').document(email).get();
-    return doc.data;
+    return doc;
   }
 
   Future<bool> verifyPhone(phone) async {
@@ -324,7 +326,7 @@ class DataService {
       });
       if (accept) {
         batch.updateData(
-            currentUser, {'followers': CurrentUser.followers.length + 1});
+            currentUser, {'followers': CurrentUser.user.followers.length + 1});
         batch.updateData(
             userSnap.reference, {'following': userSnap.data['following'] + 1});
       }
@@ -355,7 +357,7 @@ class DataService {
       batch.updateData(
           userSnap.reference, {'followers': userSnap.data['followers'] - 1});
       batch.updateData(
-          currentUser, {'following': CurrentUser.following.length - 1});
+          currentUser, {'following': CurrentUser.user.following.length - 1});
       await batch.commit();
       return true;
     } catch (e) {

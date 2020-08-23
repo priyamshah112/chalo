@@ -54,7 +54,8 @@ class _ActivityDetailsState extends State<ActivityDetails> {
             elevation: 0.0,
             automaticallyImplyLeading: false,
             title: Text(
-              plan.data['admin_name'].toString().split(" ").first + "'s Activity",
+              plan.data['admin_name'].toString().split(" ").first +
+                  "'s Activity",
               style: TextStyle(
                 color: Colors.white,
                 fontFamily: bodyText,
@@ -309,13 +310,18 @@ class _ParticipantListState extends State<ParticipantList> {
                                           children: <Widget>[
                                             ProfileCard(
                                               email: snapshot.data['email'],
-                                              username:
-                                                  '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                                              username: snapshot.data['name'],
+                                              profilePic:
+                                                  snapshot.data['profile_pic'],
                                               gender: snapshot.data['gender'],
                                               follower:
                                                   snapshot.data['followers'],
                                               following:
                                                   snapshot.data['following'],
+                                              activities: snapshot
+                                                  .data['activities_completed'],
+                                              age: CurrentUser.ageFromDob(
+                                                  snapshot.data['dob']),
                                               isCurrent: false,
                                             ),
                                           ])),
