@@ -1,4 +1,4 @@
-import 'package:chaloapp/Activites/Activity_Detail.dart';
+import '../Activites/Activity_Detail.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/cupertino.dart';

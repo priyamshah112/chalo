@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:chaloapp/data/screens.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -10,6 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong/latlong.dart';
 import 'package:toast/toast.dart';
 import '../data/User.dart';
+import '../data/screens.dart';
 import '../common/global_colors.dart';
 import '../profile/profile_page.dart';
 import '../services/AuthService.dart';

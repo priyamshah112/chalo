@@ -1,16 +1,15 @@
 import 'dart:async';
 
-import 'package:chaloapp/Explore/explore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../Animation/FadeAnimation.dart';
 import '../Settings/setting.dart';
 import '../data/User.dart';
 import '../services/DatabaseService.dart';
 import '../common/global_colors.dart';
+import '../Explore/explore.dart';
 import 'followers.dart';
 import 'edit_profile_page.dart';
 import 'follow_request.dart';

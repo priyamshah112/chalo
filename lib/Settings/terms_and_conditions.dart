@@ -1,18 +1,6 @@
-import 'dart:math';
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/authentication/login.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
-import 'package:chaloapp/widgets/date_time.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:chaloapp/Animation/FadeAnimation.dart';
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../common/add_location.dart';
-import '../data/activity.dart';
-import 'package:intl/intl.dart';
+import '../Animation/FadeAnimation.dart';
+import '../common/global_colors.dart';
 
 class TnC extends StatefulWidget {
   @override

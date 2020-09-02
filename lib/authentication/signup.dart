@@ -1,9 +1,6 @@
 import 'dart:io';
 
-import 'package:chaloapp/common/cropper.dart';
 import 'package:flutter/material.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

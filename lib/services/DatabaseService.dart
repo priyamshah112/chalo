@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:chaloapp/home/home.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../home/home.dart';
 import '../data/post.dart';
 import '../data/User.dart';
 import 'StorageService.dart';

@@ -1,11 +1,10 @@
-import 'package:chaloapp/Activites/all_activities.dart';
-import 'package:chaloapp/Broadcast/broadcast.dart';
-import 'package:chaloapp/Chat/chats.dart';
-import 'package:chaloapp/Explore/explore.dart';
-import 'package:chaloapp/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';import '../Activites/all_activities.dart';
+import '../Broadcast/broadcast.dart';
+import '../Chat/chats.dart';
+import '../Explore/explore.dart';
+import '../home/home.dart';
 
 class Screen {
   final String title;

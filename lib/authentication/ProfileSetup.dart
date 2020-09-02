@@ -1,24 +1,20 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:chaloapp/Explore/uploadPage.dart';
-import 'package:chaloapp/common/add_location.dart';
-import 'package:chaloapp/common/cropper.dart';
-import 'package:chaloapp/data/User.dart';
-import 'package:chaloapp/profile/edit_profile_page.dart';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
 import '../home/home.dart';
 import '../services/AuthService.dart';
 import '../widgets/DailogBox.dart';
 import '../services/DatabaseService.dart';
 import '../common/global_colors.dart';
 import '../common/activitylist.dart';
+import '../common/add_location.dart';
+import '../data/User.dart';
+import '../profile/edit_profile_page.dart';
 
 class ProfileSetup extends StatefulWidget {
   final String email, password;

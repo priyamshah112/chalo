@@ -1,4 +1,4 @@
-import 'package:chaloapp/data/contact_model.dart';
+import '../data/contact_model.dart';
 
 class ChatModel {
   final bool isTyping;

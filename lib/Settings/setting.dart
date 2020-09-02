@@ -1,8 +1,8 @@
-import 'package:chaloapp/Settings/contactus.dart';
-import 'package:chaloapp/Settings/help.dart';
-import 'package:chaloapp/Settings/terms_and_conditions.dart';
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
+import '../Settings/contactus.dart';
+import '../Settings/help.dart';
+import '../Settings/terms_and_conditions.dart';
+import '../common/global_colors.dart';
+import '../widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
 
 class Setting extends StatefulWidget {

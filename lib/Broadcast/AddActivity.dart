@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'dart:io';
 
-import 'package:chaloapp/services/DatabaseService.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,6 +14,7 @@ import '../Animation/FadeAnimation.dart';
 import '../common/global_colors.dart';
 import '../common/add_location.dart';
 import '../data/activity.dart';
+import '../services/DatabaseService.dart';
 
 import 'collabration_carousel.dart';
 

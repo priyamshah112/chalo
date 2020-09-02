@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:chaloapp/Animation/FadeAnimation.dart';
-import 'package:chaloapp/common/global_colors.dart';
+import '../Animation/FadeAnimation.dart';
+import '../common/global_colors.dart';
 
 class Help extends StatefulWidget {
   @override

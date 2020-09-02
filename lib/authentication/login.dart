@@ -1,4 +1,3 @@
-import 'package:chaloapp/authentication/phone_verification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -10,6 +9,7 @@ import '../data/User.dart';
 import 'ProfileSetup.dart';
 import 'forgot.dart';
 import 'signup.dart';
+import 'phone_verification.dart';
 
 class WelcomeScreen extends StatefulWidget {
   @override

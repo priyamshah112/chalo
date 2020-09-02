@@ -1,4 +1,3 @@
-import 'package:chaloapp/Broadcast/Broadcast_Details.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +8,7 @@ import '../profile/profile_page.dart';
 import '../services/DatabaseService.dart';
 import '../widgets/DailogBox.dart';
 import '../Animation/FadeAnimation.dart';
+import '../Broadcast/Broadcast_Details.dart';
 
 class ActivityDetails extends StatefulWidget {
   final DocumentSnapshot planDoc;

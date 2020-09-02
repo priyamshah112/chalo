@@ -1,12 +1,11 @@
-import 'package:chaloapp/Animation/FadeAnimation.dart';
-import 'package:chaloapp/common/global_colors.dart';
-import 'package:chaloapp/services/AuthService.dart';
-import 'package:chaloapp/services/DatabaseService.dart';
-import 'package:chaloapp/widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
-
+import '../Animation/FadeAnimation.dart';
+import '../common/global_colors.dart';
+import '../services/AuthService.dart';
+import '../services/DatabaseService.dart';
+import '../widgets/DailogBox.dart';
 import 'ProfileSetup.dart';
 import 'login.dart';
 

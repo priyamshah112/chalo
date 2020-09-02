@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:chaloapp/common/global_colors.dart';
+import '../common/global_colors.dart';
 import '../common/Collaboratorlist.dart';
 
 List<List<String>> allactivityList;

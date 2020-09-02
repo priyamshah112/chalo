@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:chaloapp/common/cropper.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -11,6 +10,7 @@ import '../widgets/DailogBox.dart';
 import '../data/User.dart';
 import '../services/DatabaseService.dart';
 import '../common/activitylist.dart';
+import '../common/cropper.dart';
 
 class UploadPage extends StatefulWidget {
   @override

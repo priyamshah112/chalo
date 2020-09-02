@@ -1,4 +1,4 @@
-name: chaloapp
+name: chalo
 description: A new Flutter application.
 
 # The following defines the version and build number for your application.
@@ -65,8 +65,7 @@ flutter_icons:
   android: true
   ios: true
   image_path: "images/app_icon.png"
-  adaptive_icon_background: "#009688"
-  adaptive_icon_foreground: "images/app_icon.png"
+  adaptive_icon_background: "#FFFFFF"
 
 
 

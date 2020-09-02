@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:chaloapp/Explore/uploadPage.dart';
-import 'package:chaloapp/common/cropper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -11,6 +9,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../common/global_colors.dart';
 import '../data/User.dart';
 import '../services/DatabaseService.dart';
+import '../Explore/uploadPage.dart';
+import '../common/cropper.dart';
 
 class EditProfile extends StatefulWidget {
   @override
