@@ -8,17 +8,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:591673871843:android:681c7b7abb759bb5d224d6",
+        "mobilesdk_app_id": "1:591673871843:android:8c24f10fbdf0cd0ad224d6",
         "android_client_info": {
-          "package_name": "com.example.chaloapp"
+          "package_name": "com.northstarinnovations.chalo"
         }
       },
       "oauth_client": [
         {
-          "client_id": "591673871843-deshnpkm2fbq740ogt4eik3dvt15ib42.apps.googleusercontent.com",
+          "client_id": "591673871843-eavfkglfv4d5i4i2ib1ohth63qe6gsfo.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.chaloapp",
+            "package_name": "com.northstarinnovations.chalo",
             "certificate_hash": "973589a7fbe0a51e10cf369804bbd251b36eaef5"
           }
         },
@@ -38,6 +38,13 @@
             {
               "client_id": "591673871843-9anbtlpgidhl37t6rcps32n02cd67mob.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "591673871843-25t6cccst0lli90sc7cclu2a5j8p38q9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.northstarinnovations.chalo"
+              }
             }
           ]
         }

@@ -1,4 +1,4 @@
-package com.example.chaloapp
+package com.northstarinnovations.chalo
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity
