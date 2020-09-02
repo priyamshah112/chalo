@@ -29,7 +29,7 @@ class DynamicLinkService {
       uriPrefix: 'https://chaloactivity.page.link',
       link: Uri.parse('https://www.chalo.com/activity?id=$activityId'),
       androidParameters: AndroidParameters(
-        packageName: 'com.example.chaloapp',
+        packageName: 'com.northstarinnovations.chalo',
       ),
       // NOT ALL ARE REQUIRED ===== HERE AS AN EXAMPLE =====
       //   iosParameters: IosParameters(
