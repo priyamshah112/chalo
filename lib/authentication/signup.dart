@@ -100,7 +100,8 @@ class _SignUpState extends State<SignUp> {
                         children: <Widget>[
                           Expanded(
                             child: FlatButton(
-                              onPressed: () => setValues('facebook'),
+                              onPressed: () =>
+                                  handleSocialSignup('facebook', _setValues),
                               color: Colors.indigo,
                               padding: EdgeInsets.symmetric(
                                   horizontal: 25.0, vertical: 10.0),
@@ -132,7 +133,8 @@ class _SignUpState extends State<SignUp> {
                           SizedBox(width: 5.0),
                           Expanded(
                             child: FlatButton(
-                              onPressed: () => setValues('google'),
+                              onPressed: () =>
+                                  handleSocialSignup('google', _setValues),
                               color: Colors.deepOrangeAccent,
                               padding: EdgeInsets.symmetric(
                                   horizontal: 25.0, vertical: 10.0),
@@ -264,7 +266,7 @@ class _SignUpState extends State<SignUp> {
                                             initial,
                                             DateTime(1900),
                                             DateTime(
-                                                DateTime.now().year - 10,
+                                                DateTime.now().year - 13,
                                                 DateTime.now().month,
                                                 DateTime.now().day)),
                                     validator: (value) {
@@ -487,19 +489,24 @@ class _SignUpState extends State<SignUp> {
                                   _validateGender(context);
                                 } else {
                                   showDialog(
-                                      context: context,
-                                      builder: (ctx) => DialogBox(
-                                          title: "Are you Sure ?",
-                                          description:
-                                              "Make sure all your entered details are correct",
-                                          buttonText1: "Check again",
-                                          button1Func: () => Navigator.of(
-                                                  context,
-                                                  rootNavigator: true)
-                                              .pop(),
-                                          buttonText2: "Yes I'm Sure",
-                                          button2Func: () =>
-                                              _createUser(context)));
+                                    context: context,
+                                    builder: (ctx) => DialogBox(
+                                      title: "Are you Sure ?",
+                                      description:
+                                          "Make sure all your entered details are correct",
+                                      buttonText1: "Check again",
+                                      button1Func: () => Navigator.of(context,
+                                              rootNavigator: true)
+                                          .pop(),
+                                      buttonText2: "Yes I'm Sure",
+                                      button2Func: () {
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop();
+                                        _createUser(context);
+                                      },
+                                    ),
+                                  );
                                 }
                               } else
                                 setState(() => _autovalidate = true);
@@ -545,14 +552,7 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  void setValues(String method) async {
-    showDialog(
-        builder: (ctx) => Center(child: CircularProgressIndicator()),
-        context: context);
-    Map result = await AuthService().signUp(method);
-    if (result['success']) {
-      Navigator.of(context, rootNavigator: true).pop();
-      setState(() {
+  _setValues(Map result) => setState(() {
         emailController.text = result['email'];
         fnameController.text = result['fname'].substring(0, 1).toUpperCase() +
             result['fname'].substring(1);
@@ -560,6 +560,15 @@ class _SignUpState extends State<SignUp> {
             result['lname'].substring(1);
         user.photoUrl = result['photo'];
       });
+
+  void handleSocialSignup(String method, Function(Map) action) async {
+    showDialog(
+        builder: (ctx) => Center(child: CircularProgressIndicator()),
+        context: context);
+    Map result = await AuthService().signUp(method);
+    if (result['success']) {
+      Navigator.of(context, rootNavigator: true).pop();
+      action(result);
     } else {
       Navigator.of(context, rootNavigator: true).pop();
       showDialog(
@@ -574,45 +583,47 @@ class _SignUpState extends State<SignUp> {
   }
 
   void _createUser(BuildContext context) async {
-    Navigator.of(context, rootNavigator: true).pop();
     showDialog(
-        builder: (ctx) => Center(child: CircularProgressIndicator()),
-        context: context);
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => WillPopScope(
+          onWillPop: () => Future.value(false),
+          child: Center(child: CircularProgressIndicator())),
+    );
     Map result = await AuthService()
         .createUser(user.email, user.password, (user.fname + " " + user.lname));
     if (result['success']) {
       user.setUid(result['uid']);
       await DataService().createUser(user);
+      print('user created');
       Navigator.of(context, rootNavigator: true).pop();
       showDialog(
-          context: context,
-          builder: (ctx) => DialogBox(
-              title: "Done !",
-              description: "Check your Email for the verification Link",
-              buttonText1: "Ok",
-              button1Func: () {
-                Navigator.of(context, rootNavigator: true).pop();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => PhoneVerification(
-                            email: user.email,
-                            password: user.password,
-                            photoUrl: user.photoUrl
-                          )),
-                );
-              }));
-    } else {
-      Navigator.of(context, rootNavigator: true).pop();
+        context: context,
+        builder: (ctx) => DialogBox(
+          title: "Done !",
+          description: "Check your Email for the verification Link",
+          buttonText1: "Ok",
+          button1Func: () {
+            Navigator.of(context, rootNavigator: true).pop();
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                  builder: (_) => PhoneVerification(
+                      email: user.email,
+                      password: user.password,
+                      photoUrl: user.photoUrl)),
+            );
+          },
+        ),
+      );
+    } else
       showDialog(
           context: context,
-          builder: (ctx) => DialogBox(
+          builder: (_) => DialogBox(
               title: "Error :(",
               description: result['error'],
               buttonText1: "Ok",
               button1Func: () =>
                   Navigator.of(context, rootNavigator: true).pop()));
-    }
   }
 }
 

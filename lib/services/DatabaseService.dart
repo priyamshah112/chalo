@@ -12,7 +12,7 @@ import 'Hashing.dart';
 
 class DataService {
   static final database = Firestore.instance;
-  Future createUser(User user) async {
+  Future<Map<String, dynamic>> createUser(User user) async {
     String name = capitalize(user.fname) + ' ' + capitalize(user.lname);
     Map<String, dynamic> userData = {
       'name': name,
@@ -31,7 +31,10 @@ class DataService {
       'followers': 0,
       'following': 0,
       'coins': 10,
-      'activities_completed': 0
+      'coordinates': null,
+      'activities_completed': 0,
+      'address': null,
+      'addCoinsOn': DateTime.now().add(Duration(days: 7))
     };
     Map<String, dynamic> userPlan = {
       'cancelled_plans': [],
@@ -76,7 +79,7 @@ class DataService {
         .collection('user_reputation')
         .document(user.email)
         .setData(userRep);
-    await UserData().setData(userData);
+    return userData;
   }
 
   Future updateUserInfo(Map<String, dynamic> additionalInfo, String name,
@@ -518,6 +521,15 @@ class DataService {
             ? FieldValue.arrayUnion([CurrentUser.user.email])
             : FieldValue.arrayRemove([CurrentUser.user.email])
       });
+    });
+  }
+
+  Future addCoins(String email, int coins, int additional) async {
+    await database.runTransaction((transaction) async {
+      await transaction
+          .update(database.collection('users').document(email), {
+            'coins': coins + additional
+          });
     });
   }
 }

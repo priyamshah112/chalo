@@ -429,6 +429,7 @@ class _UserSearchBarState extends State<UserSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    print(_isSearch);
     return Stack(
       children: <Widget>[
         if (_isSearch)
@@ -517,7 +518,9 @@ class _UserSearchBarState extends State<UserSearchBar> {
                                                               user['following'],
                                                           activities: user[
                                                               'activities_completed'],
-                                                    age: CurrentUser.ageFromDob(user['dob']),
+                                                          age: CurrentUser
+                                                              .ageFromDob(
+                                                                  user['dob']),
                                                           isCurrent: false),
                                                     ])),
                                     title: Text(user['name']),

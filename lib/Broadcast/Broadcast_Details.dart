@@ -31,18 +31,18 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
               Text('Deleting...')
             ],
           ))
-        : StreamBuilder<QuerySnapshot>(
+        : StreamBuilder<DocumentSnapshot>(
+            initialData: widget.planDoc,
             stream: Firestore.instance
                 .collection('plan')
-                .where('plan_id', isEqualTo: widget.planDoc.documentID)
-                .limit(1)
+                .document(widget.planDoc.documentID)
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData)
                 return Container(
                     color: Colors.white,
                     child: Center(child: CircularProgressIndicator()));
-              final DocumentSnapshot planDoc = snapshot.data.documents[0];
+              final DocumentSnapshot planDoc = snapshot.data;
               final String email = CurrentUser.user.email;
               final start = DateTime.fromMillisecondsSinceEpoch(
                   planDoc['activity_start'].seconds * 1000);

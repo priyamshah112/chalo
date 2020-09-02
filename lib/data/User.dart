@@ -118,9 +118,9 @@ class UserData {
     prefs.setBool('profile_setup', userData['profile_setup']);
     prefs.setInt('activityCompleted', userData['activities_completed']);
     prefs.setInt('coins', userData['coins']);
-    GeoPoint coordinates = userData['coordinates'];
-    prefs.setDouble('lat', coordinates.latitude);
-    prefs.setDouble('long', coordinates.longitude);
+    GeoPoint coordinates = userData['coordinates'] ?? null;
+    prefs.setDouble('lat', coordinates.latitude?? null);
+    prefs.setDouble('long', coordinates.longitude?? null);
     CurrentUser.initialize(prefs);
   }
 

@@ -186,11 +186,21 @@ class AuthService {
           GoogleSignInAccount googleUser;
           GoogleSignInAuthentication googleAuth;
           try {
-            googleUser = await googleSignIn.signIn();
+            googleUser = await googleSignIn.
+            signIn();
             googleAuth = await googleUser.authentication;
           } catch (e) {
             print(e.toString());
-            return {"success": false, 'msg': 'Google Signin Cancelled'};
+            print(e.runtimeType);
+            if (e.code == "sign_in_failed")
+              return {"success": false, 'msg': 'Google Signin Cancelled'};
+            if (e.code == "network_error")
+              return {
+                "success": false,
+                'msg':
+                    'Network Error occured, make sure you internet connection is stable'
+              };
+            return {"success": false, 'msg': 'Unknown error occured'};
           }
           final userDoc = await DataService().getUserDoc(googleUser.email);
           if (userDoc != null) {
