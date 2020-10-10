@@ -16,12 +16,9 @@ import '../services/AuthService.dart';
 import '../services/dynamicLinking.dart';
 import '../Activites/all_activities.dart';
 import '../Activites/Activity_Detail.dart';
-import '../Explore/explore.dart';
 import '../authentication/login.dart';
 import '../widgets/DailogBox.dart';
-import '../Broadcast/broadcast.dart';
 import '../Broadcast/Broadcast_Details.dart';
-import '../Chat/chats.dart';
 import 'notification.dart';
 
 class MainHome extends StatefulWidget {

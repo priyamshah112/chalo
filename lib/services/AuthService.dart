@@ -186,8 +186,7 @@ class AuthService {
           GoogleSignInAccount googleUser;
           GoogleSignInAuthentication googleAuth;
           try {
-            googleUser = await googleSignIn.
-            signIn();
+            googleUser = await googleSignIn.signIn();
             googleAuth = await googleUser.authentication;
           } catch (e) {
             print(e.toString());

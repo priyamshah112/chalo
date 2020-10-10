@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
         bool verified = prefs.getBool('verified');
         bool profileSetupCompleted = prefs.getBool('profile_setup') ?? false;
         bool loggedIn = await AuthService().isUserLoggedIn();
-        if (verified && profileSetupCompleted && loggedIn) {
+        if (loggedIn && verified && profileSetupCompleted ) {
           await CurrentUser.initialize(prefs);
           if (ref != null) doc = await ref.get();
           Navigator.pushReplacement(

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:steel_crypt/steel_crypt.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../home/home.dart';
 import '../data/post.dart';
@@ -19,7 +20,7 @@ class DataService {
       'first_name': user.fname,
       'last_name': user.lname,
       'email': user.email,
-      'password': Hashing.encrypt(user.password),
+      'password': HashCrypt('SHA-3/512').hash(user.password),
       'dob': user.birthDate,
       'gender': user.gender,
       'mobile_no': null,
