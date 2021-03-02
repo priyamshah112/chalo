@@ -9,7 +9,7 @@ import '../data/post.dart';
 import '../data/User.dart';
 import 'StorageService.dart';
 import 'CloudMessaging.dart';
-import 'Hashing.dart';
+//import 'Hashing.dart';
 
 class DataService {
   static final database = Firestore.instance;

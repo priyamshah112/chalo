@@ -10,13 +10,13 @@ class ContactUs extends StatefulWidget {
 class _ContactUsState extends State<ContactUs> {
   final _formKey = GlobalKey<FormState>();
   String message;
-  bool _autovalidate = false;
+  //bool _autovalidate = false;
 
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      autovalidate: _autovalidate,
+      autovalidateMode: AutovalidateMode.always,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,

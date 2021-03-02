@@ -10,7 +10,7 @@ class Setting extends StatefulWidget {
   _SettingState createState() => _SettingState();
 }
 
-List<List<String>> ExplorepostList;
+List<List<String>> explorepostList;
 
 class _SettingState extends State<Setting> {
   DateTime currentBackPressTime;

@@ -414,7 +414,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => allActivity()));
+                              builder: (context) => AllActivity()));
                     },
                     child: Text(
                       "View all",
@@ -1223,12 +1223,12 @@ class _ProfileCardState extends State<ProfileCard> {
   }
 }
 
-class allActivity extends StatefulWidget {
+class AllActivity extends StatefulWidget {
   @override
-  _allActivityState createState() => _allActivityState();
+  _AllActivityState createState() => _AllActivityState();
 }
 
-class _allActivityState extends State<allActivity> {
+class _AllActivityState extends State<AllActivity> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

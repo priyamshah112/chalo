@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../Activites/all_activities.dart';
 import '../common/global_colors.dart';
 import '../data/User.dart';
-import '../services/DatabaseService.dart';
 import 'AddActivity.dart';
 import 'Broadcast_Details.dart';
 

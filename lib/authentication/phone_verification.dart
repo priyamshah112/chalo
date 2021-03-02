@@ -23,13 +23,13 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final auth = AuthService();
-  bool _autovalidate = false;
+  //bool _autovalidate = false;
   bool _codeSent = false;
   bool _sendingOTP = false;
   String _verificaionId;
   String _phone;
   String _smsCode;
-  int _resendToken;
+  //int _resendToken;
 
   Future<bool> onBack() async {
     final user = await auth.currentUser;
@@ -45,7 +45,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     return WillPopScope(
       onWillPop: onBack,
       child: Form(
-        autovalidate: _autovalidate,
+        autovalidateMode: AutovalidateMode.always,
         key: _formKey,
         child: Scaffold(
           key: _scaffoldKey,
@@ -118,7 +118,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                                     onSaved: (value) => _phone = value,
                                     keyboardType: TextInputType.phone,
                                     inputFormatters: [
-                                      WhitelistingTextInputFormatter.digitsOnly
+                                      FilteringTextInputFormatter.digitsOnly
                                     ],
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
@@ -260,9 +260,9 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                                                                         true)
                                                                 .pop()));
                                               }
-                                            } else
-                                              setState(
-                                                  () => _autovalidate = true);
+                                            } //else
+                                              // setState(
+                                              //     () => _autovalidate = true);
                                           },
                                           child: Text(
                                             _codeSent ? "Verify" : "Send OTP",
@@ -404,7 +404,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
           print('code sent');
           setState(() {
             _verificaionId = verID;
-            _resendToken = forceResend;
+            //_resendToken = forceResend;
             _codeSent = true;
             _sendingOTP = false;
           });
@@ -453,7 +453,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     await Future.delayed(Duration(seconds: 2));
     Navigator.of(ctx, rootNavigator: true).pop();
     Navigator.of(ctx).pushReplacement(
-        MaterialPageRoute(builder: (_) => ProfileSetup(widget.email, widget.password, widget.creds)));
+        MaterialPageRoute(builder: (_) => ProfileSetup(widget.email, widget.password, widget.creds,widget.photoUrl)));
   }
 
   void showFail(BuildContext ctx) {

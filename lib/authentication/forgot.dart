@@ -14,7 +14,7 @@ class ForgotPage extends StatefulWidget {
 
 class _ForgotPageState extends State<ForgotPage> {
   final _formKey = GlobalKey<FormState>();
-  bool _autovalidate = false;
+  // bool _autovalidate = false;
   TextEditingController _emailController = new TextEditingController();
 
   @override
@@ -28,7 +28,7 @@ class _ForgotPageState extends State<ForgotPage> {
     final width = MediaQuery.of(context).size.width;
     return Form(
       key: _formKey,
-      autovalidate: _autovalidate,
+      autovalidateMode: AutovalidateMode.always,
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
@@ -190,11 +190,11 @@ class _ForgotPageState extends State<ForgotPage> {
                                               }));
                                     }
                                   });
-                                } else {
-                                  setState(() {
-                                    _autovalidate = true;
-                                  });
-                                }
+                                 }// else {
+                                //   setState(() {
+                                //     _autovalidate = true;
+                                //   });
+                                // }
                               },
                               child: Center(
                                 child: Text(

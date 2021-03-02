@@ -281,7 +281,7 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
     // Sets TextField value to be the location selected
     _textEditingController.value = TextEditingValue(
       text: prediction.placeName,
-      selection: TextSelection.collapsed(offset: prediction.placeName.length),
+      //selection: TextSelection.collapsed(offset: prediction.placeName.length),
     );
 
     // Makes animation

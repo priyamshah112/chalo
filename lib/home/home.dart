@@ -78,7 +78,8 @@ class _MainHomeState extends State<MainHome> {
                       Icon(p.activeIcon),
                     ],
                   ),
-                  title: Text(p.title));
+                  label: p.title,
+                );
             }).toList()),
         body: SafeArea(
           top: false,

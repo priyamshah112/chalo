@@ -292,7 +292,7 @@ class _HomePageState extends State<HomePage> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String email, password;
-  bool _autovalidate = false;
+  //bool _autovalidate = false;
   TextEditingController _emailController = new TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -309,7 +309,7 @@ class _HomePageState extends State<HomePage> {
         body: SingleChildScrollView(
           child: Form(
             key: _formKey,
-            autovalidate: _autovalidate,
+            autovalidateMode: AutovalidateMode.always,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
@@ -598,11 +598,11 @@ class _HomePageState extends State<HomePage> {
                                   final result = await AuthService()
                                       .signIn(email, password);
                                   login(result);
-                                } else {
-                                  setState(() {
-                                    _autovalidate = true;
-                                  });
-                                }
+                                } //else {
+                                //   setState(() {
+                                //     _autovalidate = true;
+                                //   });
+                                // }
                               },
                               child: Center(
                                 child: Text(
@@ -667,7 +667,7 @@ class _HomePageState extends State<HomePage> {
         _scaffoldKey.currentContext,
         MaterialPageRoute(
           builder: (BuildContext context) => verified
-              ? completed ? MainHome() : ProfileSetup(result['email'])
+              ? completed ? MainHome() : ProfileSetup(result['email'],result['password'],result['credentials'],result['photoUrl'])
               : PhoneVerification(creds: result.containsKey('credentials')
                           ? result['credentials']
                           : null,

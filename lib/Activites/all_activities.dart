@@ -15,7 +15,7 @@ class AllActivity extends StatefulWidget {
 
 //_value1.isNotEmpty ? _value1 : null
 class _AllActivityState extends State<AllActivity> {
-  List<List<String>> AllactivityListItems = [
+  List<List<String>> allActivityListItems = [
     ['images/activities/Beach.png', 'Beach'],
     ['images/activities/BirdWatching.png', 'Bird Watching'],
     ['images/activities/Canoeing.png', 'Caneoing'],
@@ -48,16 +48,16 @@ class _AllActivityState extends State<AllActivity> {
     ['images/activities/Museum.png', 'Museum'],
   ];
   String _value = "All Activity";
-  DropdownButton FilterByActivity() => DropdownButton<String>(
+  DropdownButton filterByActivity() => DropdownButton<String>(
         items: [
-          for (int i = 0; i < AllactivityListItems.length; i++)
+          for (int i = 0; i < allActivityListItems.length; i++)
             DropdownMenuItem(
-              value: AllactivityListItems[i][1],
+              value: allActivityListItems[i][1],
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
-                    AllactivityListItems[i][1],
+                    allActivityListItems[i][1],
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -68,7 +68,7 @@ class _AllActivityState extends State<AllActivity> {
                     width: 10,
                   ),
                   Image.asset(
-                    AllactivityListItems[i][0],
+                    allActivityListItems[i][0],
                     width: 30,
                     height: 30,
                   ),
@@ -133,7 +133,7 @@ class _AllActivityState extends State<AllActivity> {
                 SizedBox(
                   height: 10,
                 ),
-                FilterByActivity(),
+                filterByActivity(),
                 SizedBox(
                   height: 5,
                 ),

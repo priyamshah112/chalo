@@ -10,13 +10,13 @@ class TnC extends StatefulWidget {
 class _TnCState extends State<TnC> {
   final _formKey = GlobalKey<FormState>();
   String message;
-  bool _autovalidate = false;
+  //bool _autovalidate = false;
 
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      autovalidate: _autovalidate,
+      autovalidateMode: AutovalidateMode.always,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,

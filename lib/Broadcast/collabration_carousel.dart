@@ -42,7 +42,7 @@ class CollabrationCarousel extends StatelessWidget {
           height: 150.0,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: CollabrationList.length,
+            itemCount: collabrationList.length,
             padding: EdgeInsets.only(right: 16.0),
 //            shrinkWrap: true,
             physics: BouncingScrollPhysics(),
@@ -57,7 +57,7 @@ class CollabrationCarousel extends StatelessWidget {
                     children: <Widget>[
                       ClipRRect(
                         child: Image.asset(
-                          CollabrationList[index].imageUrl,
+                          collabrationList[index].imageUrl,
                           height: 80,
                           width: 120,
                           fit: BoxFit.cover,
@@ -68,14 +68,14 @@ class CollabrationCarousel extends StatelessWidget {
                         height: 10,
                       ),
                       Text(
-                        CollabrationList[index].text,
+                        collabrationList[index].text,
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                       SizedBox(
                         height: 4,
                       ),
                       Text(
-                        "${CollabrationList[index].secondaryText} Reviews",
+                        "${collabrationList[index].secondaryText} Reviews",
                         style: TextStyle(
                             fontSize: 12, color: Colors.grey.shade500),
                       ),

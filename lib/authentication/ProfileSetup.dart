@@ -17,9 +17,9 @@ import '../data/User.dart';
 import '../profile/edit_profile_page.dart';
 
 class ProfileSetup extends StatefulWidget {
-  final String email, password;
+  final String email, password,photoUrl;
   final AuthCredential creds;
-  ProfileSetup(this.email, [this.password, this.creds]);
+  ProfileSetup(this.email, this.password, this.creds,this.photoUrl);
   @override
   _ProfileSetupState createState() => _ProfileSetupState();
 }
@@ -44,7 +44,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
   final addressController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    _photo = CurrentUser.user.photoUrl;
+    //_photo = CurrentUser.user.photoUrl;
+    _photo = widget.photoUrl;
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -98,7 +99,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                       MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Text(
-                                      CurrentUser.user.name,
+                                      //CurrentUser.user.name,
+                                      "Username",
                                       style: TextStyle(
                                         color: Color(secondary),
                                         fontSize: 18,
@@ -127,7 +129,9 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                       MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Text(
-                                        "${CurrentUser.user.gender}, ${CurrentUser.user.age}"),
+                                        //"${CurrentUser.user.gender}, ${CurrentUser.user.age}"
+                                        "Male 12"
+                                        ),
                                     Text("English"),
                                   ],
                                 ),
@@ -331,7 +335,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                           await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => allActivity()));
+                                  builder: (context) => AllActivity()));
                           setState(() {});
                         },
                         child: Text(
@@ -551,10 +555,10 @@ class _ProfileSetupState extends State<ProfileSetup> {
       _showErrorMessage("Activities", "Atleast Select one activity");
       return;
     }
-    if (_photo == null && _image == null) {
-      _showErrorMessage("Error", "Please add a profile picture");
-      return;
-    }
+    // if (_photo == null && _image == null) {
+    //   _showErrorMessage("Error", "Please add a profile picture");
+    //   return;
+    // }
     showDialog(
         builder: (ctx) => Center(child: CircularProgressIndicator()),
         context: context);
@@ -586,12 +590,12 @@ class _ProfileSetupState extends State<ProfileSetup> {
   }
 }
 
-class allActivity extends StatefulWidget {
+class AllActivity extends StatefulWidget {
   @override
-  _allActivityState createState() => _allActivityState();
+  _AllActivityState createState() => _AllActivityState();
 }
 
-class _allActivityState extends State<allActivity> {
+class _AllActivityState extends State<AllActivity> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

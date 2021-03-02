@@ -23,13 +23,13 @@ class _EditActivityState extends State<EditActivity> {
   DateTimePicker end = new DateTimePicker();
   int _peopleCount = 1;
   bool proposeTime = false;
-  bool _autovalidate = false;
+  //bool _autovalidate = false;
 
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      autovalidate: _autovalidate,
+      autovalidateMode: AutovalidateMode.always,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -221,7 +221,7 @@ class _EditActivityState extends State<EditActivity> {
                               radioGroup(),
                               Visibility(
                                   visible: _showDropdown,
-                                  child: SelectPeople()),
+                                  child: selectPeople()),
                               Text(
                                 "Privacy",
                                 style: TextStyle(
@@ -250,7 +250,7 @@ class _EditActivityState extends State<EditActivity> {
                               SizedBox(
                                 height: 10,
                               ),
-                              SelectGender(),
+                              selectGender(),
                               SizedBox(
                                 height: 10,
                               ),
@@ -322,7 +322,7 @@ class _EditActivityState extends State<EditActivity> {
     "Only Girls": 'female'
   };
   String selectedGender = "mixed";
-  DropdownButton SelectGender() {
+  DropdownButton selectGender() {
     return DropdownButton<String>(
       items: gender.keys.map((option) {
         return DropdownMenuItem(
@@ -376,7 +376,7 @@ class _EditActivityState extends State<EditActivity> {
     return temp;
   }
 
-  DropdownButton SelectPeople() {
+  DropdownButton selectPeople() {
     // print(noOfPeople);
     return DropdownButton<int>(
       items: noOfPeople.keys.map((count) {

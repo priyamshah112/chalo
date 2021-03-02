@@ -53,7 +53,7 @@ class _CollabratorListState extends State<CollabratorList> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: ListView.builder(
-            itemCount: CollabrationList.length,
+            itemCount: collabrationList.length,
             shrinkWrap: true,
             physics: ClampingScrollPhysics(),
             itemBuilder: (context, index) {
@@ -81,7 +81,7 @@ class _CollabratorListState extends State<CollabratorList> {
                             topLeft: Radius.circular(20),
                             bottomLeft: Radius.circular(20)),
                         child: Image.asset(
-                          CollabrationList[index].imageUrl,
+                          collabrationList[index].imageUrl,
                           height: 80,
                           width: 120,
                           fit: BoxFit.cover,
@@ -93,7 +93,7 @@ class _CollabratorListState extends State<CollabratorList> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              CollabrationList[index].text,
+                              collabrationList[index].text,
                               style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -103,7 +103,7 @@ class _CollabratorListState extends State<CollabratorList> {
                               height: 3,
                             ),
                             Text(
-                              CollabrationList[index].text,
+                              collabrationList[index].text,
                               style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w400,
@@ -132,7 +132,7 @@ class _CollabratorListState extends State<CollabratorList> {
                           child: Column(
                             children: [
                               Text(
-                                CollabrationList[index].secondaryText,
+                                collabrationList[index].secondaryText,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600,

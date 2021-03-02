@@ -36,13 +36,13 @@ class _AddActivityState extends State<AddActivity> {
   DateTimePicker end = new DateTimePicker();
   int _peopleCount = 1;
   bool proposeTime = false;
-  bool _autovalidate = false;
+  //bool _autovalidate = false;
 
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      autovalidate: _autovalidate,
+      autovalidateMode: AutovalidateMode.always,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Color(primary),
@@ -381,7 +381,7 @@ class _AddActivityState extends State<AddActivity> {
                               radioGroup(),
                               Visibility(
                                   visible: _showDropdown,
-                                  child: SelectPeople()),
+                                  child: selectPeople()),
                               Text(
                                 "Boradcast audience",
                                 style: TextStyle(
@@ -408,7 +408,7 @@ class _AddActivityState extends State<AddActivity> {
                               SizedBox(
                                 height: 10,
                               ),
-                              SelectGender(),
+                              selectGender(),
                               SizedBox(
                                 height: 10,
                               ),
@@ -535,8 +535,8 @@ class _AddActivityState extends State<AddActivity> {
                                                       .pop();
                                                 }),
                                           ));
-                                } else
-                                  setState(() => _autovalidate = true);
+                                } //else
+                                  //setState(() => _autovalidate = true);
                               },
                               child: Center(
                                 child: Text(
@@ -569,7 +569,7 @@ class _AddActivityState extends State<AddActivity> {
     "Only Girls": 'female'
   };
   String selectedGender = "mixed";
-  DropdownButton SelectGender() {
+  DropdownButton selectGender() {
     return DropdownButton<String>(
       items: gender.keys.map((option) {
         return DropdownMenuItem(
@@ -623,7 +623,7 @@ class _AddActivityState extends State<AddActivity> {
     return temp;
   }
 
-  DropdownButton SelectPeople() {
+  DropdownButton selectPeople() {
     // print(noOfPeople);
     return DropdownButton<int>(
       items: noOfPeople.keys.map((count) {

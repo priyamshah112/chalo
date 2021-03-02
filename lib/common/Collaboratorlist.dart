@@ -10,7 +10,7 @@ class Collabration {
   });
 }
 
-List<Collabration> CollabrationList = [
+List<Collabration> collabrationList = [
   Collabration(
     imageUrl: 'images/post/1.png',
     text: 'Colab Name',

@@ -26,7 +26,7 @@ class _SignUpState extends State<SignUp> {
   final emailController = TextEditingController();
   User user;
   DateTime picked;
-  bool _autovalidate = false;
+  //bool _autovalidate = false;
   bool _viewPassword = false;
 
   @override
@@ -173,7 +173,7 @@ class _SignUpState extends State<SignUp> {
                           ),
                           child: Form(
                             key: _formKey,
-                            autovalidate: _autovalidate,
+                            autovalidateMode: AutovalidateMode.always,
                             child: Column(
                               children: <Widget>[
                                 Container(
@@ -505,8 +505,8 @@ class _SignUpState extends State<SignUp> {
                                     ),
                                   );
                                 }
-                              } else
-                                setState(() => _autovalidate = true);
+                              } //else
+                                //setState(() => _autovalidate = true);
                             },
                             child: Center(
                               child: Text(
@@ -607,7 +607,9 @@ class _SignUpState extends State<SignUp> {
                   builder: (_) => PhoneVerification(
                       email: user.email,
                       password: user.password,
-                      photoUrl: user.photoUrl)),
+                      photoUrl: user.photoUrl
+                    )
+                  ),
             );
           },
         ),
