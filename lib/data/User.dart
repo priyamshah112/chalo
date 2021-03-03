@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
-class User {
+class User with ChangeNotifier {
   String name,
       fname,
       lname,
@@ -41,7 +42,7 @@ class User {
   void setPhoto(String url) => this.photoUrl = url;
 }
 
-class CurrentUser extends User {
+class CurrentUser extends User{
   static CurrentUser user;
   static StreamSubscription<DocumentSnapshot> _userInfo;
   static Future<void> initialize(SharedPreferences prefs) async {

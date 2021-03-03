@@ -15,11 +15,13 @@ import '../common/activitylist.dart';
 import '../common/add_location.dart';
 import '../data/User.dart';
 import '../profile/edit_profile_page.dart';
+import 'package:provider/provider.dart';
 
 class ProfileSetup extends StatefulWidget {
-  final String email, password,photoUrl;
-  final AuthCredential creds;
-  ProfileSetup(this.email, this.password, this.creds,this.photoUrl);
+  static const routeName = '/Profile-Setup';
+  //final String email, password,photoUrl;
+  // final AuthCredential creds;
+  // ProfileSetup(this.email, this.password, this.creds,this.photoUrl);
   @override
   _ProfileSetupState createState() => _ProfileSetupState();
 }
@@ -44,8 +46,14 @@ class _ProfileSetupState extends State<ProfileSetup> {
   final addressController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final routeArgs = ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
+    final email = routeArgs['email'];
+    final password = routeArgs['password'];
+    final photoUrl = routeArgs['photoUrl'];
+    final creds = routeArgs['creds'];
+    final currentUser = Provider.of<User>(context);
     //_photo = CurrentUser.user.photoUrl;
-    _photo = widget.photoUrl;
+    _photo = photoUrl;
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -99,8 +107,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                       MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Text(
-                                      //CurrentUser.user.name,
-                                      "Username",
+                                       "Name",
+                                      //currentUser.name,
                                       style: TextStyle(
                                         color: Color(secondary),
                                         fontSize: 18,
@@ -129,8 +137,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                                       MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Text(
-                                        //"${CurrentUser.user.gender}, ${CurrentUser.user.age}"
-                                        "Male 12"
+                                         "Male 22"
+                                        //currentUser.gender +" "+ currentUser.age.toString(),
                                         ),
                                     Text("English"),
                                   ],
@@ -518,7 +526,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             horizontal: 60.0, vertical: 10.0),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50.0)),
-                        onPressed: _handleProfileSetup,
+                        onPressed: () =>_handleProfileSetup(email,password,creds),
                         child: Center(
                           child: Text(
                             "Finish",
@@ -543,7 +551,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
           buttonText1: "Ok",
           button1Func: () => Navigator.of(context, rootNavigator: true).pop()));
 
-  _handleProfileSetup() async {
+  _handleProfileSetup(String email, String password, AuthCredential creds) async {
     setState(() => addressSelected = addressController.text == null ||
             addressController.text.isEmpty ||
             position.latitude == null ||
@@ -562,15 +570,15 @@ class _ProfileSetupState extends State<ProfileSetup> {
     showDialog(
         builder: (ctx) => Center(child: CircularProgressIndicator()),
         context: context);
-    await DataService().completeProfile(widget.email, selectedActivityList, {
+    await DataService().completeProfile(email, selectedActivityList, {
       'coordinates': GeoPoint(position.latitude, position.longitude),
       'address': addressController.text
     });
     bool loggedIn = await auth.isUserLoggedIn();
     if (!loggedIn)
-      widget.creds != null
-          ? await auth.credsSignIn(widget.creds)
-          : await auth.signIn(widget.email, widget.password);
+      creds != null
+          ? await auth.credsSignIn(creds)
+          : await auth.signIn(email, password);
     await Future.delayed(Duration(seconds: 2));
     Navigator.of(context, rootNavigator: true).pop();
     showDialog(

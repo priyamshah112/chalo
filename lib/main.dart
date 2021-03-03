@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:chalo/authentication/ProfileSetup.dart';
+import 'package:chalo/authentication/phone_verification.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Activites/Activity_Detail.dart';
 import 'common/global_colors.dart';
@@ -15,14 +18,21 @@ import 'services/AuthService.dart';
 import 'data/User.dart';
 
 void main() => runApp(
-      MaterialApp(
-        theme: ThemeData(
-            primaryColor: Color(primary),
-            accentColor: Color(primary),
-            cursorColor: Color(primary),
-            primarySwatch: Colors.teal),
-        debugShowCheckedModeBanner: false,
-        home: SplashScreen(),
+      ChangeNotifierProvider(
+        create: (ctx) => User(),
+        child: MaterialApp(
+          theme: ThemeData(
+              primaryColor: Color(primary),
+              accentColor: Color(primary),
+              cursorColor: Color(primary),
+              primarySwatch: Colors.teal),
+          debugShowCheckedModeBanner: false,
+          home: SplashScreen(),
+          routes: {
+            ProfileSetup.routeName: (ctx) => ProfileSetup(),
+            PhoneVerification.route: (ctx) => PhoneVerification(),
+          }
+        ),
       ),
     );
 
