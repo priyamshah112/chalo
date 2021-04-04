@@ -1,3 +1,4 @@
+import 'package:chalo/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -662,18 +663,18 @@ class _HomePageState extends State<HomePage> {
       await Future.delayed(Duration(seconds: 2));
       bool verified = await UserData.checkVerified();
       bool completed = await UserData.checkProfileSetup();
-      Navigator.of(context, rootNavigator: true).pop();
+     Navigator.of(context, rootNavigator: true).pop();
       if(verified)
-      {
-       Navigator.of(context).pushReplacement(
-         MaterialPageRoute(builder: (BuildContext context) => HomePage())
-      );
-      }
-      else
       {
         if(completed)
         {
-           Navigator.of(context).pushNamed(
+          Navigator.of(context).pushNamed(
+           MainHome.routes,
+          );
+        }
+      else
+      {
+        Navigator.of(context).pushNamed(
            ProfileSetup.routeName,
            arguments: {
              'email': result['email'],
@@ -682,8 +683,8 @@ class _HomePageState extends State<HomePage> {
              'photoUrl': result['photoUrl']
            }
          );
-        }
-        else{
+      }
+     } else{
           Navigator.of(context).pushNamed(
            PhoneVerification.route,
            arguments: {
@@ -692,8 +693,32 @@ class _HomePageState extends State<HomePage> {
              'password': result.containsKey('password') ? result['password']: null,
            }
          );
-        } 
-      }
+        }
+
+        //above code in tertiary operator format
+        // verified
+        // ? completed ? Navigator.of(context).pushNamed(
+        //    MainHome.routes,
+        //   ) : 
+        //   Navigator.of(context).pushNamed(
+        //    ProfileSetup.routeName,
+        //    arguments: {
+        //      'email': result['email'],
+        //      'password': result['password'],
+        //      'cred': result['credentials'],
+        //      'photoUrl': result['photoUrl']
+        //    }
+        //  )
+        // :  Navigator.of(context).pushNamed(
+        //    PhoneVerification.route,
+        //    arguments: {
+        //      'creds': result.containsKey('credentials') ? result['credentials']: null,
+        //      'email': result['email'],
+        //      'password': result.containsKey('password') ? result['password']: null,
+        //    }
+        //  );
+
+        //old code
       // Navigator.pushReplacement(
         // _scaffoldKey.currentContext,
         // MaterialPageRoute(

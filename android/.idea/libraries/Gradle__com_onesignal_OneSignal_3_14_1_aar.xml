@@ -3,6 +3,9 @@
     <CLASSES>
       <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/52c9d68c1f7836266c5617919121e540/jetified-OneSignal-3.14.1/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/52c9d68c1f7836266c5617919121e540/jetified-OneSignal-3.14.1/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/db3995ae50512d4056efc0cf439be36a/jetified-OneSignal-3.14.1/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/db3995ae50512d4056efc0cf439be36a/jetified-OneSignal-3.14.1/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/db3995ae50512d4056efc0cf439be36a/jetified-OneSignal-3.14.1/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

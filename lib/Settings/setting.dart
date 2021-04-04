@@ -1,9 +1,13 @@
+import 'package:chalo/authentication/login.dart';
+import 'package:chalo/services/AuthService.dart';
+
 import '../Settings/contactus.dart';
 import '../Settings/help.dart';
 import '../Settings/terms_and_conditions.dart';
 import '../common/global_colors.dart';
 import '../widgets/DailogBox.dart';
 import 'package:flutter/material.dart';
+
 
 class Setting extends StatefulWidget {
   @override
@@ -208,7 +212,7 @@ class _SettingState extends State<Setting> {
                 ),
                 ButtonWidget(
                   title: "Log out",
-                  buttonFunc: () {},
+                  buttonFunc: () =>  signOut(context),
                 ),
                 SizedBox(
                   width: double.infinity,
@@ -236,6 +240,28 @@ class _SettingState extends State<Setting> {
         ),
       ),
     );
+  }
+   void signOut(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (ctx) => DialogBox(
+            title: 'Warning',
+            description: "Are you sure you want to Sign out ?",
+            btn2Color: Colors.red,
+            buttonText1: "No",
+            button1Func: () =>
+                Navigator.of(context, rootNavigator: true).pop(false),
+            buttonText2: "Yes",
+            btn1Color: Colors.green,
+            button2Func: () async {
+              await AuthService().signOut();
+              print("Signed out");
+              Navigator.of(context, rootNavigator: true).pop(true);
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HomePage())); // To close the dialog
+            }));
   }
 
   void followbtn() {

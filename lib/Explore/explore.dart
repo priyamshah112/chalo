@@ -1,5 +1,7 @@
+import 'package:chalo/services/dynamicLinking.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:share/share.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -122,12 +124,47 @@ class _PostCardState extends State<PostCard> {
                 color: Color(secondary),
               ),
             ),
-            trailing: Text(
-              widget.post['activity'],
-              style: TextStyle(
-                fontFamily: bodyText,
-                color: Color(primary),
-              ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  widget.post['activity'],
+                  style: TextStyle(
+                    fontFamily: bodyText,
+                    color: Color(primary),
+                  ),
+                ),
+                IconButton(
+                    icon: CurrentUser.username == widget.post['username'] ? Icon(
+                      Icons.delete,
+                      color: Color(primary),
+                    ) : Visibility(
+                      child: Icon(
+                        Icons.favorite,
+                        color: Color(primary),
+                      ),
+                      visible: false,
+                    ),
+                    onPressed: () async {
+                    if(CurrentUser.username == widget.post['username'])
+                    {
+                      var val=[];
+                      val.add(widget.post['post_id']);
+                      
+                      await Firestore.instance
+                      .collection("additional_info")
+                      .document(CurrentUser.userEmail)
+                      .updateData({"posts": FieldValue.arrayRemove(val)});
+                        
+                      await Firestore.instance
+                          .collection("posts")
+                          .document(widget.post['post_id'])
+                          .delete();
+                      
+                      setState(() {});
+                    }  
+                  })
+              ],
             ),
           ),
           GestureDetector(
@@ -232,7 +269,20 @@ class _PostCardState extends State<PostCard> {
                 size: 17,
                 color: Color(secondary),
               ),
-              onPressed: () {},
+              onPressed: () async {
+                          final RenderBox box = context.findRenderObject();
+                          showDialog(
+                              context: context,
+                              builder: (_) =>
+                                  Center(child: CircularProgressIndicator()));
+                          final link = await DynamicLinkService.createLink(
+                              widget.post['post_id'],
+                              widget.post['username'].toString().split(' ')[0]);
+                          Navigator.of(context, rootNavigator: true).pop();
+                          Share.share('Check  out my activity: $link',
+                              sharePositionOrigin:
+                                  box.localToGlobal(Offset.zero) & box.size);
+                        },
             ),
           ),
         ],

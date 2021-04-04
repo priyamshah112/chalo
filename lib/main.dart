@@ -6,7 +6,6 @@ import 'package:chalo/authentication/phone_verification.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Activites/Activity_Detail.dart';
 import 'common/global_colors.dart';
@@ -18,9 +17,7 @@ import 'services/AuthService.dart';
 import 'data/User.dart';
 
 void main() => runApp(
-      ChangeNotifierProvider(
-        create: (ctx) => User(),
-        child: MaterialApp(
+     MaterialApp(
           theme: ThemeData(
               primaryColor: Color(primary),
               accentColor: Color(primary),
@@ -31,9 +28,9 @@ void main() => runApp(
           routes: {
             ProfileSetup.routeName: (ctx) => ProfileSetup(),
             PhoneVerification.route: (ctx) => PhoneVerification(),
+            MainHome.routes: (ctx) => MainHome(),
           }
         ),
-      ),
     );
 
 class SplashScreen extends StatefulWidget {

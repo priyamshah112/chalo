@@ -22,6 +22,7 @@ import '../Broadcast/Broadcast_Details.dart';
 import 'notification.dart';
 
 class MainHome extends StatefulWidget {
+  static const routes = '/MainHome';
   @override
   _MainHomeState createState() => _MainHomeState();
 }

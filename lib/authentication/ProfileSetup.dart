@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+//import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,9 +13,6 @@ import '../services/DatabaseService.dart';
 import '../common/global_colors.dart';
 import '../common/activitylist.dart';
 import '../common/add_location.dart';
-import '../data/User.dart';
-import '../profile/edit_profile_page.dart';
-import 'package:provider/provider.dart';
 
 class ProfileSetup extends StatefulWidget {
   static const routeName = '/Profile-Setup';
@@ -28,6 +25,7 @@ class ProfileSetup extends StatefulWidget {
 
 List<List<String>> selectedActivityList;
 List<List<String>> activityList;
+Map userlist;
 
 class _ProfileSetupState extends State<ProfileSetup> {
   final auth = AuthService();
@@ -37,23 +35,28 @@ class _ProfileSetupState extends State<ProfileSetup> {
     selectedActivityList = [];
     ActivityList.getActivityList()
         .then((list) => setState(() => activityList = list));
+    ActivityList.getUserDetails()
+        .then((map) => setState(() => userlist = map));
   }
 
-  File _image;
-  String _photo, address;
+  
+  // File _image;
+  // String _photo;
+  String address;
   bool addressSelected = true;
   Position position;
   final addressController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final routeArgs = ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
+    final routeArgs =
+        ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
     final email = routeArgs['email'];
     final password = routeArgs['password'];
     final photoUrl = routeArgs['photoUrl'];
     final creds = routeArgs['creds'];
-    final currentUser = Provider.of<User>(context);
+    //final currentUser = Provider.of<User>(context);
     //_photo = CurrentUser.user.photoUrl;
-    _photo = photoUrl;
+    //_photo = photoUrl;
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -80,149 +83,151 @@ class _ProfileSetupState extends State<ProfileSetup> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Stack(
-                    overflow: Overflow.visible,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 50.0),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0)),
-                          child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 20, horizontal: 20),
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Color(primary),
-                                ),
-                                borderRadius: BorderRadius.circular(6)),
-                            child: Column(
-                              children: <Widget>[
-                                SizedBox(
-                                  height: 15.0,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(
-                                       "Name",
-                                      //currentUser.name,
-                                      style: TextStyle(
-                                        color: Color(secondary),
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    IconButton(
-                                        icon: Icon(
-                                          Icons.edit,
-                                        ),
-                                        color: Color(primary),
-                                        onPressed: () async {
-                                          await Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      EditProfile()));
-                                          setState(() {});
-                                        }),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(
-                                         "Male 22"
-                                        //currentUser.gender +" "+ currentUser.age.toString(),
-                                        ),
-                                    Text("English"),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Divider(
-                                  thickness: 1,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    InkWell(
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        child: Text(
-                                          "0 Followers",
-                                          style: TextStyle(
-                                            color: Color(primary),
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                      onTap: () {},
-                                      splashColor: Colors.redAccent.shade50,
-                                    ),
-                                    InkWell(
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        child: Text(
-                                          "0 Following",
-                                          style: TextStyle(
-                                            color: Color(primary),
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                      onTap: () {},
-                                      splashColor: Colors.redAccent.shade50,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 10,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Color(primary)),
-                              boxShadow: [
-                                BoxShadow(
-                                    offset: Offset(2, 2),
-                                    color: Colors.grey,
-                                    blurRadius: 5)
-                              ]),
-                          child: CircleAvatar(
-                            radius: 36,
-                            backgroundImage: _image != null
-                                ? FileImage(_image)
-                                : _photo != null ? NetworkImage(_photo) : null,
-                            child: (_image != null || _photo != null)
-                                ? null
-                                : Icon(
-                                    Icons.account_circle,
-                                    size: 50,
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Stack(
+                  //   overflow: Overflow.visible,
+                  //   children: [
+                  //     Padding(
+                  //       padding: const EdgeInsets.only(top: 50.0),
+                  //       child: Card(
+                  //         shape: RoundedRectangleBorder(
+                  //             borderRadius: BorderRadius.circular(10.0)),
+                  //         child: Container(
+                  //           width: MediaQuery.of(context).size.width,
+                  //           padding: EdgeInsets.symmetric(
+                  //               vertical: 20, horizontal: 20),
+                  //           decoration: BoxDecoration(
+                  //               border: Border.all(
+                  //                 color: Color(primary),
+                  //               ),
+                  //               borderRadius: BorderRadius.circular(6)),
+                  //           child: Column(
+                  //             children: <Widget>[
+                  //               SizedBox(
+                  //                 height: 15.0,
+                  //               ),
+                  //               Row(
+                  //                 mainAxisAlignment:
+                  //                     MainAxisAlignment.spaceBetween,
+                  //                 children: <Widget>[
+                  //                   Text(
+                  //                     "Name",
+                  //                     //userlist['name'],
+                  //                     //CurrentUser.username,
+                  //                     style: TextStyle(
+                  //                       color: Color(secondary),
+                  //                       fontSize: 18,
+                  //                       fontWeight: FontWeight.bold,
+                  //                     ),
+                  //                   ),
+                  //                   IconButton(
+                  //                       icon: Icon(
+                  //                         Icons.edit,
+                  //                       ),
+                  //                       color: Color(primary),
+                  //                       onPressed: () async {
+                  //                         await Navigator.of(context).push(
+                  //                             MaterialPageRoute(
+                  //                                 builder: (_) =>
+                  //                                     EditProfile()));
+                  //                         setState(() {});
+                  //                       }),
+                  //                 ],
+                  //               ),
+                  //               SizedBox(
+                  //                 height: 5,
+                  //               ),
+                  //               Row(
+                  //                 mainAxisAlignment:
+                  //                     MainAxisAlignment.spaceBetween,
+                  //                 children: <Widget>[
+                  //                   Text("Male 22"
+                  //                       //CurrentUser.usergender,
+                  //                       ),
+                  //                   Text("English"),
+                  //                 ],
+                  //               ),
+                  //               SizedBox(
+                  //                 height: 5,
+                  //               ),
+                  //               Divider(
+                  //                 thickness: 1,
+                  //               ),
+                  //               Row(
+                  //                 mainAxisAlignment:
+                  //                     MainAxisAlignment.spaceBetween,
+                  //                 children: <Widget>[
+                  //                   InkWell(
+                  //                     child: Padding(
+                  //                       padding: EdgeInsets.symmetric(
+                  //                           horizontal: 5, vertical: 5),
+                  //                       child: Text(
+                  //                         "0 Followers",
+                  //                         style: TextStyle(
+                  //                           color: Color(primary),
+                  //                           fontWeight: FontWeight.bold,
+                  //                           fontSize: 15,
+                  //                         ),
+                  //                       ),
+                  //                     ),
+                  //                     onTap: () {},
+                  //                     splashColor: Colors.redAccent.shade50,
+                  //                   ),
+                  //                   InkWell(
+                  //                     child: Padding(
+                  //                       padding: EdgeInsets.symmetric(
+                  //                           horizontal: 5, vertical: 5),
+                  //                       child: Text(
+                  //                         "0 Following",
+                  //                         style: TextStyle(
+                  //                           color: Color(primary),
+                  //                           fontWeight: FontWeight.bold,
+                  //                           fontSize: 15,
+                  //                         ),
+                  //                       ),
+                  //                     ),
+                  //                     onTap: () {},
+                  //                     splashColor: Colors.redAccent.shade50,
+                  //                   ),
+                  //                 ],
+                  //               ),
+                  //             ],
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     Positioned(
+                  //       top: 10,
+                  //       left: 0,
+                  //       right: 0,
+                  //       child: Container(
+                  //         alignment: Alignment.center,
+                  //         decoration: BoxDecoration(
+                  //             shape: BoxShape.circle,
+                  //             border: Border.all(color: Color(primary)),
+                  //             boxShadow: [
+                  //               BoxShadow(
+                  //                   offset: Offset(2, 2),
+                  //                   color: Colors.grey,
+                  //                   blurRadius: 5)
+                  //             ]),
+                  //         child: CircleAvatar(
+                  //           radius: 36,
+                  //           backgroundImage: _image != null
+                  //               ? FileImage(_image)
+                  //               : _photo != null
+                  //                   ? NetworkImage(_photo)
+                  //                   : null,
+                  //           child: (_image != null || _photo != null)
+                  //               ? null
+                  //               : Icon(
+                  //                   Icons.account_circle,
+                  //                   size: 50,
+                  //                 ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   SizedBox(
                     height: 15,
                   ),
@@ -526,7 +531,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             horizontal: 60.0, vertical: 10.0),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50.0)),
-                        onPressed: () =>_handleProfileSetup(email,password,creds),
+                        onPressed: () =>
+                            _handleProfileSetup(email, password, creds),
                         child: Center(
                           child: Text(
                             "Finish",
@@ -543,6 +549,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
         ])));
   }
 
+
   _showErrorMessage(String title, String msg) => showDialog(
       context: context,
       builder: (ctx) => DialogBox(
@@ -551,7 +558,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
           buttonText1: "Ok",
           button1Func: () => Navigator.of(context, rootNavigator: true).pop()));
 
-  _handleProfileSetup(String email, String password, AuthCredential creds) async {
+  _handleProfileSetup(
+      String email, String password, AuthCredential creds) async {
     setState(() => addressSelected = addressController.text == null ||
             addressController.text.isEmpty ||
             position.latitude == null ||

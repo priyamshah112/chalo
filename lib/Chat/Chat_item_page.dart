@@ -355,12 +355,12 @@ class _MessageInputState extends State<MessageInput> {
               ),
             ),
           )),
-          IconButton(
-              icon: Icon(
-                Icons.add,
-                color: Color(primary),
-              ),
-              onPressed: () => showModal(context)),
+          // IconButton(
+          //     icon: Icon(
+          //       Icons.add,
+          //       color: Color(primary),
+          //     ),
+          //     onPressed: () => showModal(context)),
           IconButton(
             icon: Icon(
               Icons.send,

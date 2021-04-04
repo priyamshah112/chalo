@@ -79,3 +79,4 @@ Future<DocumentReference> handleLink(Uri deepLink,
   }
   return ref;
 }
+

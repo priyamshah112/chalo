@@ -27,4 +27,13 @@ class ActivityList {
     }
     return selected;
   }
+
+  static Future<Map> getUserDetails() async {
+    final Map user = await UserData.getUser();
+    // final userinfo = await Firestore.instance
+    //     .collection('users')
+    //     .document(user['email'])
+    //     .get();
+    return user;
+  }
 }

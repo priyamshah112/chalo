@@ -3,6 +3,9 @@
     <CLASSES>
       <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/8d1408a7cb11c272a54f7c601565c7f5/jetified-facebook-common-4.39.0/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/8d1408a7cb11c272a54f7c601565c7f5/jetified-facebook-common-4.39.0/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/d971ec6f5b9390dba33f3c39d97b8827/jetified-facebook-common-4.39.0/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/d971ec6f5b9390dba33f3c39d97b8827/jetified-facebook-common-4.39.0/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/d971ec6f5b9390dba33f3c39d97b8827/jetified-facebook-common-4.39.0/res" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.facebook.android/facebook-common/4.39.0/4f63ecafd5bf45e687785ab8acd62512978e852d/facebook-common-4.39.0-javadoc.jar!/" />

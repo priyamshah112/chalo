@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart';
 
-class User with ChangeNotifier {
+class User {
   String name,
       fname,
       lname,
@@ -97,6 +96,7 @@ class CurrentUser extends User{
   // static List get posts => user.posts;
   static String get userEmail => user.email;
   static String get username => user.name;
+  static String get usergender => user.gender;
   static set setFollowers(List temp) => user.followers = temp;
   static set setFollowing(List temp) => user.following = temp;
   static set setFollowRequests(List temp) => user.followRequests = temp;

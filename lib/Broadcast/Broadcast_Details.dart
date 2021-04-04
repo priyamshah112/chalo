@@ -279,7 +279,7 @@ class _JoinRequestListState extends State<JoinRequestList> {
         size: 15,
       ),
       label: Text(
-        accept ? "Accpet" : "Decline",
+        accept ? "Accept" : "Decline",
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 15,

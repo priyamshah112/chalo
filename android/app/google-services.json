@@ -8,18 +8,26 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:591673871843:android:8c24f10fbdf0cd0ad224d6",
+        "mobilesdk_app_id": "1:591673871843:android:adbc640636d89467d224d6",
         "android_client_info": {
           "package_name": "com.northstarinnovations.chalo"
         }
       },
       "oauth_client": [
         {
-          "client_id": "591673871843-oqmpjevrs9rnv1sidbkluvlc3jclskuu.apps.googleusercontent.com",
+          "client_id": "591673871843-c1a25hbar5o1trn0clvuoda70ogqds5t.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.northstarinnovations.chalo",
             "certificate_hash": "ffd246f0ee188f7965d23a0fef9dc8d37c58f5fd"
+          }
+        },
+        {
+          "client_id": "591673871843-o4bln0sqsi18kuj46uh6bbri0b9l3qmd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.northstarinnovations.chalo",
+            "certificate_hash": "f48e3a8978dfc0a36eddaf5e264883be1c9fdc31"
           }
         },
         {

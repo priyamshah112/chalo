@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chalo/home/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,7 +30,7 @@ List<List<String>> activityList;
 List<List<String>> postList;
 
 class _ProfilePageState extends State<ProfilePage> {
-  CurrentUser currentUser;
+  CurrentUser currentUser = CurrentUser();
   bool isCurrent;
   String username;
   Future<bool> getUser() async {
@@ -145,13 +146,18 @@ class _ProfilePageState extends State<ProfilePage> {
                               follower: currentUser.followers.length,
                               following: currentUser.following.length,
                               activities: currentUser.activityCompleted),
-                          buildUserSearch(),
+                          //buildUserSearch(),
                         ]),
                       ),
                     ];
                   },
                   body: Column(
                     children: <Widget>[
+                      //buildUserSearch(),
+                      Container(
+                        height: 150,
+                        child: ProfileSearchBar(forHome: true)
+                      ),
                       buildTabBar(),
                       Expanded(
                         child: TabBarView(
@@ -232,7 +238,7 @@ class _ProfilePageState extends State<ProfilePage> {
   SingleChildScrollView buildPostTab() {
     return SingleChildScrollView(
       child: Wrap(
-        children: currentUser.posts.length == 0
+        children: (currentUser.posts.length == 0)
             ? [
                 Container(
                   margin: const EdgeInsets.only(top: 50),
@@ -250,7 +256,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 .map(
                   (post) => FutureBuilder(
                       future: Firestore.instance
-                          .collection('posts')
+                          .collection("posts")
                           .document(post)
                           .get(),
                       builder:
@@ -1366,6 +1372,218 @@ class _AllActivityState extends State<AllActivity> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class ProfileSearchBar extends StatefulWidget {
+  ProfileSearchBar({this.forHome = false});
+  final bool forHome;
+  @override
+  _ProfileSearchBarState createState() => _ProfileSearchBarState();
+}
+
+class _ProfileSearchBarState extends State<ProfileSearchBar> {
+  final _searchController = TextEditingController();
+  final _searchFocus = FocusNode();
+  bool _isSearch = false;
+  String _query = '';
+  Timer _debounce;
+  var strFrontCode, strEndCode, startCode, endCode;
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        if (_searchController.text.isNotEmpty) {
+          _query = _searchController.text.toLowerCase();
+          //for one word
+          _query =
+              _query.length == 1 ? _query.toUpperCase() : capitalize(_query);
+          // for multiple words
+          List<String> words = _query.split(' ');
+          if (words.length > 1) {
+            for (var i = 1; i < words.length; i++)
+              words[i] = words[i].length == 1
+                  ? words[i].toUpperCase()
+                  : capitalize(words[i]);
+            _query = words.join(' ');
+          }
+        } else {
+          _query = '';
+          return;
+        }
+        var len = _query.length;
+        strFrontCode = _query.substring(0, len - 1);
+        strEndCode = _query.substring(len - 1, len);
+        startCode = _query;
+        endCode =
+            strFrontCode + String.fromCharCode(strEndCode.codeUnitAt(0) + 1);
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.forHome) _isSearch = true;
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    try {
+      _debounce.cancel();
+    } catch (e) {
+      print(e.toString());
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print(_isSearch);
+    return Stack(
+      children: <Widget>[
+        if (_isSearch)
+          Scaffold(
+            appBar: AppBar(
+              backgroundColor: Color(primary),
+              leading: Icon(Icons.search),
+              title: TextField(
+                controller: _searchController,
+                focusNode: _searchFocus,
+                cursorColor: Colors.white,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Search Users",
+                  hintStyle: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  contentPadding: EdgeInsets.only(left: 10.0),
+                  border: InputBorder.none,
+                ),
+              ),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    FocusScope.of(context).unfocus();
+                    if (!widget.forHome)
+                      Navigator.of(context).pop();
+                    else
+                      setState(() => _isSearch = false);
+                  },
+                )
+              ],
+            ),
+            body: SafeArea(
+                child: _query.length == 0
+                    ? Center(child: Text('Find Other Chalo Members'))
+                    : FutureBuilder(
+                        future: Firestore.instance
+                            .collection('users')
+                            .where('name', isGreaterThanOrEqualTo: startCode)
+                            .where('name', isLessThan: endCode)
+                            .getDocuments(),
+                        builder: (_, snapshot) {
+                          if (!snapshot.hasData)
+                            return Center(child: CircularProgressIndicator());
+                          List<DocumentSnapshot> users =
+                              snapshot.data.documents;
+                          if (snapshot.data == null || users.length == 0)
+                            return Center(
+                              child: Text('No such User'),
+                            );
+                          return ListView.builder(
+                              itemCount: users.length,
+                              itemBuilder: (_, index) {
+                                var user = users[index].data;
+                                // if (user['email'] == CurrentUser.email)
+                                //   return Container();
+                                return Card(
+                                  child: ListTile(
+                                    onTap: () => user['email'] ==
+                                            CurrentUser.userEmail
+                                        ? Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: ((_) => ProfilePage(
+                                                    user: CurrentUser.user))))
+                                        : showDialog(
+                                            context: context,
+                                            builder: (ctx) => Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: <Widget>[
+                                                      ProfileCard(
+                                                          email: user['email'],
+                                                          username:
+                                                              user['name'],
+                                                          profilePic: user[
+                                                              'profile_pic'],
+                                                          gender:
+                                                              user['gender'],
+                                                          follower:
+                                                              user['followers'],
+                                                          following:
+                                                              user['following'],
+                                                          activities: user[
+                                                              'activities_completed'],
+                                                          age: CurrentUser
+                                                              .ageFromDob(
+                                                                  user['dob']),
+                                                          isCurrent: false),
+                                                    ])),
+                                    title: Text(user['name']),
+                                    subtitle: Text(user['email']),
+                                  ),
+                                );
+                              });
+                        })),
+          ),
+        if (!_isSearch)
+          Positioned(
+              top: 60.0,
+              left: 15.0,
+              right: 15.0,
+              child: Container(
+                height: 50.0,
+                width: MediaQuery.of(context).size.width * 0.8,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey,
+                        offset: Offset(1.0, 1.0),
+                        blurRadius: 10,
+                        spreadRadius: 2)
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() => _isSearch = true);
+                          FocusScope.of(context).requestFocus(_searchFocus);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Text('Search Users'),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+      ],
     );
   }
 }
