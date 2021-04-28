@@ -46,6 +46,7 @@ class CurrentUser extends User{
   static StreamSubscription<DocumentSnapshot> _userInfo;
   static Future<void> initialize(SharedPreferences prefs) async {
     user = CurrentUser();
+
     user.name = prefs.getString('name');
     user.email = prefs.getString('email');
     user.phone = prefs.getString('phone');
@@ -53,11 +54,15 @@ class CurrentUser extends User{
     user.gender = prefs.getString('gender');
     user.birthDate = prefs.getString('dob');
     user.address = prefs.getString('address');
-    user.coins = prefs.getInt('coins');
+    //user.coins = prefs.getInt('coins');
     user.activityCompleted = prefs.getInt('activityCompleted');
     user.location = GeoPoint(prefs.getDouble('lat'), prefs.getDouble('long'));
     user.age = ageFromDob(user.birthDate);
     user.followers = user.following = user.followRequests = [];
+
+    final doc = await Firestore.instance.collection('users').document(user.email).get();
+    user.coins = doc.data['coins'];
+
     print('set basic data');
     _userInfo = Firestore.instance
         .collection('additional_info')
@@ -152,7 +157,8 @@ class UserData {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     Map user = {
       'email': prefs.getString('email'),
-      'name': prefs.getString('name')
+      'name': prefs.getString('name'),
+      //'coins': prefs.getInt('coins'),
     };
     return user;
   }

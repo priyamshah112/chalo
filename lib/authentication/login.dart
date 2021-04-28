@@ -67,67 +67,67 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             fontFamily: 'Pacifico',
                           ),
                         ),
-                        FlatButton(
-                          onPressed: () => {},
-                          color: Colors.indigo,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 25.0, vertical: 10.0),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0)),
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                FontAwesomeIcons.facebook,
-                                color: Colors.white,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 10.0),
-                              ),
-                              Text(
-                                "Signup using Facebook",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 15.0),
-                              )
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        Text(
-                          "We don't Post Anything to Facebook",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                        FlatButton(
-                          onPressed: () => {},
-                          color: Colors.deepOrangeAccent,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 25.0, vertical: 10.0),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0)),
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                FontAwesomeIcons.google,
-                                color: Colors.white,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 10.0),
-                              ),
-                              Text(
-                                "Signup using Google",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 15.0),
-                              )
-                            ],
-                          ),
-                        ),
+                        // FlatButton(
+                        //   onPressed: () => {},
+                        //   color: Colors.indigo,
+                        //   padding: EdgeInsets.symmetric(
+                        //       horizontal: 25.0, vertical: 10.0),
+                        //   shape: RoundedRectangleBorder(
+                        //       borderRadius: BorderRadius.circular(20.0)),
+                        //   child: Row(
+                        //     children: <Widget>[
+                        //       Icon(
+                        //         FontAwesomeIcons.facebook,
+                        //         color: Colors.white,
+                        //       ),
+                        //       Padding(
+                        //         padding: EdgeInsets.only(left: 10.0),
+                        //       ),
+                        //       Text(
+                        //         "Signup using Facebook",
+                        //         style: TextStyle(
+                        //             color: Colors.white, fontSize: 15.0),
+                        //       )
+                        //     ],
+                        //   ),
+                        // ),
+                        // SizedBox(
+                        //   height: 10.0,
+                        // ),
+                        // Text(
+                        //   "We don't Post Anything to Facebook",
+                        //   style: TextStyle(
+                        //     color: Colors.white,
+                        //     fontWeight: FontWeight.bold,
+                        //   ),
+                        // ),
+                        // SizedBox(
+                        //   height: 10.0,
+                        // ),
+                        // FlatButton(
+                        //   onPressed: () => {},
+                        //   color: Colors.deepOrangeAccent,
+                        //   padding: EdgeInsets.symmetric(
+                        //       horizontal: 25.0, vertical: 10.0),
+                        //   shape: RoundedRectangleBorder(
+                        //       borderRadius: BorderRadius.circular(20.0)),
+                        //   child: Row(
+                        //     children: <Widget>[
+                        //       Icon(
+                        //         FontAwesomeIcons.google,
+                        //         color: Colors.white,
+                        //       ),
+                        //       Padding(
+                        //         padding: EdgeInsets.only(left: 10.0),
+                        //       ),
+                        //       Text(
+                        //         "Signup using Google",
+                        //         style: TextStyle(
+                        //             color: Colors.white, fontSize: 15.0),
+                        //       )
+                        //     ],
+                        //   ),
+                        // ),
                         SizedBox(
                           height: 10.0,
                         ),
@@ -351,126 +351,126 @@ class _HomePageState extends State<HomePage> {
                                 fontFamily: 'Pacifico'),
                           ),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        FadeAnimation(
-                          1.6,
-                          Text(
-                            "login with",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xff003854),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 13,
-                        ),
-                        FadeAnimation(
-                          1.7,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
-                              Expanded(
-                                child: FlatButton(
-                                  onPressed: () async {
-                                    showDialog(
-                                        context: context,
-                                        builder: ((ctx) => Center(
-                                            child: CircularProgressIndicator())));
-                                    final result =
-                                        await AuthService().facebookSignIn();
-                                    login(result);
-                                  },
-                                  color: Colors.indigo,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 25.0, vertical: 10.0),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20.0)),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        FontAwesomeIcons.facebook,
-                                        color: Colors.white,
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(left: 10.0),
-                                      ),
-                                      Expanded(
-                                        child: FittedBox(
-                                          child: Text(
-                                            "Facebook",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 15.0),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 5.0),
-                              Expanded(
-                                child: FlatButton(
-                                  onPressed: () async {
-                                    showDialog(
-                                        context: context,
-                                        builder: ((ctx) => Center(
-                                            child: CircularProgressIndicator())));
-                                    final result =
-                                        await AuthService().googleSignIn();
-                                    login(result);
-                                  },
-                                  color: Colors.deepOrangeAccent,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 25.0, vertical: 10.0),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20.0)),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        FontAwesomeIcons.google,
-                                        color: Colors.white,
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(left: 10.0),
-                                      ),
-                                      Expanded(
-                                        child: FittedBox(
-                                          child: Text(
-                                            "Google",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 15.0),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 13,
-                        ),
-                        FadeAnimation(
-                          1.7,
-                          Text(
-                            "or",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xff003854),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                            ),
-                          ),
-                        ),
+                        // SizedBox(
+                        //   height: 20,
+                        // ),
+                        // FadeAnimation(
+                        //   1.6,
+                        //   Text(
+                        //     "login with",
+                        //     textAlign: TextAlign.center,
+                        //     style: TextStyle(
+                        //       color: Color(0xff003854),
+                        //       fontWeight: FontWeight.bold,
+                        //       fontSize: 17,
+                        //     ),
+                        //   ),
+                        // ),
+                        // SizedBox(
+                        //   height: 13,
+                        // ),
+                        // FadeAnimation(
+                        //   1.7,
+                        //   Row(
+                        //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        //     children: <Widget>[
+                        //       Expanded(
+                        //         child: FlatButton(
+                        //           onPressed: () async {
+                        //             showDialog(
+                        //                 context: context,
+                        //                 builder: ((ctx) => Center(
+                        //                     child: CircularProgressIndicator())));
+                        //             final result =
+                        //                 await AuthService().facebookSignIn();
+                        //             login(result);
+                        //           },
+                        //           color: Colors.indigo,
+                        //           padding: EdgeInsets.symmetric(
+                        //               horizontal: 25.0, vertical: 10.0),
+                        //           shape: RoundedRectangleBorder(
+                        //               borderRadius: BorderRadius.circular(20.0)),
+                        //           child: Row(
+                        //             children: <Widget>[
+                        //               Icon(
+                        //                 FontAwesomeIcons.facebook,
+                        //                 color: Colors.white,
+                        //               ),
+                        //               Padding(
+                        //                 padding: EdgeInsets.only(left: 10.0),
+                        //               ),
+                        //               Expanded(
+                        //                 child: FittedBox(
+                        //                   child: Text(
+                        //                     "Facebook",
+                        //                     style: TextStyle(
+                        //                         color: Colors.white,
+                        //                         fontSize: 15.0),
+                        //                   ),
+                        //                 ),
+                        //               )
+                        //             ],
+                        //           ),
+                        //         ),
+                        //       ),
+                        //       SizedBox(width: 5.0),
+                        //       Expanded(
+                        //         child: FlatButton(
+                        //           onPressed: () async {
+                        //             showDialog(
+                        //                 context: context,
+                        //                 builder: ((ctx) => Center(
+                        //                     child: CircularProgressIndicator())));
+                        //             final result =
+                        //                 await AuthService().googleSignIn();
+                        //             login(result);
+                        //           },
+                        //           color: Colors.deepOrangeAccent,
+                        //           padding: EdgeInsets.symmetric(
+                        //               horizontal: 25.0, vertical: 10.0),
+                        //           shape: RoundedRectangleBorder(
+                        //               borderRadius: BorderRadius.circular(20.0)),
+                        //           child: Row(
+                        //             children: <Widget>[
+                        //               Icon(
+                        //                 FontAwesomeIcons.google,
+                        //                 color: Colors.white,
+                        //               ),
+                        //               Padding(
+                        //                 padding: EdgeInsets.only(left: 10.0),
+                        //               ),
+                        //               Expanded(
+                        //                 child: FittedBox(
+                        //                   child: Text(
+                        //                     "Google",
+                        //                     style: TextStyle(
+                        //                         color: Colors.white,
+                        //                         fontSize: 15.0),
+                        //                   ),
+                        //                 ),
+                        //               )
+                        //             ],
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+                        // SizedBox(
+                        //   height: 13,
+                        // ),
+                        // FadeAnimation(
+                        //   1.7,
+                        //   Text(
+                        //     "or",
+                        //     textAlign: TextAlign.center,
+                        //     style: TextStyle(
+                        //       color: Color(0xff003854),
+                        //       fontWeight: FontWeight.bold,
+                        //       fontSize: 17,
+                        //     ),
+                        //   ),
+                        // ),
                         SizedBox(
                           height: 15,
                         ),

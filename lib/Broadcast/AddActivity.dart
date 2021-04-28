@@ -480,11 +480,16 @@ class _AddActivityState extends State<AddActivity> {
                                   _formKey.currentState.save();
                                   final user = await UserData.getUser();
                                   Map<String, dynamic> activityDetails = {
+                                    'activity_rating': 1.0,
+                                    'activity_status': 'Created',
                                     'activity_type': activity,
                                     'admin_id': user['email'],
                                     'admin_name': user['name'],
                                     'participants_id': [user['email']],
+                                    'participants_rated': [],
                                     'blocked_participant_id': [],
+                                    'rating_list': [],
+                                    'participants_present': [],
                                     'pending_participant_id': [],
                                     'broadcast_type': type.toLowerCase(),
                                     'max_participant': _peopleCount + 1,

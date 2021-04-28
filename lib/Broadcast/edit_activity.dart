@@ -1,5 +1,6 @@
-
-import 'package:chalo/data/activity.dart';
+import 'package:chalo/services/DatabaseService.dart';
+import 'package:chalo/widgets/DailogBox.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,8 @@ import '../common/global_colors.dart';
 import '../widgets/date_time.dart';
 
 class EditActivity extends StatefulWidget {
+  final DocumentSnapshot plandocu;
+  EditActivity({@required this.plandocu});
   @override
   _EditActivityState createState() => _EditActivityState();
 }
@@ -103,88 +106,6 @@ class _EditActivityState extends State<EditActivity> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text(
-                                "Activity Title",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 1.0, vertical: 10.0),
-                                child: TextFormField(
-                                  validator: (value) {
-                                    if (value.isEmpty)
-                                      return 'Please Select an Activity';
-                                    else {
-                                      bool contains = true;
-                                      for (var activity in activities) {
-                                        contains =
-                                            value == activity ? true : false;
-                                        if (contains) break;
-                                      }
-                                      return contains
-                                          ? null
-                                          : 'Make sure to select an activity from the list';
-                                    }
-                                  },
-                                  onChanged: (value) => activity = value,
-                                  keyboardType: TextInputType.text,
-                                  autofocus: false,
-                                  onTap: () async {
-                                    var result = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ViewActivity(activity ?? null),
-                                      ),
-                                    );
-                                    if (result == null) return;
-                                    activity = activityController.text =
-                                        result['selected'];
-                                    activities = result['activityList'];
-                                    FocusScope.of(context).unfocus();
-                                  },
-                                  controller: activityController,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Select an Activity",
-                                    prefixIcon: Icon(
-                                      Icons.search,
-                                      color: Color(primary),
-                                    ),
-                                    suffixIcon: Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: Color(primary),
-                                        ),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Material(
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(30.0),
-                                        ),
-                                        child: InkWell(
-                                          child: Icon(
-                                            Icons.format_list_bulleted,
-                                            color: Color(primary),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 30.0, bottom: 18.0, top: 18.0),
-                                    filled: true,
-                                    fillColor: Color(form1),
-                                    hintStyle: TextStyle(
-                                      color: Color(formHint),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 10.0),
                               Text(
                                 "Date & Time",
                                 style: TextStyle(
@@ -308,19 +229,6 @@ class _EditActivityState extends State<EditActivity> {
                               Visibility(
                                   visible: _showDropdown,
                                   child: selectPeople()),
-                              Text(
-                                "Privacy",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(primary),
-                                  fontFamily: bodyText,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              activityType(),
                               SizedBox(
                                 height: 10,
                               ),
@@ -394,88 +302,71 @@ class _EditActivityState extends State<EditActivity> {
                       SizedBox(
                         height: 20,
                       ),
-                      // FadeAnimation(
-                      //     1.9,
-                      //     Container(
-                      //       height: 50,
-                      //       margin: EdgeInsets.symmetric(horizontal: 30),
-                      //       child: FlatButton(
-                      //         color: Color(primary),
-                      //         padding: EdgeInsets.symmetric(
-                      //             horizontal: 30.0, vertical: 10.0),
-                      //         shape: RoundedRectangleBorder(
-                      //             borderRadius: BorderRadius.circular(50.0)),
-                      //         onPressed: () async {
-                      //           _formKey.currentState.save();
-                      //           if (_formKey.currentState.validate()) {
-                      //             _formKey.currentState.save();
-                      //             final user = await UserData.getUser();
-                      //             Map<String, dynamic> activityDetails = {
-                      //               'activity_type': activity,
-                      //               'admin_id': user['email'],
-                      //               'admin_name': user['name'],
-                      //               'participants_id': [user['email']],
-                      //               'blocked_participant_id': [],
-                      //               'pending_participant_id': [],
-                      //               'broadcast_type': type.toLowerCase(),
-                      //               'max_participant': _peopleCount + 1,
-                      //               'participant_type': selectedGender,
-                      //               'activity_start':
-                      //                   Timestamp.fromDate(startTime),
-                      //               'activity_end': Timestamp.fromDate(endTime),
-                      //               'description': note,
-                      //               'group_chat': null,
-                      //               'location_id': null,
-                      //               'map_status': type == 'Public'
-                      //                   ? 'active'
-                      //                   : 'inactive',
-                      //               'status': 'original',
-                      //               'security_code': Random().nextInt(10000),
-                      //               'timestamp': Timestamp.now(),
-                      //               'plan_id': ""
-                      //             };
-                      //             // print(activityDetails);
-                      //             showDialog(
-                      //                 context: context,
-                      //                 child: Center(
-                      //                     child: CircularProgressIndicator()));
-                      //             await DataService()
-                      //                 .createPlan(activityDetails);
-                      //             await Future.delayed(Duration(seconds: 1));
-                      //             Navigator.of(context, rootNavigator: true)
-                      //                 .pop();
-                      //             showDialog(
-                      //                 context: context,
-                      //                 builder: (ctx) => FadeAnimation(
-                      //                       1,
-                      //                       DialogBox(
-                      //                           title: "Success",
-                      //                           description:
-                      //                               "Activity successfully created",
-                      //                           buttonText1: "Ok",
-                      //                           button1Func: () {
-                      //                             Navigator.of(context,
-                      //                                     rootNavigator: true)
-                      //                                 .pop();
-                      //                             Navigator.of(context,
-                      //                                     rootNavigator: true)
-                      //                                 .pop();
-                      //                           }),
-                      //                     ));
-                      //           } //else
-                      //             //setState(() => _autovalidate = true);
-                      //         },
-                      //         child: Center(
-                      //           child: Text(
-                      //             "Broadcast Activity",
-                      //             style: TextStyle(
-                      //               color: Colors.white,
-                      //               fontSize: 18,
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     )),
+                      FadeAnimation(
+                          1.9,
+                          Container(
+                            height: 50,
+                            margin: EdgeInsets.symmetric(horizontal: 30),
+                            child: FlatButton(
+                              color: Color(primary),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 30.0, vertical: 10.0),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50.0)),
+                              onPressed: () async {
+                                _formKey.currentState.save();
+                                if (_formKey.currentState.validate()) {
+                                  _formKey.currentState.save();
+                                  Map<String, dynamic> activityDetails = {  
+                                    'max_participant': _peopleCount + 1,
+                                    'participant_type': selectedGender,
+                                    'activity_start':
+                                        Timestamp.fromDate(startTime),
+                                    'activity_end': Timestamp.fromDate(endTime),
+                                    'description': note,
+                                  };
+                                  // print(activityDetails);
+                                  showDialog(
+                                      context: context,
+                                      builder: (ctx) => Center(
+                                          child: CircularProgressIndicator()));
+                                  await DataService()
+                                      .updateUserPlan(activityDetails, widget.plandocu);
+                                  await Future.delayed(Duration(seconds: 1));
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
+                                  showDialog(
+                                      context: context,
+                                      builder: (ctx) => FadeAnimation(
+                                            1,
+                                            DialogBox(
+                                                title: "Success",
+                                                description:
+                                                    "Activity successfully updated",
+                                                buttonText1: "Ok",
+                                                button1Func: () {
+                                                  Navigator.of(context,
+                                                          rootNavigator: true)
+                                                      .pop();
+                                                  Navigator.of(context,
+                                                          rootNavigator: true)
+                                                      .pop();
+                                                }),
+                                          ));
+                                } //else
+                                  //setState(() => _autovalidate = true);
+                              },
+                              child: Center(
+                                child: Text(
+                                  "Update Activity",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )),
                     ],
                   ),
                 ),

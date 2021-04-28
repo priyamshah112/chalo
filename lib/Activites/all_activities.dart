@@ -332,6 +332,14 @@ class ActivityCard extends StatelessWidget {
                     ),
                   ),
                   Text(
+                    planDoc['activity_status'],
+                    style: TextStyle(
+                      color: Color(primary),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  Text(
                     DateFormat('d, MMM').format(start),
                     style: TextStyle(
                       color: Color(primary),

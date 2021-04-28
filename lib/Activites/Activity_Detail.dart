@@ -18,6 +18,8 @@ class ActivityDetails extends StatefulWidget {
 }
 
 class _ActivityDetailsState extends State<ActivityDetails> {
+  double rating = 3.5;
+
   @override
   void initState() {
     super.initState();
@@ -25,6 +27,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
   }
 
   bool requestSent = false;
+  bool isPresent = false;
   DocumentSnapshot plan;
 
   @override
@@ -36,8 +39,14 @@ class _ActivityDetailsState extends State<ActivityDetails> {
 
   bool isLoading = false;
 
-  Widget buildActivityDetails(BuildContext context) {
+  // Widget buildActivityDetails(BuildContext context) {
+
+  // }
+
+  @override
+  Widget build(BuildContext context) {
     final String email = CurrentUser.userEmail;
+    final List presentList = plan['participants_present'];
     final List participants = plan['participants_id'];
     final start = DateTime.fromMillisecondsSinceEpoch(
         plan['activity_start'].seconds * 1000);
@@ -45,174 +54,302 @@ class _ActivityDetailsState extends State<ActivityDetails> {
         plan['activity_end'].seconds * 1000);
     if (plan['pending_participant_id'].contains(email))
       setState(() => requestSent = true);
+    if (plan['participants_present'].contains(email))
+      setState(() => isPresent = true);
+    //return buildActivityDetails(context);
     return WillPopScope(
         onWillPop: () =>
             deleting ? Future.value(false) : onBackPressed(context),
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Color(primary),
-            elevation: 0.0,
-            automaticallyImplyLeading: false,
-            title: Text(
-              plan.data['admin_name'].toString().split(" ").first +
-                  "'s Activity",
-              style: TextStyle(
-                color: Colors.white,
-                fontFamily: bodyText,
-              ),
-            ),
-            centerTitle: true,
-          ),
-          backgroundColor: Colors.white,
-          body: SafeArea(
-            child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
-              child: FadeAnimation(
-                1,
-                Container(
-                  height: MediaQuery.of(context).size.height,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20,
+        child: StreamBuilder<DocumentSnapshot>(
+            initialData: widget.planDoc,
+            stream: Firestore.instance
+                .collection('plan')
+                .document(widget.planDoc.documentID)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData)
+                return Container(
+                    color: Colors.white,
+                    child: Center(child: CircularProgressIndicator()));
+              final DocumentSnapshot plan = snapshot.data;
+              return Scaffold(
+                appBar: AppBar(
+                  backgroundColor: Color(primary),
+                  elevation: 0.0,
+                  automaticallyImplyLeading: false,
+                  title: Text(
+                    plan.data['admin_name'].toString().split(" ").first +
+                        "'s Activity",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: bodyText,
                     ),
-                    child: Column(
-                      children: <Widget>[
-                        ActivityDetailCard(
-                            planDoc: plan, start: start, end: end),
-                        if (!participants.contains(email) &&
-                            participants.length < plan.data['max_participant'])
-                          isLoading
-                              ? Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: CircularProgressIndicator(),
-                                )
-                              : Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      child: requestSent
-                                          ? Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: <Widget>[
-                                                  Icon(Icons.access_time,
-                                                      color: Color(primary)),
-                                                  SizedBox(width: 10),
-                                                  Text('Request Pending',
-                                                      style: TextStyle(
-                                                          fontFamily: bodyText,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              Color(primary))),
-                                                ],
-                                              ),
-                                            )
-                                          : FlatButton(
-                                              onPressed: () async {
-                                                setState(
-                                                    () => isLoading = true);
-                                                await DataService().requestJoin(
-                                                    plan.reference,
-                                                    email,
-                                                    true);
-                                                await Future.delayed(
-                                                    Duration(seconds: 1));
-                                                setState(() {
-                                                  isLoading = false;
-                                                  requestSent = true;
-                                                });
-                                              },
-                                              color: Color(primary),
-                                              textColor: Colors.white,
-                                              child: Text(
-                                                'Join Activity',
-                                                style: TextStyle(
-                                                  fontFamily: bodyText,
-                                                ),
-                                              ),
-                                            ),
-                                    ),
-                                    SizedBox(height: 5),
-                                    requestSent
-                                        ? FlatButton(
-                                            onPressed: () async {
-                                              await DataService().requestJoin(
-                                                  plan.reference, email, false);
-                                              setState(
-                                                  () => requestSent = false);
-                                            },
-                                            color: Color(primary),
-                                            textColor: Colors.white,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: <Widget>[
-                                                Icon(Icons.clear),
-                                                SizedBox(width: 10),
-                                                Text(
-                                                  'Canel Request',
-                                                  style: TextStyle(
-                                                    fontFamily: bodyText,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        : FlatButton(
-                                            highlightColor: Colors.transparent,
-                                            child: Text(
-                                              'Propose a new time',
-                                              style: TextStyle(
-                                                color: Color(primary),
-                                              ),
-                                            ),
-                                            onPressed: () {},
-                                          ),
-                                  ],
-                                ),
-                        SizedBox(height: 20),
-                        ParticipantList(
-                            participants: participants,
-                            admin: plan['admin_name'],
-                            adminId: plan['admin_id'],
-                            planId: plan['plan_id'],
-                            current: email),
-                        if (participants.contains(email))
-                          Container(
-                            width: double.infinity,
-                            child: RaisedButton(
-                                onPressed: () =>
-                                    handleLeaveActivity(context, plan),
-                                elevation: 2,
-                                textColor: Colors.white,
-                                color: Colors.red,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Text(
-                                  'Leave Activity',
-                                  style: TextStyle(
-                                    fontFamily: bodyText,
-                                  ),
-                                )),
+                  ),
+                  centerTitle: true,
+                ),
+                backgroundColor: Colors.white,
+                body: SafeArea(
+                  child: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    child: FadeAnimation(
+                      1,
+                      Container(
+                        height: MediaQuery.of(context).size.height,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
                           ),
-                      ],
+                          child: Column(
+                            children: <Widget>[
+                              ActivityDetailCard(
+                                  planDoc: plan, start: start, end: end),
+                              if (!participants.contains(email) &&
+                                  participants.length <
+                                      plan.data['max_participant'])
+                                isLoading
+                                    ? Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: CircularProgressIndicator(),
+                                      )
+                                    : Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: <Widget>[
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            child: requestSent
+                                                ? Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: <Widget>[
+                                                        Icon(Icons.access_time,
+                                                            color:
+                                                                Color(primary)),
+                                                        SizedBox(width: 10),
+                                                        Text('Request Pending',
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    bodyText,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Color(
+                                                                    primary))),
+                                                      ],
+                                                    ),
+                                                  )
+                                                : FlatButton(
+                                                    onPressed: () async {
+                                                      setState(() =>
+                                                          isLoading = true);
+                                                      await DataService()
+                                                          .requestJoin(
+                                                              plan.reference,
+                                                              email,
+                                                              true);
+                                                      await Future.delayed(
+                                                          Duration(seconds: 1));
+                                                      setState(() {
+                                                        isLoading = false;
+                                                        requestSent = true;
+                                                      });
+                                                    },
+                                                    color: Color(primary),
+                                                    textColor: Colors.white,
+                                                    child: Text(
+                                                      'Join Activity',
+                                                      style: TextStyle(
+                                                        fontFamily: bodyText,
+                                                      ),
+                                                    ),
+                                                  ),
+                                          ),
+                                          SizedBox(height: 5),
+                                          requestSent
+                                              ? FlatButton(
+                                                  onPressed: () async {
+                                                    await DataService()
+                                                        .requestJoin(
+                                                            plan.reference,
+                                                            email,
+                                                            false);
+                                                    setState(() =>
+                                                        requestSent = false);
+                                                  },
+                                                  color: Color(primary),
+                                                  textColor: Colors.white,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: <Widget>[
+                                                      Icon(Icons.clear),
+                                                      SizedBox(width: 10),
+                                                      Text(
+                                                        'Cancel Request',
+                                                        style: TextStyle(
+                                                          fontFamily: bodyText,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              : FlatButton(
+                                                  highlightColor:
+                                                      Colors.transparent,
+                                                  child: Text(
+                                                    'Propose a new time',
+                                                    style: TextStyle(
+                                                      color: Color(primary),
+                                                    ),
+                                                  ),
+                                                  onPressed: () {},
+                                                ),
+                                        ],
+                                      ),
+                              SizedBox(height: 20),
+                              ParticipantList(
+                                  planDoc: widget.planDoc,
+                                  presentList: presentList,
+                                  participants: participants,
+                                  admin: plan['admin_name'],
+                                  adminId: plan['admin_id'],
+                                  planId: plan['plan_id'],
+                                  current: email),
+                              if (plan['activity_status'] == 'Completed' &&
+                                  participants.contains(email))
+                                Container(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Text("Rating  ",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            color: Color(primary),
+                                            fontFamily: heading,
+                                          )),
+                                      Text("${plan['activity_rating']}",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            color: Color(primary),
+                                            fontFamily: heading,
+                                          )),
+                                      Icon(
+                                        Icons.star_outlined,
+                                        color: Color(primary),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              if (plan['activity_status'] == 'Started' &&
+                                  participants.contains(email))
+                                isPresent
+                                    ? (plan['participants_rated']
+                                            .contains(email))
+                                        ? Container()
+                                        : DateTime.now().isBefore(plan['activity_end'].toDate().subtract(Duration(minutes: 15)))
+                                            ? Container()
+                                            : Container(
+                                                padding: EdgeInsets.all(5),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    Text(
+                                                      "Rating",
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 18,
+                                                        color: Color(primary),
+                                                        //fontFamily: heading,
+                                                      ),
+                                                    ),
+                                                    StarRating(
+                                                      rating: rating,
+                                                      onRatingChanged:
+                                                          (rating) => setState(
+                                                              () =>
+                                                                  this.rating =
+                                                                      rating),
+                                                    ),
+                                                    RaisedButton(
+                                                      child: Text(
+                                                        'Submit Rating',
+                                                        style: TextStyle(
+                                                          fontFamily: bodyText,
+                                                        ),
+                                                      ),
+                                                      elevation: 2,
+                                                      textColor: Colors.white,
+                                                      color: Colors.green,
+                                                      onPressed: () async {
+                                                        await DataService()
+                                                            .setRatingList(
+                                                                plan.reference,
+                                                                rating,
+                                                                email);
+                                                        setState(() {});
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                    : Container(
+                                        child: RaisedButton(
+                                          child: Text(
+                                            'Mark Present',
+                                            style: TextStyle(
+                                              fontFamily: bodyText,
+                                            ),
+                                          ),
+                                          elevation: 2,
+                                          textColor: Colors.white,
+                                          color: Colors.green,
+                                          onPressed: () async {
+                                            await DataService().requestPresent(
+                                                plan.reference, email);
+                                            setState(() => isPresent = true);
+                                          },
+                                        ),
+                                      ),
+                              SizedBox(height: 10),
+                              if (participants.contains(email))
+                                Container(
+                                  width: double.infinity,
+                                  child: RaisedButton(
+                                      onPressed: () =>
+                                          handleLeaveActivity(context, plan),
+                                      elevation: 2,
+                                      textColor: Colors.white,
+                                      color: Colors.red,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Text(
+                                        'Leave Activity',
+                                        style: TextStyle(
+                                          fontFamily: bodyText,
+                                        ),
+                                      )),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-        ));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return buildActivityDetails(context);
+              );
+            }));
   }
 
   bool deleting = false;
@@ -254,13 +391,16 @@ class ParticipantList extends StatefulWidget {
   const ParticipantList(
       {Key key,
       this.showRemove = false,
+      @required this.planDoc,
+      @required this.presentList,
       @required this.current,
       @required this.participants,
       @required this.admin,
       @required this.adminId,
       @required this.planId})
       : super(key: key);
-  final List participants;
+  final List participants, presentList;
+  final DocumentSnapshot planDoc;
   final bool showRemove;
   final String current, admin, adminId, planId;
 
@@ -342,15 +482,32 @@ class _ParticipantListState extends State<ParticipantList> {
                           trailing: participant == widget.adminId
                               ? Text('Admin',
                                   style: TextStyle(color: Color(primary)))
-                              : widget.showRemove
-                                  ? GestureDetector(
-                                      child:
-                                          Icon(Icons.clear, color: Colors.red),
-                                      onTap: () => handleRemove(
-                                          context,
-                                          participant,
-                                          snapshot.data['first_name']))
-                                  : null,
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    (widget.planDoc['activity_status'] !=
+                                            "Created")
+                                        ? (widget.presentList)
+                                                .contains(participant)
+                                            ? Text('Present')
+                                            : (widget.planDoc[
+                                                        'activity_status'] ==
+                                                    "Completed")
+                                                ? Text('Absent')
+                                                : Text('Waiting')
+                                        : Text(''),
+                                    SizedBox(width: 10),
+                                    widget.showRemove
+                                        ? GestureDetector(
+                                            child: Icon(Icons.clear,
+                                                color: Colors.red),
+                                            onTap: () => handleRemove(
+                                                context,
+                                                participant,
+                                                snapshot.data['first_name']))
+                                        : Text(''),
+                                  ],
+                                ),
                         ),
                 );
               }),

@@ -195,7 +195,8 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                                             )));
                                   final DocumentSnapshot planSnap =
                                       snapshot.data;
-                                  return FadeAnimation(
+                                  return planSnap['activity_status']=='Completed' ?
+                                  Container() : FadeAnimation(
                                     index - 8.0,
                                     Container(
                                       width: MediaQuery.of(context).size.width,
@@ -314,692 +315,899 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
                           });
                     }),
             //**************Completed Section**********
-            SingleChildScrollView(
-              child: Container(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0)),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 20),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Color(primary),
-                                ),
-                                borderRadius: BorderRadius.circular(6),
-                                color: Color(bg2),
-                              ),
-                              child: Column(
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Text(
-                                        "Activity Name",
-                                        style: TextStyle(
-                                          color: Color(primary),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                      Text(
-                                        "10, May",
-                                        style: TextStyle(
-                                          color: Color(primary),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.timer,
-                                            color: Color(secondary),
-                                            size: 20,
+            email == null && name == null
+                ? Center(child: CircularProgressIndicator())
+                : StreamBuilder(
+                    stream: Firestore.instance
+                        .collection('user_plans')
+                        .document(email)
+                        .snapshots(),
+                    builder: (ctx, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting ||
+                          !snapshot.hasData)
+                        return Center(child: CircularProgressIndicator());
+                      List plans = snapshot.data['current_plans'];
+                      if (plans.length == 0)
+                        return Center(child: Text('No Current Plans to show!'));
+                      return ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                          itemCount: plans.length,
+                          itemBuilder: (context, index) {
+                            return FutureBuilder(
+                                future: Firestore.instance
+                                    .collection('plan')
+                                    .document(plans[index])
+                                    .get(),
+                                builder: (ctx,
+                                    AsyncSnapshot<DocumentSnapshot> snapshot) {
+                                  if (!snapshot.hasData ||
+                                      snapshot.connectionState ==
+                                          ConnectionState.waiting)
+                                    return Shimmer.fromColors(
+                                        enabled: true,
+                                        baseColor: Colors.grey[400],
+                                        highlightColor: Colors.grey[100],
+                                        child: Container(
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            padding: EdgeInsets.all(5),
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 4),
+                                            decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: Color(primary),
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(6)),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                CircleAvatar(
+                                                  backgroundColor: Colors.white,
+                                                  radius: 27.5,
+                                                ),
+                                                SizedBox(width: 10),
+                                                Expanded(
+                                                  child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        SizedBox(height: 10),
+                                                        Container(
+                                                            color: Colors.white,
+                                                            width:
+                                                                double.infinity,
+                                                            height: 10),
+                                                        SizedBox(height: 10),
+                                                        Container(
+                                                            color: Colors.white,
+                                                            child: SizedBox(
+                                                              height: 5,
+                                                              width: 80,
+                                                            )),
+                                                      ]),
+                                                ),
+                                                Container(
+                                                  margin: EdgeInsets.all(10),
+                                                  height: 20,
+                                                  width: 50,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
+                                                      color: Colors.white),
+                                                )
+                                              ],
+                                            )));
+                                  final DocumentSnapshot planSnap =
+                                      snapshot.data;
+                                  return planSnap['activity_status']=='Completed'? FadeAnimation(
+                                    index - 8.0,
+                                    Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      margin: EdgeInsets.symmetric(vertical: 4),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Color(primary),
                                           ),
-                                          Text(
-                                            " 03:30 PM",
-                                            style: TextStyle(
-                                                color: Color(secondary),
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.people,
-                                            color: Color(secondary),
-                                            size: 20,
-                                          ),
-                                          Text(
-                                            " 2/11",
-                                            style: TextStyle(
-                                                color: Color(secondary),
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.location_on,
-                                            color: Color(secondary),
-                                            size: 18,
-                                          ),
-                                          Text(
-                                            " Address",
-                                            style: TextStyle(
-                                                color: Color(secondary),
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  Divider(
-                                    thickness: 1,
-                                  ),
-                                  Container(
-                                    height: 90,
-                                    child: ListView(
-                                      scrollDirection: Axis.horizontal,
-                                      children: <Widget>[
-                                        Stack(
-                                          children: <Widget>[
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 3),
-                                              child: Container(
-                                                width: 60.0,
-                                                child: ListTile(
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                          horizontal: 0,
-                                                          vertical: 0),
-                                                  title: Container(
-                                                    width: 43,
-                                                    height: 60,
-                                                    child: CircleAvatar(
-                                                      foregroundColor:
-                                                          Color(primary),
-                                                      backgroundColor:
-                                                          Color(secondary),
-                                                      backgroundImage: AssetImage(
-                                                          'images/bgcover.jpg'),
-                                                    ),
+                                          borderRadius:
+                                              BorderRadius.circular(6)),
+                                      child: ListTile(
+                                          onTap: () => Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        ChatItemPage(
+                                                            planId:
+                                                                planSnap.data[
+                                                                    'plan_id'],
+                                                            chatTitle: planSnap
+                                                                    .data[
+                                                                'activity_type'])),
+                                              ),
+                                          leading: Container(
+                                            width: 55.0,
+                                            height: 55.0,
+                                            child: planSnap.data[
+                                                        'activity_logo'] !=
+                                                    null
+                                                ? Image.network(planSnap
+                                                    .data['activity_logo'])
+                                                : Image.asset(
+                                                    'images/bgcover.jpg',
                                                   ),
-                                                  subtitle: Container(
-                                                    padding:
-                                                        EdgeInsets.only(top: 5),
-                                                    child: Text(
-                                                      "You",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Color(secondary),
-                                                      ),
-                                                    ),
-                                                  ),
+                                          ),
+                                          title: Text(
+                                            planSnap.data['activity_type'],
+                                            style: TextStyle(
+                                              color: Color(primary),
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          trailing: Container(
+                                            margin: EdgeInsets.only(bottom: 30),
+                                            child: FittedBox(
+                                              child: Text(
+                                                DateFormat('MMM d').format(DateTime
+                                                    .fromMillisecondsSinceEpoch(
+                                                        planSnap
+                                                                .data[
+                                                                    'activity_start']
+                                                                .seconds *
+                                                            1000)),
+                                                style: TextStyle(
+                                                  color: Color(secondary),
+                                                  fontSize: 13,
                                                 ),
                                               ),
                                             ),
-                                            Positioned(
-                                              left: 43,
-                                              top: 40,
-                                              child: Container(
-                                                width: 20,
-                                                height: 20,
-                                                child: CircleAvatar(
-                                                  backgroundColor: Colors.green,
-                                                  child: Icon(
-                                                    Icons.star,
-                                                    color: Colors.white,
-                                                    size: 15,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Stack(
-                                          children: <Widget>[
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 3),
-                                              child: Container(
-                                                width: 60.0,
-                                                child: ListTile(
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                          horizontal: 0,
-                                                          vertical: 0),
-                                                  title: Container(
-                                                    width: 43,
-                                                    height: 60,
-                                                    child: CircleAvatar(
-                                                      foregroundColor:
-                                                          Color(primary),
-                                                      backgroundColor:
-                                                          Color(secondary),
-                                                      backgroundImage: AssetImage(
-                                                          'images/bgcover.jpg'),
-                                                    ),
-                                                  ),
-                                                  subtitle: Container(
-                                                    padding:
-                                                        EdgeInsets.only(top: 5),
-                                                    child: Text(
-                                                      "Abdul Quadir",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Color(secondary),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                          ),
+                                          subtitle: StreamBuilder(
+                                              stream: Firestore.instance
+                                                  .collection(
+                                                      'group_chat/${plans[index]}/chat')
+                                                  .orderBy('timestamp',
+                                                      descending: true)
+                                                  .limit(1)
+                                                  .snapshots(),
+                                              builder: (ctx, message) {
+                                                if (!message.hasData ||
+                                                    message.hasError)
+                                                  return Container();
+                                                return message.data.documents
+                                                            .length ==
+                                                        1
+                                                    ? Row(
+                                                        children: <Widget>[
+                                                          message.data.documents[
+                                                                          0][
+                                                                      'sender_name'] ==
+                                                                  name
+                                                              ? Text('You:')
+                                                              : Text(message
+                                                                      .data
+                                                                      .documents[
+                                                                          0][
+                                                                          'sender_name']
+                                                                      .toString()
+                                                                      .split(
+                                                                          " ")[0] +
+                                                                  ':'),
+                                                          SizedBox(width: 5),
+                                                          Flexible(
+                                                            child: Text(
+                                                              message
+                                                                  .data
+                                                                  .documents[0][
+                                                                      'message_content']
+                                                                  .toString()
+                                                                  .split(
+                                                                      "\n")[0],
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            ),
+                                                          )
+                                                        ],
+                                                      )
+                                                    : Text('Start Chatting');
+                                              })),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0)),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 20),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Color(primary),
-                                ),
-                                borderRadius: BorderRadius.circular(6),
-                                color: Color(bg2),
-                              ),
-                              child: Column(
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Text(
-                                        "Activity Name",
-                                        style: TextStyle(
-                                          color: Color(primary),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                      Text(
-                                        "10, May",
-                                        style: TextStyle(
-                                          color: Color(primary),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.timer,
-                                            color: Color(secondary),
-                                            size: 20,
-                                          ),
-                                          Text(
-                                            " 03:30 PM",
-                                            style: TextStyle(
-                                                color: Color(secondary),
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.people,
-                                            color: Color(secondary),
-                                            size: 20,
-                                          ),
-                                          Text(
-                                            " 2/11",
-                                            style: TextStyle(
-                                                color: Color(secondary),
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.location_on,
-                                            color: Color(secondary),
-                                            size: 18,
-                                          ),
-                                          Text(
-                                            " Address",
-                                            style: TextStyle(
-                                                color: Color(secondary),
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  Divider(
-                                    thickness: 1,
-                                  ),
-                                  Container(
-                                    height: 90,
-                                    child: ListView(
-                                      scrollDirection: Axis.horizontal,
-                                      children: <Widget>[
-                                        Stack(
-                                          children: <Widget>[
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 3),
-                                              child: Container(
-                                                width: 60.0,
-                                                child: ListTile(
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                          horizontal: 0,
-                                                          vertical: 0),
-                                                  title: Container(
-                                                    width: 43,
-                                                    height: 60,
-                                                    child: CircleAvatar(
-                                                      foregroundColor:
-                                                          Color(primary),
-                                                      backgroundColor:
-                                                          Color(secondary),
-                                                      backgroundImage: AssetImage(
-                                                          'images/bgcover.jpg'),
-                                                    ),
-                                                  ),
-                                                  subtitle: Container(
-                                                    padding:
-                                                        EdgeInsets.only(top: 5),
-                                                    child: Text(
-                                                      "You",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Color(secondary),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Positioned(
-                                              left: 43,
-                                              top: 40,
-                                              child: Container(
-                                                width: 20,
-                                                height: 20,
-                                                child: CircleAvatar(
-                                                  backgroundColor: Colors.green,
-                                                  child: Icon(
-                                                    Icons.star,
-                                                    color: Colors.white,
-                                                    size: 15,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Stack(
-                                          children: <Widget>[
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 3),
-                                              child: Container(
-                                                width: 60.0,
-                                                child: ListTile(
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                          horizontal: 0,
-                                                          vertical: 0),
-                                                  title: Container(
-                                                    width: 43,
-                                                    height: 60,
-                                                    child: CircleAvatar(
-                                                      foregroundColor:
-                                                          Color(primary),
-                                                      backgroundColor:
-                                                          Color(secondary),
-                                                      backgroundImage: AssetImage(
-                                                          'images/bgcover.jpg'),
-                                                    ),
-                                                  ),
-                                                  subtitle: Container(
-                                                    padding:
-                                                        EdgeInsets.only(top: 5),
-                                                    child: Text(
-                                                      "Abdul Quadir",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Color(secondary),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0)),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 20),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Color(primary),
-                                ),
-                                borderRadius: BorderRadius.circular(6),
-                                color: Color(bg2),
-                              ),
-                              child: Column(
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Text(
-                                        "Activity Name",
-                                        style: TextStyle(
-                                          color: Color(primary),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                      Text(
-                                        "10, May",
-                                        style: TextStyle(
-                                          color: Color(primary),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.timer,
-                                            color: Color(secondary),
-                                            size: 20,
-                                          ),
-                                          Text(
-                                            " 03:30 PM",
-                                            style: TextStyle(
-                                                color: Color(secondary),
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.people,
-                                            color: Color(secondary),
-                                            size: 20,
-                                          ),
-                                          Text(
-                                            " 2/11",
-                                            style: TextStyle(
-                                                color: Color(secondary),
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.location_on,
-                                            color: Color(secondary),
-                                            size: 18,
-                                          ),
-                                          Text(
-                                            " Address",
-                                            style: TextStyle(
-                                                color: Color(secondary),
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  Divider(
-                                    thickness: 1,
-                                  ),
-                                  Container(
-                                    height: 90,
-                                    child: ListView(
-                                      scrollDirection: Axis.horizontal,
-                                      children: <Widget>[
-                                        Stack(
-                                          children: <Widget>[
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 3),
-                                              child: Container(
-                                                width: 60.0,
-                                                child: ListTile(
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                          horizontal: 0,
-                                                          vertical: 0),
-                                                  title: Container(
-                                                    width: 43,
-                                                    height: 60,
-                                                    child: CircleAvatar(
-                                                      foregroundColor:
-                                                          Color(primary),
-                                                      backgroundColor:
-                                                          Color(secondary),
-                                                      backgroundImage: AssetImage(
-                                                          'images/bgcover.jpg'),
-                                                    ),
-                                                  ),
-                                                  subtitle: Container(
-                                                    padding:
-                                                        EdgeInsets.only(top: 5),
-                                                    child: Text(
-                                                      "You",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Color(secondary),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Positioned(
-                                              left: 43,
-                                              top: 40,
-                                              child: Container(
-                                                width: 20,
-                                                height: 20,
-                                                child: CircleAvatar(
-                                                  backgroundColor: Colors.green,
-                                                  child: Icon(
-                                                    Icons.star,
-                                                    color: Colors.white,
-                                                    size: 15,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Stack(
-                                          children: <Widget>[
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 3),
-                                              child: Container(
-                                                width: 60.0,
-                                                child: ListTile(
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                          horizontal: 0,
-                                                          vertical: 0),
-                                                  title: Container(
-                                                    width: 43,
-                                                    height: 60,
-                                                    child: CircleAvatar(
-                                                      foregroundColor:
-                                                          Color(primary),
-                                                      backgroundColor:
-                                                          Color(secondary),
-                                                      backgroundImage: AssetImage(
-                                                          'images/bgcover.jpg'),
-                                                    ),
-                                                  ),
-                                                  subtitle: Container(
-                                                    padding:
-                                                        EdgeInsets.only(top: 5),
-                                                    child: Text(
-                                                      "Abdul Quadir",
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Color(secondary),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+                                  ) : Container();
+                                });
+                          });
+                    }),
+            // SingleChildScrollView(
+            //   child: Container(
+            //     child: Padding(
+            //       padding: EdgeInsets.symmetric(
+            //         horizontal: 20,
+            //       ),
+            //       child: Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         mainAxisAlignment: MainAxisAlignment.start,
+            //         children: <Widget>[
+            //           SizedBox(
+            //             height: 20.0,
+            //           ),
+            //           Column(
+            //             mainAxisSize: MainAxisSize.min,
+            //             children: <Widget>[
+            //               Card(
+            //                 shape: RoundedRectangleBorder(
+            //                     borderRadius: BorderRadius.circular(10.0)),
+            //                 child: Container(
+            //                   width: MediaQuery.of(context).size.width,
+            //                   padding: EdgeInsets.symmetric(
+            //                       vertical: 20, horizontal: 20),
+            //                   decoration: BoxDecoration(
+            //                     border: Border.all(
+            //                       color: Color(primary),
+            //                     ),
+            //                     borderRadius: BorderRadius.circular(6),
+            //                     color: Color(bg2),
+            //                   ),
+            //                   child: Column(
+            //                     children: <Widget>[
+            //                       Row(
+            //                         mainAxisAlignment:
+            //                             MainAxisAlignment.spaceBetween,
+            //                         children: <Widget>[
+            //                           Text(
+            //                             "Activity Name",
+            //                             style: TextStyle(
+            //                               color: Color(primary),
+            //                               fontWeight: FontWeight.bold,
+            //                               fontSize: 18,
+            //                             ),
+            //                           ),
+            //                           Text(
+            //                             "10, May",
+            //                             style: TextStyle(
+            //                               color: Color(primary),
+            //                               fontWeight: FontWeight.bold,
+            //                               fontSize: 18,
+            //                             ),
+            //                           ),
+            //                         ],
+            //                       ),
+            //                       SizedBox(
+            //                         height: 20,
+            //                       ),
+            //                       Row(
+            //                         mainAxisAlignment:
+            //                             MainAxisAlignment.spaceBetween,
+            //                         children: <Widget>[
+            //                           Row(
+            //                             crossAxisAlignment:
+            //                                 CrossAxisAlignment.center,
+            //                             children: <Widget>[
+            //                               Icon(
+            //                                 Icons.timer,
+            //                                 color: Color(secondary),
+            //                                 size: 20,
+            //                               ),
+            //                               Text(
+            //                                 " 03:30 PM",
+            //                                 style: TextStyle(
+            //                                     color: Color(secondary),
+            //                                     fontSize: 18,
+            //                                     fontWeight: FontWeight.w500),
+            //                               ),
+            //                             ],
+            //                           ),
+            //                           Row(
+            //                             crossAxisAlignment:
+            //                                 CrossAxisAlignment.center,
+            //                             children: <Widget>[
+            //                               Icon(
+            //                                 Icons.people,
+            //                                 color: Color(secondary),
+            //                                 size: 20,
+            //                               ),
+            //                               Text(
+            //                                 " 2/11",
+            //                                 style: TextStyle(
+            //                                     color: Color(secondary),
+            //                                     fontSize: 18,
+            //                                     fontWeight: FontWeight.w500),
+            //                               ),
+            //                             ],
+            //                           ),
+            //                           Row(
+            //                             crossAxisAlignment:
+            //                                 CrossAxisAlignment.center,
+            //                             children: <Widget>[
+            //                               Icon(
+            //                                 Icons.location_on,
+            //                                 color: Color(secondary),
+            //                                 size: 18,
+            //                               ),
+            //                               Text(
+            //                                 " Address",
+            //                                 style: TextStyle(
+            //                                     color: Color(secondary),
+            //                                     fontSize: 18,
+            //                                     fontWeight: FontWeight.w500),
+            //                               ),
+            //                             ],
+            //                           ),
+            //                         ],
+            //                       ),
+            //                       SizedBox(
+            //                         height: 5,
+            //                       ),
+            //                       Divider(
+            //                         thickness: 1,
+            //                       ),
+            //                       Container(
+            //                         height: 90,
+            //                         child: ListView(
+            //                           scrollDirection: Axis.horizontal,
+            //                           children: <Widget>[
+            //                             Stack(
+            //                               children: <Widget>[
+            //                                 Padding(
+            //                                   padding:
+            //                                       const EdgeInsets.symmetric(
+            //                                           horizontal: 3),
+            //                                   child: Container(
+            //                                     width: 60.0,
+            //                                     child: ListTile(
+            //                                       contentPadding:
+            //                                           EdgeInsets.symmetric(
+            //                                               horizontal: 0,
+            //                                               vertical: 0),
+            //                                       title: Container(
+            //                                         width: 43,
+            //                                         height: 60,
+            //                                         child: CircleAvatar(
+            //                                           foregroundColor:
+            //                                               Color(primary),
+            //                                           backgroundColor:
+            //                                               Color(secondary),
+            //                                           backgroundImage: AssetImage(
+            //                                               'images/bgcover.jpg'),
+            //                                         ),
+            //                                       ),
+            //                                       subtitle: Container(
+            //                                         padding:
+            //                                             EdgeInsets.only(top: 5),
+            //                                         child: Text(
+            //                                           "You",
+            //                                           textAlign:
+            //                                               TextAlign.center,
+            //                                           style: TextStyle(
+            //                                             fontSize: 12,
+            //                                             color: Color(secondary),
+            //                                           ),
+            //                                         ),
+            //                                       ),
+            //                                     ),
+            //                                   ),
+            //                                 ),
+            //                                 Positioned(
+            //                                   left: 43,
+            //                                   top: 40,
+            //                                   child: Container(
+            //                                     width: 20,
+            //                                     height: 20,
+            //                                     child: CircleAvatar(
+            //                                       backgroundColor: Colors.green,
+            //                                       child: Icon(
+            //                                         Icons.star,
+            //                                         color: Colors.white,
+            //                                         size: 15,
+            //                                       ),
+            //                                     ),
+            //                                   ),
+            //                                 ),
+            //                               ],
+            //                             ),
+            //                             Stack(
+            //                               children: <Widget>[
+            //                                 Padding(
+            //                                   padding:
+            //                                       const EdgeInsets.symmetric(
+            //                                           horizontal: 3),
+            //                                   child: Container(
+            //                                     width: 60.0,
+            //                                     child: ListTile(
+            //                                       contentPadding:
+            //                                           EdgeInsets.symmetric(
+            //                                               horizontal: 0,
+            //                                               vertical: 0),
+            //                                       title: Container(
+            //                                         width: 43,
+            //                                         height: 60,
+            //                                         child: CircleAvatar(
+            //                                           foregroundColor:
+            //                                               Color(primary),
+            //                                           backgroundColor:
+            //                                               Color(secondary),
+            //                                           backgroundImage: AssetImage(
+            //                                               'images/bgcover.jpg'),
+            //                                         ),
+            //                                       ),
+            //                                       subtitle: Container(
+            //                                         padding:
+            //                                             EdgeInsets.only(top: 5),
+            //                                         child: Text(
+            //                                           "Abdul Quadir",
+            //                                           textAlign:
+            //                                               TextAlign.center,
+            //                                           style: TextStyle(
+            //                                             fontSize: 12,
+            //                                             color: Color(secondary),
+            //                                           ),
+            //                                         ),
+            //                                       ),
+            //                                     ),
+            //                                   ),
+            //                                 ),
+            //                               ],
+            //                             ),
+            //                           ],
+            //                         ),
+            //                       ),
+            //                     ],
+            //                   ),
+            //                 ),
+            //               ),
+            //               Card(
+            //                 shape: RoundedRectangleBorder(
+            //                     borderRadius: BorderRadius.circular(10.0)),
+            //                 child: Container(
+            //                   width: MediaQuery.of(context).size.width,
+            //                   padding: EdgeInsets.symmetric(
+            //                       vertical: 20, horizontal: 20),
+            //                   decoration: BoxDecoration(
+            //                     border: Border.all(
+            //                       color: Color(primary),
+            //                     ),
+            //                     borderRadius: BorderRadius.circular(6),
+            //                     color: Color(bg2),
+            //                   ),
+            //                   child: Column(
+            //                     children: <Widget>[
+            //                       Row(
+            //                         mainAxisAlignment:
+            //                             MainAxisAlignment.spaceBetween,
+            //                         children: <Widget>[
+            //                           Text(
+            //                             "Activity Name",
+            //                             style: TextStyle(
+            //                               color: Color(primary),
+            //                               fontWeight: FontWeight.bold,
+            //                               fontSize: 18,
+            //                             ),
+            //                           ),
+            //                           Text(
+            //                             "10, May",
+            //                             style: TextStyle(
+            //                               color: Color(primary),
+            //                               fontWeight: FontWeight.bold,
+            //                               fontSize: 18,
+            //                             ),
+            //                           ),
+            //                         ],
+            //                       ),
+            //                       SizedBox(
+            //                         height: 20,
+            //                       ),
+            //                       Row(
+            //                         mainAxisAlignment:
+            //                             MainAxisAlignment.spaceBetween,
+            //                         children: <Widget>[
+            //                           Row(
+            //                             crossAxisAlignment:
+            //                                 CrossAxisAlignment.center,
+            //                             children: <Widget>[
+            //                               Icon(
+            //                                 Icons.timer,
+            //                                 color: Color(secondary),
+            //                                 size: 20,
+            //                               ),
+            //                               Text(
+            //                                 " 03:30 PM",
+            //                                 style: TextStyle(
+            //                                     color: Color(secondary),
+            //                                     fontSize: 18,
+            //                                     fontWeight: FontWeight.w500),
+            //                               ),
+            //                             ],
+            //                           ),
+            //                           Row(
+            //                             crossAxisAlignment:
+            //                                 CrossAxisAlignment.center,
+            //                             children: <Widget>[
+            //                               Icon(
+            //                                 Icons.people,
+            //                                 color: Color(secondary),
+            //                                 size: 20,
+            //                               ),
+            //                               Text(
+            //                                 " 2/11",
+            //                                 style: TextStyle(
+            //                                     color: Color(secondary),
+            //                                     fontSize: 18,
+            //                                     fontWeight: FontWeight.w500),
+            //                               ),
+            //                             ],
+            //                           ),
+            //                           Row(
+            //                             crossAxisAlignment:
+            //                                 CrossAxisAlignment.center,
+            //                             children: <Widget>[
+            //                               Icon(
+            //                                 Icons.location_on,
+            //                                 color: Color(secondary),
+            //                                 size: 18,
+            //                               ),
+            //                               Text(
+            //                                 " Address",
+            //                                 style: TextStyle(
+            //                                     color: Color(secondary),
+            //                                     fontSize: 18,
+            //                                     fontWeight: FontWeight.w500),
+            //                               ),
+            //                             ],
+            //                           ),
+            //                         ],
+            //                       ),
+            //                       SizedBox(
+            //                         height: 5,
+            //                       ),
+            //                       Divider(
+            //                         thickness: 1,
+            //                       ),
+            //                       Container(
+            //                         height: 90,
+            //                         child: ListView(
+            //                           scrollDirection: Axis.horizontal,
+            //                           children: <Widget>[
+            //                             Stack(
+            //                               children: <Widget>[
+            //                                 Padding(
+            //                                   padding:
+            //                                       const EdgeInsets.symmetric(
+            //                                           horizontal: 3),
+            //                                   child: Container(
+            //                                     width: 60.0,
+            //                                     child: ListTile(
+            //                                       contentPadding:
+            //                                           EdgeInsets.symmetric(
+            //                                               horizontal: 0,
+            //                                               vertical: 0),
+            //                                       title: Container(
+            //                                         width: 43,
+            //                                         height: 60,
+            //                                         child: CircleAvatar(
+            //                                           foregroundColor:
+            //                                               Color(primary),
+            //                                           backgroundColor:
+            //                                               Color(secondary),
+            //                                           backgroundImage: AssetImage(
+            //                                               'images/bgcover.jpg'),
+            //                                         ),
+            //                                       ),
+            //                                       subtitle: Container(
+            //                                         padding:
+            //                                             EdgeInsets.only(top: 5),
+            //                                         child: Text(
+            //                                           "You",
+            //                                           textAlign:
+            //                                               TextAlign.center,
+            //                                           style: TextStyle(
+            //                                             fontSize: 12,
+            //                                             color: Color(secondary),
+            //                                           ),
+            //                                         ),
+            //                                       ),
+            //                                     ),
+            //                                   ),
+            //                                 ),
+            //                                 Positioned(
+            //                                   left: 43,
+            //                                   top: 40,
+            //                                   child: Container(
+            //                                     width: 20,
+            //                                     height: 20,
+            //                                     child: CircleAvatar(
+            //                                       backgroundColor: Colors.green,
+            //                                       child: Icon(
+            //                                         Icons.star,
+            //                                         color: Colors.white,
+            //                                         size: 15,
+            //                                       ),
+            //                                     ),
+            //                                   ),
+            //                                 ),
+            //                               ],
+            //                             ),
+            //                             Stack(
+            //                               children: <Widget>[
+            //                                 Padding(
+            //                                   padding:
+            //                                       const EdgeInsets.symmetric(
+            //                                           horizontal: 3),
+            //                                   child: Container(
+            //                                     width: 60.0,
+            //                                     child: ListTile(
+            //                                       contentPadding:
+            //                                           EdgeInsets.symmetric(
+            //                                               horizontal: 0,
+            //                                               vertical: 0),
+            //                                       title: Container(
+            //                                         width: 43,
+            //                                         height: 60,
+            //                                         child: CircleAvatar(
+            //                                           foregroundColor:
+            //                                               Color(primary),
+            //                                           backgroundColor:
+            //                                               Color(secondary),
+            //                                           backgroundImage: AssetImage(
+            //                                               'images/bgcover.jpg'),
+            //                                         ),
+            //                                       ),
+            //                                       subtitle: Container(
+            //                                         padding:
+            //                                             EdgeInsets.only(top: 5),
+            //                                         child: Text(
+            //                                           "Abdul Quadir",
+            //                                           textAlign:
+            //                                               TextAlign.center,
+            //                                           style: TextStyle(
+            //                                             fontSize: 12,
+            //                                             color: Color(secondary),
+            //                                           ),
+            //                                         ),
+            //                                       ),
+            //                                     ),
+            //                                   ),
+            //                                 ),
+            //                               ],
+            //                             ),
+            //                           ],
+            //                         ),
+            //                       ),
+            //                     ],
+            //                   ),
+            //                 ),
+            //               ),
+            //               Card(
+            //                 shape: RoundedRectangleBorder(
+            //                     borderRadius: BorderRadius.circular(10.0)),
+            //                 child: Container(
+            //                   width: MediaQuery.of(context).size.width,
+            //                   padding: EdgeInsets.symmetric(
+            //                       vertical: 20, horizontal: 20),
+            //                   decoration: BoxDecoration(
+            //                     border: Border.all(
+            //                       color: Color(primary),
+            //                     ),
+            //                     borderRadius: BorderRadius.circular(6),
+            //                     color: Color(bg2),
+            //                   ),
+            //                   child: Column(
+            //                     children: <Widget>[
+            //                       Row(
+            //                         mainAxisAlignment:
+            //                             MainAxisAlignment.spaceBetween,
+            //                         children: <Widget>[
+            //                           Text(
+            //                             "Activity Name",
+            //                             style: TextStyle(
+            //                               color: Color(primary),
+            //                               fontWeight: FontWeight.bold,
+            //                               fontSize: 18,
+            //                             ),
+            //                           ),
+            //                           Text(
+            //                             "10, May",
+            //                             style: TextStyle(
+            //                               color: Color(primary),
+            //                               fontWeight: FontWeight.bold,
+            //                               fontSize: 18,
+            //                             ),
+            //                           ),
+            //                         ],
+            //                       ),
+            //                       SizedBox(
+            //                         height: 20,
+            //                       ),
+            //                       Row(
+            //                         mainAxisAlignment:
+            //                             MainAxisAlignment.spaceBetween,
+            //                         children: <Widget>[
+            //                           Row(
+            //                             crossAxisAlignment:
+            //                                 CrossAxisAlignment.center,
+            //                             children: <Widget>[
+            //                               Icon(
+            //                                 Icons.timer,
+            //                                 color: Color(secondary),
+            //                                 size: 20,
+            //                               ),
+            //                               Text(
+            //                                 " 03:30 PM",
+            //                                 style: TextStyle(
+            //                                     color: Color(secondary),
+            //                                     fontSize: 18,
+            //                                     fontWeight: FontWeight.w500),
+            //                               ),
+            //                             ],
+            //                           ),
+            //                           Row(
+            //                             crossAxisAlignment:
+            //                                 CrossAxisAlignment.center,
+            //                             children: <Widget>[
+            //                               Icon(
+            //                                 Icons.people,
+            //                                 color: Color(secondary),
+            //                                 size: 20,
+            //                               ),
+            //                               Text(
+            //                                 " 2/11",
+            //                                 style: TextStyle(
+            //                                     color: Color(secondary),
+            //                                     fontSize: 18,
+            //                                     fontWeight: FontWeight.w500),
+            //                               ),
+            //                             ],
+            //                           ),
+            //                           Row(
+            //                             crossAxisAlignment:
+            //                                 CrossAxisAlignment.center,
+            //                             children: <Widget>[
+            //                               Icon(
+            //                                 Icons.location_on,
+            //                                 color: Color(secondary),
+            //                                 size: 18,
+            //                               ),
+            //                               Text(
+            //                                 " Address",
+            //                                 style: TextStyle(
+            //                                     color: Color(secondary),
+            //                                     fontSize: 18,
+            //                                     fontWeight: FontWeight.w500),
+            //                               ),
+            //                             ],
+            //                           ),
+            //                         ],
+            //                       ),
+            //                       SizedBox(
+            //                         height: 5,
+            //                       ),
+            //                       Divider(
+            //                         thickness: 1,
+            //                       ),
+            //                       Container(
+            //                         height: 90,
+            //                         child: ListView(
+            //                           scrollDirection: Axis.horizontal,
+            //                           children: <Widget>[
+            //                             Stack(
+            //                               children: <Widget>[
+            //                                 Padding(
+            //                                   padding:
+            //                                       const EdgeInsets.symmetric(
+            //                                           horizontal: 3),
+            //                                   child: Container(
+            //                                     width: 60.0,
+            //                                     child: ListTile(
+            //                                       contentPadding:
+            //                                           EdgeInsets.symmetric(
+            //                                               horizontal: 0,
+            //                                               vertical: 0),
+            //                                       title: Container(
+            //                                         width: 43,
+            //                                         height: 60,
+            //                                         child: CircleAvatar(
+            //                                           foregroundColor:
+            //                                               Color(primary),
+            //                                           backgroundColor:
+            //                                               Color(secondary),
+            //                                           backgroundImage: AssetImage(
+            //                                               'images/bgcover.jpg'),
+            //                                         ),
+            //                                       ),
+            //                                       subtitle: Container(
+            //                                         padding:
+            //                                             EdgeInsets.only(top: 5),
+            //                                         child: Text(
+            //                                           "You",
+            //                                           textAlign:
+            //                                               TextAlign.center,
+            //                                           style: TextStyle(
+            //                                             fontSize: 12,
+            //                                             color: Color(secondary),
+            //                                           ),
+            //                                         ),
+            //                                       ),
+            //                                     ),
+            //                                   ),
+            //                                 ),
+            //                                 Positioned(
+            //                                   left: 43,
+            //                                   top: 40,
+            //                                   child: Container(
+            //                                     width: 20,
+            //                                     height: 20,
+            //                                     child: CircleAvatar(
+            //                                       backgroundColor: Colors.green,
+            //                                       child: Icon(
+            //                                         Icons.star,
+            //                                         color: Colors.white,
+            //                                         size: 15,
+            //                                       ),
+            //                                     ),
+            //                                   ),
+            //                                 ),
+            //                               ],
+            //                             ),
+            //                             Stack(
+            //                               children: <Widget>[
+            //                                 Padding(
+            //                                   padding:
+            //                                       const EdgeInsets.symmetric(
+            //                                           horizontal: 3),
+            //                                   child: Container(
+            //                                     width: 60.0,
+            //                                     child: ListTile(
+            //                                       contentPadding:
+            //                                           EdgeInsets.symmetric(
+            //                                               horizontal: 0,
+            //                                               vertical: 0),
+            //                                       title: Container(
+            //                                         width: 43,
+            //                                         height: 60,
+            //                                         child: CircleAvatar(
+            //                                           foregroundColor:
+            //                                               Color(primary),
+            //                                           backgroundColor:
+            //                                               Color(secondary),
+            //                                           backgroundImage: AssetImage(
+            //                                               'images/bgcover.jpg'),
+            //                                         ),
+            //                                       ),
+            //                                       subtitle: Container(
+            //                                         padding:
+            //                                             EdgeInsets.only(top: 5),
+            //                                         child: Text(
+            //                                           "Abdul Quadir",
+            //                                           textAlign:
+            //                                               TextAlign.center,
+            //                                           style: TextStyle(
+            //                                             fontSize: 12,
+            //                                             color: Color(secondary),
+            //                                           ),
+            //                                         ),
+            //                                       ),
+            //                                     ),
+            //                                   ),
+            //                                 ),
+            //                               ],
+            //                             ),
+            //                           ],
+            //                         ),
+            //                       ),
+            //                     ],
+            //                   ),
+            //                 ),
+            //               ),
+            //             ],
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

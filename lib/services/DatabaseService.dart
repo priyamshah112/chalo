@@ -116,6 +116,36 @@ class DataService {
       CurrentUser.user.photoUrl = profilePic;
     }
   }
+  Future updateActivityStatus(Map details, DocumentSnapshot plandoc) async {
+    try{
+       await database.runTransaction((transaction) async {
+        await transaction.update(
+          database.collection('plan').document(plandoc.documentID), {
+          'activity_status': details['activity_status'],
+          'activity_rating': details['activity_rating'],
+          });
+       }); 
+    }catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future updateUserPlan(Map details, DocumentSnapshot plandoc) async {
+    try {
+      await database.runTransaction((transaction) async {
+        await transaction.update(
+          database.collection('plan').document(plandoc.documentID), {
+          'max_participant': details['max_participant'],
+          'participant_type': details['participant_type'],
+          'activity_start': details['activity_start'],
+          'activity_end': details['activity_end'],
+          'description': details['description'],
+        });
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
   Future createPlan(Map details) async {
     try {
@@ -167,6 +197,12 @@ class DataService {
           'location_id': locationdoc,
           'plan_id': plandoc.documentID,
           'activity_logo': activity.documents[0].data['logo']
+        });
+      });
+      final doc = await database.collection('users').document(CurrentUser.userEmail).get();
+      await database.runTransaction((transaction) async {
+        await transaction.update(database.collection('users').document(CurrentUser.userEmail), {
+          'coins': doc.data['coins'] - 3,
         });
       });
     } catch (e) {
@@ -260,6 +296,35 @@ class DataService {
       batch.updateData(ref, {'messenger_id': tokens});
     }
     batch.commit();
+  }
+
+  Future<bool> setRatingList(DocumentReference planRef, double rating, String email) async{
+    try{
+      await database.runTransaction((transaction) async {
+        await transaction.update(planRef, {
+          'rating_list': FieldValue.arrayUnion([rating]),
+          'participants_rated': FieldValue.arrayUnion([email]),
+        });
+      });
+      return true;
+    } catch(e){
+      print(e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> requestPresent(DocumentReference planRef, String email) async{
+    try{
+      await database.runTransaction((transaction) async {
+        await transaction.update(planRef, {
+          'participants_present': FieldValue.arrayUnion([email])
+        });
+      });
+      return true;
+    } catch(e){
+      print(e.toString());
+      return false;
+    }
   }
 
   Future<bool> requestJoin(
@@ -379,6 +444,12 @@ class DataService {
         'pending_participant_id': FieldValue.arrayRemove([userEmail])
       });
       if (accept) {
+      final doc = await database.collection('users').document(CurrentUser.userEmail).get();
+      await database.runTransaction((transaction) async {
+        await transaction.update(database.collection('users').document(userEmail), {
+          'coins': doc.data['coins'] - 2,
+        });
+      });
         batch.updateData(planRef, {
           'participants_id': FieldValue.arrayUnion([userEmail])
         });
@@ -456,7 +527,8 @@ class DataService {
       String planId, String admin, String user) async {
     await database.runTransaction((transaction) async {
       await transaction.update(database.collection('plan').document(planId), {
-        'participants_id': FieldValue.arrayRemove([user])
+        'participants_id': FieldValue.arrayRemove([user]),
+        'participants_present': FieldValue.arrayRemove([user])
       });
       await transaction
           .update(database.collection('user_plans').document(user), {

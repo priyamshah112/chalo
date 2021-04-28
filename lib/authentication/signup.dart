@@ -90,80 +90,80 @@ class _SignUpState extends State<SignUp> {
                       SizedBox(
                         height: 13,
                       ),
-                      FadeAnimation(
-                        1.7,
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            Expanded(
-                              child: FlatButton(
-                                onPressed: () =>
-                                    handleSocialSignup('facebook', _setValues),
-                                color: Colors.indigo,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 25.0, vertical: 10.0),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20.0)),
-                                child: Row(
-                                  children: <Widget>[
-                                    Icon(
-                                      FontAwesomeIcons.facebook,
-                                      color: Colors.white,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 10.0),
-                                    ),
-                                    Expanded(
-                                      child: FittedBox(
-                                        child: Text(
-                                          "Facebook",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15.0),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 5.0),
-                            Expanded(
-                              child: FlatButton(
-                                onPressed: () =>
-                                    handleSocialSignup('google', _setValues),
-                                color: Colors.deepOrangeAccent,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 25.0, vertical: 10.0),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20.0)),
-                                child: Row(
-                                  children: <Widget>[
-                                    Icon(
-                                      FontAwesomeIcons.google,
-                                      color: Colors.white,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 10.0),
-                                    ),
-                                    Expanded(
-                                      child: FittedBox(
-                                        child: Text(
-                                          "Google",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15.0),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 15),
+                      // FadeAnimation(
+                      //   1.7,
+                      //   Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //     children: <Widget>[
+                      //       Expanded(
+                      //         child: FlatButton(
+                      //           onPressed: () =>
+                      //               handleSocialSignup('facebook', _setValues),
+                      //           color: Colors.indigo,
+                      //           padding: EdgeInsets.symmetric(
+                      //               horizontal: 25.0, vertical: 10.0),
+                      //           shape: RoundedRectangleBorder(
+                      //               borderRadius: BorderRadius.circular(20.0)),
+                      //           child: Row(
+                      //             children: <Widget>[
+                      //               Icon(
+                      //                 FontAwesomeIcons.facebook,
+                      //                 color: Colors.white,
+                      //               ),
+                      //               Padding(
+                      //                 padding: EdgeInsets.only(left: 10.0),
+                      //               ),
+                      //               Expanded(
+                      //                 child: FittedBox(
+                      //                   child: Text(
+                      //                     "Facebook",
+                      //                     style: TextStyle(
+                      //                         color: Colors.white,
+                      //                         fontSize: 15.0),
+                      //                   ),
+                      //                 ),
+                      //               )
+                      //             ],
+                      //           ),
+                      //         ),
+                      //       ),
+                      //       SizedBox(width: 5.0),
+                      //       Expanded(
+                      //         child: FlatButton(
+                      //           onPressed: () =>
+                      //               handleSocialSignup('google', _setValues),
+                      //           color: Colors.deepOrangeAccent,
+                      //           padding: EdgeInsets.symmetric(
+                      //               horizontal: 25.0, vertical: 10.0),
+                      //           shape: RoundedRectangleBorder(
+                      //               borderRadius: BorderRadius.circular(20.0)),
+                      //           child: Row(
+                      //             children: <Widget>[
+                      //               Icon(
+                      //                 FontAwesomeIcons.google,
+                      //                 color: Colors.white,
+                      //               ),
+                      //               Padding(
+                      //                 padding: EdgeInsets.only(left: 10.0),
+                      //               ),
+                      //               Expanded(
+                      //                 child: FittedBox(
+                      //                   child: Text(
+                      //                     "Google",
+                      //                     style: TextStyle(
+                      //                         color: Colors.white,
+                      //                         fontSize: 15.0),
+                      //                   ),
+                      //                 ),
+                      //               )
+                      //             ],
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                      // SizedBox(height: 15),
                       FadeAnimation(
                           1.7,
                           Container(

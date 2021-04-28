@@ -18,8 +18,8 @@ class BroadcastActivityDetails extends StatefulWidget {
 }
 
 class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
-  // List participants;
-  @override
+  double rating = 3.5;
+  //List participants;
   Widget build(BuildContext context) {
     return deleting
         ? Material(
@@ -72,25 +72,30 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
                     ),
                   ),
                   actions: <Widget>[
-                    FlatButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  EditActivity()),
-                        );
-                      },
-                      child: Text(
-                        "Edit",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 17,
-                          fontFamily: bodyText,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    planDoc['activity_status'] == 'Completed'
+                        ? FlatButton(
+                            onPressed: () {},
+                            child: Text(""),
+                          )
+                        : FlatButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        EditActivity(plandocu: planDoc)),
+                              );
+                            },
+                            child: Text(
+                              "Edit",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                                fontFamily: bodyText,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                   ],
                   elevation: 1.0,
                 ),
@@ -113,28 +118,181 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
                           ),
                         SizedBox(height: 10),
                         ParticipantList(
+                            planDoc: planDoc,
+                            presentList: planDoc['participants_present'],
                             participants: planDoc['participants_id'],
                             admin: planDoc['admin_name'],
                             adminId: planDoc['admin_id'],
                             planId: planDoc['plan_id'],
                             current: email,
                             showRemove: true),
+                        planDoc['activity_status'] == 'Completed'
+                            ? Container()
+                            : (planDoc['activity_status'] == 'Started')
+                                ? (planDoc['participants_rated']
+                                        .contains(email))
+                                    ? Container()
+                                    : DateTime.now().isBefore(planDoc['activity_end'].toDate().subtract(Duration(minutes: 15)))
+                                        ? Container()
+                                        : Container(
+                                            padding: EdgeInsets.all(5),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: <Widget>[
+                                                Text(
+                                                  "Rating",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                    color: Color(primary),
+                                                    //fontFamily: heading,
+                                                  ),
+                                                ),
+                                                StarRating(
+                                                  rating: rating,
+                                                  onRatingChanged: (rating) =>
+                                                      setState(() =>
+                                                          this.rating = rating),
+                                                ),
+                                                RaisedButton(
+                                                  child: Text(
+                                                    'Submit Rating',
+                                                    style: TextStyle(
+                                                      fontFamily: bodyText,
+                                                    ),
+                                                  ),
+                                                  elevation: 2,
+                                                  textColor: Colors.white,
+                                                  color: Colors.green,
+                                                  onPressed: () async {
+                                                    await DataService()
+                                                        .setRatingList(
+                                                            planDoc.reference,
+                                                            rating,
+                                                            email);
+                                                    setState(() {});
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                : Container(
+                                    width: double.infinity,
+                                    child: RaisedButton(
+                                      onPressed: () async {
+                                        Map<String, dynamic> activityDetails = {
+                                          'activity_status': 'Started',
+                                        };
+                                        await DataService()
+                                            .updateActivityStatus(
+                                                activityDetails,
+                                                widget.planDoc);
+                                        await Future.delayed(
+                                            Duration(seconds: 1));
+                                        setState(() {});
+                                      },
+                                      elevation: 2,
+                                      textColor: Colors.white,
+                                      color: Color(primary),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Text(
+                                        'Start Activity',
+                                        style: TextStyle(
+                                          fontFamily: bodyText,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                        SizedBox(height: 10),
+                        (planDoc['activity_status'] == 'Completed' || planDoc['activity_status'] == 'Created')
+                            ? (planDoc['activity_status'] == 'Completed')
+                                ? Container(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Text("Rating  ",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Color(primary),
+                                              fontFamily: heading,
+                                            )),
+                                        Text("${planDoc['activity_rating']}",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Color(primary),
+                                              fontFamily: heading,
+                                            )),
+                                        Icon(
+                                          Icons.star_outlined,
+                                          color: Color(primary),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : Container()
+                            : DateTime.now().isBefore(planDoc['activity_end'].toDate().subtract(Duration(minutes: 15)))
+                                ? Container()
+                                  : Container(
+                                    width: double.infinity,
+                                    child: RaisedButton(
+                                      onPressed: () async {
+                                        List ratinglist =
+                                            planDoc['rating_list'];
+                                        double sum = 0;
+                                        for (double x in ratinglist) {
+                                          sum += x;
+                                        }
+                                        sum = sum / ratinglist.length;
+                                        Map<String, dynamic> activityDetails = {
+                                          'activity_status': 'Completed',
+                                          'activity_rating': sum,
+                                        };
+                                        await DataService()
+                                            .updateActivityStatus(
+                                                activityDetails,
+                                                widget.planDoc);
+                                        await Future.delayed(
+                                            Duration(seconds: 1));
+                                        setState(() {});
+                                      },
+                                      elevation: 2,
+                                      textColor: Colors.white,
+                                      color: Color(primary),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Text(
+                                        'End Activity',
+                                        style: TextStyle(
+                                          fontFamily: bodyText,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                        SizedBox(height: 20),
                         Container(
                           width: double.infinity,
                           child: RaisedButton(
-                              onPressed: () =>
-                                  handleDeleteActivity(context, planDoc),
-                              elevation: 2,
-                              textColor: Colors.white,
-                              color: Colors.red,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Text(
-                                'Delete Activity',
-                                style: TextStyle(
-                                  fontFamily: bodyText,
-                                ),
-                              )),
+                            onPressed: () =>
+                                handleDeleteActivity(context, planDoc),
+                            elevation: 2,
+                            textColor: Colors.white,
+                            color: Colors.red,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Text(
+                              'Delete Activity',
+                              style: TextStyle(
+                                fontFamily: bodyText,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -294,5 +452,50 @@ class _JoinRequestListState extends State<JoinRequestList> {
         horizontal: 30,
       ),
     );
+  }
+}
+
+typedef void RatingChangeCallback(double rating);
+
+class StarRating extends StatelessWidget {
+  final int starCount;
+  final double rating;
+  final RatingChangeCallback onRatingChanged;
+  final Color color;
+
+  StarRating(
+      {this.starCount = 5, this.rating = .0, this.onRatingChanged, this.color});
+
+  Widget buildStar(BuildContext context, int index) {
+    Icon icon;
+    if (index >= rating) {
+      icon = new Icon(
+        Icons.star_border,
+        color: Theme.of(context).buttonColor,
+      );
+    } else if (index > rating - 1 && index < rating) {
+      icon = new Icon(
+        Icons.star_half,
+        color: color ?? Theme.of(context).primaryColor,
+      );
+    } else {
+      icon = new Icon(
+        Icons.star,
+        color: color ?? Theme.of(context).primaryColor,
+      );
+    }
+    return new InkResponse(
+      onTap:
+          onRatingChanged == null ? null : () => onRatingChanged(index + 1.0),
+      child: icon,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children:
+            new List.generate(starCount, (index) => buildStar(context, index)));
   }
 }

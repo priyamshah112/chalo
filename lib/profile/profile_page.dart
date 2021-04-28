@@ -236,6 +236,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   SingleChildScrollView buildPostTab() {
+
     return SingleChildScrollView(
       child: Wrap(
         children: (currentUser.posts.length == 0)
@@ -281,7 +282,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   body: SafeArea(
                                     child: Center(
                                       child: PostCard(
-                                        post: snapshot.data.data,
+                                        post: snapshot.data.data
                                       ),
                                     ),
                                   ),
@@ -864,6 +865,7 @@ class _ProfileCardState extends State<ProfileCard> {
           CurrentUser.user.requested.contains(widget.email) ? true : false;
     } else
       _update();
+    
   }
 
   void _update() {
@@ -880,60 +882,76 @@ class _ProfileCardState extends State<ProfileCard> {
           padding: EdgeInsets.symmetric(
             horizontal: 20,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              SizedBox(
-                height: 40,
-              ),
-              Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Color(primary),
-                      ),
-                      borderRadius: BorderRadius.circular(6)),
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: 15.0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                            widget.username,
-                            style: TextStyle(
-                              color: Color(primary),
-                              fontSize: 18,
-                              fontFamily: heading,
-                              fontWeight: FontWeight.bold,
-                            ),
+          child: FutureBuilder(
+            future: Firestore.instance
+                .collection('users')
+                .document(widget.email)
+                .get(),
+            builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  SizedBox(
+                    height: 40,
+                  ),
+                  Card(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0)),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Color(primary),
                           ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          borderRadius: BorderRadius.circular(6)),
+                      child: Column(
                         children: <Widget>[
+                          SizedBox(
+                            height: 15.0,
+                          ),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              Icon(
-                                FontAwesomeIcons.trophy,
-                                color: Colors.amberAccent,
-                                size: 12,
+                              Text(
+                                widget.username,
+                                style: TextStyle(
+                                  color: Color(primary),
+                                  fontSize: 18,
+                                  fontFamily: heading,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              SizedBox(
-                                width: 5,
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Row(
+                                children: <Widget>[
+                                  Icon(
+                                    FontAwesomeIcons.trophy,
+                                    color: Colors.amberAccent,
+                                    size: 12,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    " ${widget.activities} Activities Done",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: bodyText,
+                                      color: Color(secondary),
+                                    ),
+                                  ),
+                                ],
                               ),
                               Text(
-                                " ${widget.activities} Activities Done",
+                                "${widget.gender}, ${widget.age}",
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontFamily: bodyText,
@@ -942,229 +960,222 @@ class _ProfileCardState extends State<ProfileCard> {
                               ),
                             ],
                           ),
-                          Text(
-                            "${widget.gender}, ${widget.age}",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: bodyText,
-                              color: Color(secondary),
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (widget.isCurrent)
-                        SizedBox(
-                          height: 10,
-                        ),
-                      if (widget.isCurrent)
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.monetization_on,
-                              color: Colors.amberAccent,
-                              size: 18,
-                            ),
+                          if (widget.isCurrent)
                             SizedBox(
-                              width: 5,
+                              height: 10,
                             ),
-                            Text(
-                              " ${CurrentUser.user.coins} coins",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: bodyText,
-                                color: Color(secondary),
-                              ),
-                            ),
-                          ],
-                        ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          if (widget.job != null)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          if (widget.isCurrent)
+                            Row(
                               children: <Widget>[
-                                Text(
-                                  "Job Title",
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontFamily: bodyText,
-                                    color: Color(primary),
-                                  ),
+                                Icon(
+                                  Icons.monetization_on,
+                                  color: Colors.amberAccent,
+                                  size: 18,
+                                ),
+                                SizedBox(
+                                  width: 5,
                                 ),
                                 Text(
-                                  widget.job,
+                                  //" ${CurrentUser.user.coins} coins",
+                                  snapshot.data.data['coins'].toString() + " coins",
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 12,
                                     fontFamily: bodyText,
+                                    color: Color(secondary),
                                   ),
                                 ),
                               ],
                             ),
-                          Spacer(),
-                          if (widget.lang != null)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  "Language",
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontFamily: bodyText,
-                                    color: Color(primary),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              if (widget.job != null)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      "Job Title",
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontFamily: bodyText,
+                                        color: Color(primary),
+                                      ),
+                                    ),
+                                    Text(
+                                      widget.job,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontFamily: bodyText,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              Spacer(),
+                              if (widget.lang != null)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      "Language",
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontFamily: bodyText,
+                                        color: Color(primary),
+                                      ),
+                                    ),
+                                    Text(
+                                      widget.lang,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontFamily: bodyText,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                          Divider(
+                            thickness: 1,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              InkWell(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 5, vertical: 5),
+                                  child: Text(
+                                    "${!widget.isCurrent ? widget.follower : followers} Followers",
+                                    style: TextStyle(
+                                      fontFamily: bodyText,
+                                      color: Color(primary),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
                                   ),
                                 ),
-                                Text(
-                                  widget.lang,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontFamily: bodyText,
+                                onTap: widget.isCurrent
+                                    ? () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => Follower(),
+                                          ),
+                                        );
+                                      }
+                                    : null,
+                                splashColor: Color(background1),
+                              ),
+                              InkWell(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 5, vertical: 5),
+                                  child: Text(
+                                    "${!widget.isCurrent ? widget.following : following} Following",
+                                    style: TextStyle(
+                                      color: Color(primary),
+                                      fontFamily: bodyText,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                                onTap: widget.isCurrent
+                                    ? () async {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => Following(),
+                                          ),
+                                        );
+                                        if (widget.isCurrent)
+                                          setState(() => _update());
+                                      }
+                                    : null,
+                                splashColor: Color(background1),
+                              ),
+                            ],
+                          ),
+                          if (!widget.isCurrent)
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Container(
+                                  width: double.infinity,
+                                  height: 27,
+                                  margin: const EdgeInsets.only(top: 10),
+                                  child: RaisedButton(
+                                    onPressed: () => _isFollowing
+                                        ? _handleUnfollow(context)
+                                        : _handleFollowRequest(),
+                                    elevation: 2,
+                                    shape: ContinuousRectangleBorder(
+                                        side: BorderSide(
+                                      color: Color(primary), //Color of the border
+                                      style:
+                                          BorderStyle.solid, //Style of the border
+                                      width: 0.9, //width of the border
+                                    )),
+                                    textColor: _isFollowing || _pending
+                                        ? Colors.white
+                                        : Color(primary),
+                                    color: _isFollowing || _pending
+                                        ? Color(primary)
+                                        : Colors.white,
+                                    child: Text(
+                                      _isFollowing
+                                          ? 'Following'
+                                          : _pending ? 'Requested' : 'Follow',
+                                      style: TextStyle(
+                                        fontFamily: bodyText,
+                                      ),
+                                    ),
+                                    splashColor: Color(primary),
+                                  ),
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  height: 27,
+                                  margin: const EdgeInsets.only(top: 10),
+                                  child: RaisedButton(
+                                    onPressed: () => Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (_) => ProfilePage(
+                                                userEmail: widget.email,
+                                                name: widget.username
+                                                    .split(' ')
+                                                    .first))),
+                                    elevation: 2,
+                                    shape: ContinuousRectangleBorder(
+                                        side: BorderSide(
+                                      color: Color(primary), //Color of the border
+                                      style:
+                                          BorderStyle.solid, //Style of the border
+                                      width: 0.9, //width of the border
+                                    )),
+                                    textColor: Color(primary),
+                                    color: Colors.white,
+                                    child: Text(
+                                      'View Profile',
+                                      style: TextStyle(
+                                        fontFamily: bodyText,
+                                      ),
+                                    ),
+                                    splashColor: Color(primary),
                                   ),
                                 ),
                               ],
                             ),
                         ],
                       ),
-                      Divider(
-                        thickness: 1,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          InkWell(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 5),
-                              child: Text(
-                                "${!widget.isCurrent ? widget.follower : followers} Followers",
-                                style: TextStyle(
-                                  fontFamily: bodyText,
-                                  color: Color(primary),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                            onTap: widget.isCurrent
-                                ? () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Follower(),
-                                      ),
-                                    );
-                                  }
-                                : null,
-                            splashColor: Color(background1),
-                          ),
-                          InkWell(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 5),
-                              child: Text(
-                                "${!widget.isCurrent ? widget.following : following} Following",
-                                style: TextStyle(
-                                  color: Color(primary),
-                                  fontFamily: bodyText,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                            onTap: widget.isCurrent
-                                ? () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Following(),
-                                      ),
-                                    );
-                                    if (widget.isCurrent)
-                                      setState(() => _update());
-                                  }
-                                : null,
-                            splashColor: Color(background1),
-                          ),
-                        ],
-                      ),
-                      if (!widget.isCurrent)
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Container(
-                              width: double.infinity,
-                              height: 27,
-                              margin: const EdgeInsets.only(top: 10),
-                              child: RaisedButton(
-                                onPressed: () => _isFollowing
-                                    ? _handleUnfollow(context)
-                                    : _handleFollowRequest(),
-                                elevation: 2,
-                                shape: ContinuousRectangleBorder(
-                                    side: BorderSide(
-                                  color: Color(primary), //Color of the border
-                                  style:
-                                      BorderStyle.solid, //Style of the border
-                                  width: 0.9, //width of the border
-                                )),
-                                textColor: _isFollowing || _pending
-                                    ? Colors.white
-                                    : Color(primary),
-                                color: _isFollowing || _pending
-                                    ? Color(primary)
-                                    : Colors.white,
-                                child: Text(
-                                  _isFollowing
-                                      ? 'Following'
-                                      : _pending ? 'Requested' : 'Follow',
-                                  style: TextStyle(
-                                    fontFamily: bodyText,
-                                  ),
-                                ),
-                                splashColor: Color(primary),
-                              ),
-                            ),
-                            Container(
-                              width: double.infinity,
-                              height: 27,
-                              margin: const EdgeInsets.only(top: 10),
-                              child: RaisedButton(
-                                onPressed: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                        builder: (_) => ProfilePage(
-                                            userEmail: widget.email,
-                                            name: widget.username
-                                                .split(' ')
-                                                .first))),
-                                elevation: 2,
-                                shape: ContinuousRectangleBorder(
-                                    side: BorderSide(
-                                  color: Color(primary), //Color of the border
-                                  style:
-                                      BorderStyle.solid, //Style of the border
-                                  width: 0.9, //width of the border
-                                )),
-                                textColor: Color(primary),
-                                color: Colors.white,
-                                child: Text(
-                                  'View Profile',
-                                  style: TextStyle(
-                                    fontFamily: bodyText,
-                                  ),
-                                ),
-                                splashColor: Color(primary),
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            }
           ),
         ),
         Center(
