@@ -1,8 +1,10 @@
+import 'package:chalo/Chat/callpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../data/Send_menu_items.dart';
 import '../data/User.dart';
 import '../Animation/FadeAnimation.dart';
@@ -75,6 +77,13 @@ class _ChatItemPageState extends State<ChatItemPage> {
             },
           ),
           actions: <Widget>[
+            IconButton(
+              onPressed: onJoin,
+              icon: Icon(
+                Icons.video_call,
+                color: Colors.white,
+              ),
+            ),
             IconButton(
               onPressed: () {
                 Navigator.push(
@@ -165,6 +174,23 @@ class _ChatItemPageState extends State<ChatItemPage> {
                   });
             }));
   }
+  
+  Future<void> _handleCameraAndMic(Permission permission) async {
+    final status = await permission.request();
+    print(status);
+ }
+
+  Future<void> onJoin() async {
+
+    await _handleCameraAndMic(Permission.camera);
+    await _handleCameraAndMic(Permission.microphone);
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CallPage(channelName: widget.planId),
+        ));
+  }
 
 //   isFirstMessage(List<ChatItemModel> chatItem, int index) {
 //     return (ChatItem[index].senderId !=
@@ -179,6 +205,8 @@ class _ChatItemPageState extends State<ChatItemPage> {
 //         index == maxItem;
 //   }
 }
+
+
 
 class ChatBubble extends StatefulWidget {
   const ChatBubble(

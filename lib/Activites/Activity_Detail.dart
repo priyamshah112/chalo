@@ -67,7 +67,8 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                 .document(widget.planDoc.documentID)
                 .snapshots(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData)
+              if (!snapshot.hasData ||
+              snapshot.connectionState == ConnectionState.waiting)
                 return Container(
                     color: Colors.white,
                     child: Center(child: CircularProgressIndicator()));

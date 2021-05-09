@@ -124,7 +124,21 @@ class DataService {
           'activity_status': details['activity_status'],
           'activity_rating': details['activity_rating'],
           });
+       });
+
+      List<dynamic> participantlist = plandoc['participants_id'];
+      
+      for(String str in participantlist)
+      {
+        final doc = await database.collection('users').document(str).get();
+        await database.runTransaction((transaction) async {
+        await transaction.update(
+          database.collection('users').document(str), {
+          'activities_completed': doc.data['activities_completed'] + 1,
+          });
        }); 
+      }
+
     }catch (e) {
       print(e.toString());
     }

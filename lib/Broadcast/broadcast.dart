@@ -108,6 +108,7 @@ class _BroadcastState extends State<Broadcast> {
               ),
               Expanded(
                       child: Activities(
+                      value: "All Activity",
                       stream: Firestore.instance
                           .collection('plan')
                           .where('admin_id', isEqualTo: curr)

@@ -16,6 +16,7 @@ class AllActivity extends StatefulWidget {
 //_value1.isNotEmpty ? _value1 : null
 class _AllActivityState extends State<AllActivity> {
   List<List<String>> allActivityListItems = [
+    ['images/loginbg.png', 'All Activity'],
     ['images/activities/Beach.png', 'Beach'],
     ['images/activities/BirdWatching.png', 'Bird Watching'],
     ['images/activities/Canoeing.png', 'Caneoing'],
@@ -149,6 +150,7 @@ class _AllActivityState extends State<AllActivity> {
                 ),
                 Expanded(
                     child: Activities(
+                  value: _value,
                   stream: Firestore.instance
                       .collection('plan')
                       .where('broadcast_type', isEqualTo: "public")
@@ -170,11 +172,13 @@ class _AllActivityState extends State<AllActivity> {
 }
 
 class Activities extends StatefulWidget {
+  final String value;
   final Stream stream;
   final bool showUserActivities;
   final Function(DocumentSnapshot planDoc) onTapGoto;
   Activities(
-      {@required this.stream,
+      {@required this.value,
+      @required this.stream,
       @required this.onTapGoto,
       this.showUserActivities = false});
   @override
@@ -187,8 +191,7 @@ class _ActivitiesState extends State<Activities> {
     return StreamBuilder(
         stream: widget.stream,
         builder: (context, snapshot) {
-          if (!snapshot.hasData ||
-              snapshot.connectionState == ConnectionState.waiting)
+          if (!snapshot.hasData || snapshot.connectionState == ConnectionState.waiting)
             return Center(child: CircularProgressIndicator());
           List<DocumentSnapshot> plans = snapshot.data.documents;
           int count = plans.length;
@@ -198,10 +201,13 @@ class _ActivitiesState extends State<Activities> {
                 return !widget.showUserActivities &&
                         plans[index]['admin_id'] == CurrentUser.userEmail
                     ? Container()
-                    : ActivityCard(
-                        planDoc: plans[index],
-                        activityDetails: () => widget.onTapGoto(plans[index]),
-                      );
+                    : (widget.value == "All Activity" || plans[index]['activity_type'] == widget.value)
+                        ? ActivityCard(
+                            planDoc: plans[index],
+                            activityDetails: () =>
+                                widget.onTapGoto(plans[index]),
+                          )
+                        : Container();
               });
         });
   }

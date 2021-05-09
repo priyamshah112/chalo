@@ -888,6 +888,9 @@ class _ProfileCardState extends State<ProfileCard> {
                 .document(widget.email)
                 .get(),
             builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+              if (!snapshot.hasData ||
+              snapshot.connectionState == ConnectionState.waiting)
+            return Center(child: CircularProgressIndicator());
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -941,7 +944,7 @@ class _ProfileCardState extends State<ProfileCard> {
                                     width: 5,
                                   ),
                                   Text(
-                                    " ${widget.activities} Activities Done",
+                                    "${snapshot.data.data['activities_completed']} Activities Done",
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontFamily: bodyText,
