@@ -50,12 +50,15 @@ class _CallPageState extends State<CallPage> {
     await _initAgoraRtcEngine();
     _addAgoraEventHandlers();
     // await _engine.enableWebSdkInteroperability(true);
+    await _engine.setParameters(
+      "{\"che.video.lowBitRateStreamParameter\":{\"width\":320,\"height\":180,\"frameRate\":5,\"bitRate\":140}}");
     await _engine.joinChannel(null, widget.channelName, null, 0);
   }
 
   /// Create agora sdk instance and initialize
   Future<void> _initAgoraRtcEngine() async {
     _engine = await RtcEngine.create(appID);
+    await _engine.enableDualStreamMode(true);
     await _engine.enableVideo();
   }
 
@@ -156,7 +159,7 @@ class _CallPageState extends State<CallPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.channelName),
+        title: Text("VideoCall"),
       ),
       backgroundColor: Colors.black,
       body: Center(
@@ -214,8 +217,8 @@ class _CallPageState extends State<CallPage> {
         return Container(
             child: Column(
           children: <Widget>[
-            _expandedVideoRow(views.sublist(0, 2)),
-            _expandedVideoRow(views.sublist(2, 3))
+            _expandedVideoRow(views.sublist(0, 1)),
+            _expandedVideoRow(views.sublist(1, 3)),
           ],
         ));
       case 4:
@@ -224,6 +227,15 @@ class _CallPageState extends State<CallPage> {
           children: <Widget>[
             _expandedVideoRow(views.sublist(0, 2)),
             _expandedVideoRow(views.sublist(2, 4))
+          ],
+        ));
+      case 5:
+         return Container(
+            child: Column(
+          children: <Widget>[
+            _expandedVideoRow(views.sublist(0, 2)),
+            _expandedVideoRow(views.sublist(2, 4)),
+            _expandedVideoRow([views[4]]),
           ],
         ));
       default:

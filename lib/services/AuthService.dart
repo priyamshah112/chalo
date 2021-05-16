@@ -54,7 +54,7 @@ class AuthService {
     final facebookLogin = FacebookLogin();
     facebookLogin.loginBehavior = FacebookLoginBehavior.webOnly;
     final result = await facebookLogin
-        .logInWithReadPermissions(['email', 'public_profile']);
+        .logIn(['email', 'public_profile']);
     switch (result.status) {
       case FacebookLoginStatus.loggedIn:
         String token = result.accessToken.token;
@@ -233,8 +233,7 @@ class AuthService {
         case 'facebook':
           final facebookLogin = FacebookLogin();
           facebookLogin.loginBehavior = FacebookLoginBehavior.webOnly;
-          final result = await facebookLogin
-              .logInWithReadPermissions(['email', 'public_profile']);
+          final result = await facebookLogin.logIn(['email', 'public_profile']);
           switch (result.status) {
             case FacebookLoginStatus.loggedIn:
               print('login successful, getting details...');

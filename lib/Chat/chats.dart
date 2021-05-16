@@ -65,9 +65,12 @@ class _ChatsState extends State<Chats> with SingleTickerProviderStateMixin {
         : AppBar(
             leading: Container(),
             actions: <Widget>[
-              IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () => setState(() => _search = true))
+              // IconButton(
+              //     icon: Icon(Icons.search),
+              //     onPressed: () => setState(() => _search = true))
+              Container(
+                width: 50,
+              ),
             ],
             backgroundColor: Color(primary),
             bottom: TabBar(

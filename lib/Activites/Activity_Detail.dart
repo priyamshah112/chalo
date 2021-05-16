@@ -1,6 +1,9 @@
+import 'package:chalo/Chat/callpage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../common/global_colors.dart';
 import '../data/User.dart';
 import '../home/home.dart';
@@ -19,7 +22,8 @@ class ActivityDetails extends StatefulWidget {
 
 class _ActivityDetailsState extends State<ActivityDetails> {
   double rating = 3.5;
-
+  final activitycode = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
@@ -68,7 +72,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData ||
-              snapshot.connectionState == ConnectionState.waiting)
+                  snapshot.connectionState == ConnectionState.waiting)
                 return Container(
                     color: Colors.white,
                     child: Center(child: CircularProgressIndicator()));
@@ -145,73 +149,86 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                                       ],
                                                     ),
                                                   )
-                                                : FlatButton(
-                                                    onPressed: () async {
-                                                      setState(() =>
-                                                          isLoading = true);
-                                                      await DataService()
-                                                          .requestJoin(
-                                                              plan.reference,
-                                                              email,
-                                                              true);
-                                                      await Future.delayed(
-                                                          Duration(seconds: 1));
-                                                      setState(() {
-                                                        isLoading = false;
-                                                        requestSent = true;
-                                                      });
-                                                    },
-                                                    color: Color(primary),
-                                                    textColor: Colors.white,
-                                                    child: Text(
-                                                      'Join Activity',
-                                                      style: TextStyle(
-                                                        fontFamily: bodyText,
-                                                      ),
-                                                    ),
-                                                  ),
+                                                : (plan['participant_type'] == "mixed" 
+                                                   || CurrentUser.usergender.toLowerCase() == plan['participant_type'])
+                                                    ? FlatButton(
+                                                        onPressed: () async {
+                                                          setState(() =>
+                                                              isLoading = true);
+                                                          await DataService()
+                                                              .requestJoin(
+                                                                  plan.reference,
+                                                                  email,
+                                                                  true);
+                                                          await Future.delayed(
+                                                              Duration(
+                                                                  seconds: 1));
+                                                          setState(() {
+                                                            isLoading = false;
+                                                            requestSent = true;
+                                                          });
+                                                        },
+                                                        color: Color(primary),
+                                                        textColor: Colors.white,
+                                                        child: Text(
+                                                          'Join Activity',
+                                                          style: TextStyle(
+                                                            fontFamily:
+                                                                bodyText,
+                                                          ),
+                                                        ),
+                                                      )
+                                                    : Container(),
                                           ),
                                           SizedBox(height: 5),
-                                          requestSent
-                                              ? FlatButton(
-                                                  onPressed: () async {
-                                                    await DataService()
-                                                        .requestJoin(
-                                                            plan.reference,
-                                                            email,
-                                                            false);
-                                                    setState(() =>
-                                                        requestSent = false);
-                                                  },
-                                                  color: Color(primary),
-                                                  textColor: Colors.white,
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: <Widget>[
-                                                      Icon(Icons.clear),
-                                                      SizedBox(width: 10),
-                                                      Text(
-                                                        'Cancel Request',
+                                          (plan['participant_type'] ==
+                                                      "mixed" ||
+                                                  CurrentUser.usergender
+                                                          .toLowerCase() ==
+                                                      plan['participant_type'])
+                                              ? requestSent
+                                                  ? FlatButton(
+                                                      onPressed: () async {
+                                                        await DataService()
+                                                            .requestJoin(
+                                                                plan.reference,
+                                                                email,
+                                                                false);
+                                                        setState(() =>
+                                                            requestSent =
+                                                                false);
+                                                      },
+                                                      color: Color(primary),
+                                                      textColor: Colors.white,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: <Widget>[
+                                                          Icon(Icons.clear),
+                                                          SizedBox(width: 10),
+                                                          Text(
+                                                            'Cancel Request',
+                                                            style: TextStyle(
+                                                              fontFamily:
+                                                                  bodyText,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    )
+                                                  : FlatButton(
+                                                      highlightColor:
+                                                          Colors.transparent,
+                                                      child: Text(
+                                                        'Propose a new time',
                                                         style: TextStyle(
-                                                          fontFamily: bodyText,
+                                                          color: Color(primary),
                                                         ),
                                                       ),
-                                                    ],
-                                                  ),
-                                                )
-                                              : FlatButton(
-                                                  highlightColor:
-                                                      Colors.transparent,
-                                                  child: Text(
-                                                    'Propose a new time',
-                                                    style: TextStyle(
-                                                      color: Color(primary),
-                                                    ),
-                                                  ),
-                                                  onPressed: () {},
-                                                ),
+                                                      onPressed: () {},
+                                                    )
+                                              : Container(),
                                         ],
                                       ),
                               SizedBox(height: 20),
@@ -223,42 +240,97 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                   adminId: plan['admin_id'],
                                   planId: plan['plan_id'],
                                   current: email),
-                              if (plan['activity_status'] == 'Completed' &&
-                                  participants.contains(email))
+                              SizedBox(height: 5),
+                              if (participants.contains(email) &&
+                                  plan['activity_mode'] == 'online' &&
+                                  plan['activity_status'] == 'Started')
                                 Container(
                                   child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
-                                      Text("Rating  ",
+                                      Form(
+                                        key: _formKey,
+                                        autovalidateMode:
+                                            AutovalidateMode.always,
+                                        child: Container(
+                                          width: 200,
+                                          child: TextFormField(
+                                            controller: activitycode,
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value !=
+                                                      plan['activity_code'])
+                                                return "Enter a valid activity Code";
+                                              return null;
+                                            },
+                                            keyboardType: TextInputType.text,
+                                            autofocus: false,
+                                            autocorrect: false,
+                                            textCapitalization:
+                                                TextCapitalization.words,
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: "Enter Code",
+                                              contentPadding:
+                                                  const EdgeInsets.only(
+                                                      left: 18.0,
+                                                      bottom: 18.0,
+                                                      top: 18.0,
+                                                      right: 18.0),
+                                              filled: true,
+                                              fillColor: Color(form1),
+                                              hintStyle: TextStyle(
+                                                color: Color(formHint),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      RaisedButton(
+                                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                                        child: Text(
+                                          'Join',
                                           style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                            color: Color(primary),
-                                            fontFamily: heading,
-                                          )),
-                                      Text("${plan['activity_rating']}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                            color: Color(primary),
-                                            fontFamily: heading,
-                                          )),
-                                      Icon(
-                                        Icons.star_outlined,
-                                        color: Color(primary),
+                                            fontFamily: bodyText,
+                                          ),
+                                        ),
+                                        elevation: 2,
+                                        textColor: Colors.white,
+                                        color: Colors.green,
+                                        onPressed: onJoin,
                                       ),
                                     ],
                                   ),
                                 ),
-                              if (plan['activity_status'] == 'Started' &&
-                                  participants.contains(email))
+                              SizedBox(height: 10),
+                              if (plan['activity_status'] == 'Completed' && participants.contains(email))
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Text("Rating  ",
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(primary))),
+                                    Text("${plan['activity_rating']}",
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(primary))),
+                                    Icon(
+                                      Icons.star_outlined,
+                                      color: Color(primary),
+                                    ),
+                                  ],
+                                ),
+                              if (plan['activity_status'] == 'Started' && participants.contains(email))
                                 isPresent
-                                    ? (plan['participants_rated']
-                                            .contains(email))
+                                  ? (plan['participants_rated'].contains(email)
+                                      && DateTime.now().isBefore(plan['activity_end'].toDate().subtract(Duration(minutes: 15))))
                                         ? Container()
-                                        : DateTime.now().isBefore(plan['activity_end'].toDate().subtract(Duration(minutes: 15)))
-                                            ? Container()
-                                            : Container(
+                                          : Container(
                                                 padding: EdgeInsets.all(5),
                                                 child: Column(
                                                   crossAxisAlignment:
@@ -284,7 +356,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                                     ),
                                                     RaisedButton(
                                                       child: Text(
-                                                        'Submit Rating',
+                                                        'Submit',
                                                         style: TextStyle(
                                                           fontFamily: bodyText,
                                                         ),
@@ -386,6 +458,24 @@ class _ActivityDetailsState extends State<ActivityDetails> {
     } else
       return;
   }
+
+  Future<void> _handleCameraAndMic(Permission permission) async {
+    final status = await permission.request();
+    print(status);
+  }
+
+  Future<void> onJoin() async {
+    if (_formKey.currentState.validate()) {
+      await _handleCameraAndMic(Permission.camera);
+      await _handleCameraAndMic(Permission.microphone);
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CallPage(channelName: activitycode.text),
+          ));
+    }
+  }
 }
 
 class ParticipantList extends StatefulWidget {
@@ -425,95 +515,100 @@ class _ParticipantListState extends State<ParticipantList> {
           ),
         ),
         SizedBox(height: 5),
-        ...widget.participants.map(
-          (participant) => FutureBuilder(
-              future: DataService().getUserDoc(participant),
-              builder: (context, snapshot) {
-                return Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    side: BorderSide(
-                      color: Color(primary),
-                    ),
-                  ),
-                  child: !snapshot.hasData
-                      ? Container()
-                      : ListTile(
-                          onTap: participant == widget.current
-                              ? null
-                              : () => showDialog(
-                                  context: context,
-                                  builder: (ctx) => Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            ProfileCard(
-                                              email: snapshot.data['email'],
-                                              username: snapshot.data['name'],
-                                              profilePic:
-                                                  snapshot.data['profile_pic'],
-                                              gender: snapshot.data['gender'],
-                                              follower:
-                                                  snapshot.data['followers'],
-                                              following:
-                                                  snapshot.data['following'],
-                                              activities: snapshot
-                                                  .data['activities_completed'],
-                                              age: CurrentUser.ageFromDob(
-                                                  snapshot.data['dob']),
-                                              isCurrent: false,
-                                            ),
-                                          ])),
-                          leading: CircleAvatar(
-                            backgroundImage:
-                                snapshot.data['profile_pic'] != null
-                                    ? NetworkImage(snapshot.data['profile_pic'])
-                                    : AssetImage("images/bgcover.jpg"),
+        Container(
+          height: widget.participants.length >= 4 ? 240 : 150,
+          child: ListView.builder(
+              itemCount: widget.participants.length,
+              itemBuilder: (context, index) {
+                return FutureBuilder(
+                    future:
+                        DataService().getUserDoc(widget.participants[index]),
+                    builder: (context, snapshot) {
+                      return Card(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          side: BorderSide(
+                            color: Color(primary),
                           ),
-                          title: Text(
-                            '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
-                            style: TextStyle(
-                                fontFamily: bodyText,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w400),
-                          ),
-                          subtitle: Text('1 Actvity Done'),
-                          trailing: participant == widget.adminId
-                              ? Text('Admin',
-                                  style: TextStyle(color: Color(primary)))
-                              : Row(
+                        ),
+                        child: !snapshot.hasData
+                            ? Container()
+                            : ListTile(
+                                onTap: widget.participants[index] ==
+                                        widget.current
+                                    ? null
+                                    : () => showDialog(
+                                        context: context,
+                                        builder: (ctx) => Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  ProfileCard(
+                                                    email:
+                                                        snapshot.data['email'],
+                                                    username:
+                                                        snapshot.data['name'],
+                                                    profilePic: snapshot
+                                                        .data['profile_pic'],
+                                                    gender:
+                                                        snapshot.data['gender'],
+                                                    follower: snapshot
+                                                        .data['followers'],
+                                                    following: snapshot
+                                                        .data['following'],
+                                                    activities: snapshot.data[
+                                                        'activities_completed'],
+                                                    age: CurrentUser.ageFromDob(
+                                                        snapshot.data['dob']),
+                                                    isCurrent: false,
+                                                  ),
+                                                ])),
+                                leading: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: <Widget>[
-                                    (widget.planDoc['activity_status'] !=
-                                            "Created")
-                                        ? (widget.presentList)
-                                                .contains(participant)
-                                            ? Text('Present')
-                                            : (widget.planDoc[
-                                                        'activity_status'] ==
-                                                    "Completed")
-                                                ? Text('Absent')
-                                                : Text('Waiting')
-                                        : Text(''),
-                                    SizedBox(width: 10),
-                                    widget.showRemove
+                                    (widget.showRemove &&  widget.participants[index] != widget.adminId)
                                         ? GestureDetector(
                                             child: Icon(Icons.clear,
                                                 color: Colors.red),
                                             onTap: () => handleRemove(
                                                 context,
-                                                participant,
+                                                widget.participants[index],
                                                 snapshot.data['first_name']))
                                         : Text(''),
+                                    SizedBox(width: 3),    
+                                    CircleAvatar(
+                                      backgroundImage: snapshot.data['profile_pic'] != null
+                                          ? NetworkImage(snapshot.data['profile_pic'])
+                                          : AssetImage("images/bgcover.jpg"),
+                                    ),
                                   ],
                                 ),
-                        ),
-                );
+                                title: Text(
+                                  '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                                  style: TextStyle(
+                                      fontFamily: bodyText,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                                subtitle: Text('1 Actvity Done'),
+                                trailing: widget.participants[index] ==
+                                        widget.adminId
+                                    ? Text('Admin',
+                                        style: TextStyle(color: Color(primary)))
+                                    : (widget.planDoc['activity_status'] != "Created")
+                                        ? (widget.presentList).contains(widget.participants[index])
+                                            ? Text('Present')
+                                            : (widget.planDoc['activity_status'] == "Completed")
+                                                ? Text('Absent')
+                                                : Text('Waiting')
+                                        : Text(''),
+                              ),
+                      );
+                    });
               }),
         ),
-        SizedBox(height: 10)
       ],
     );
   }
@@ -645,7 +740,7 @@ class ActivityDetailCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     InkWell(
-                      onTap: () {},
+                      onTap: () => viewMap(planDoc['location']),
                       child: Text(
                         "View Map",
                         style: TextStyle(
@@ -670,6 +765,17 @@ class ActivityDetailCard extends StatelessWidget {
       ),
       elevation: 0,
     );
+  }
+  Future<void> viewMap(GeoPoint pos) async{
+    final lat = pos.latitude.toString();
+    final lon = pos.longitude.toString();
+    String _url = "http://maps.google.com/maps?q="+lat+","+lon+"+(My+Point)&z=14&ll="+lat+","+lon;
+    print(_url);
+    try{
+      await launch(_url);
+    } catch(e){
+      print(e.toString());
+    }
   }
 }
 

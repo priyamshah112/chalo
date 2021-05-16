@@ -77,13 +77,13 @@ class _ChatItemPageState extends State<ChatItemPage> {
             },
           ),
           actions: <Widget>[
-            IconButton(
-              onPressed: onJoin,
-              icon: Icon(
-                Icons.video_call,
-                color: Colors.white,
-              ),
-            ),
+            // IconButton(
+            //   onPressed: onJoin,
+            //   icon: Icon(
+            //     Icons.video_call,
+            //     color: Colors.white,
+            //   ),
+            // ),
             IconButton(
               onPressed: () {
                 Navigator.push(

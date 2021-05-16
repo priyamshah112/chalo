@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import '../data/User.dart';
 import '../widgets/DailogBox.dart';
@@ -25,6 +24,7 @@ class AddActivity extends StatefulWidget {
 
 class _AddActivityState extends State<AddActivity> {
   final _formKey = GlobalKey<FormState>();
+  final activityCode = TextEditingController();
   final activityController = TextEditingController();
   TextEditingController address = TextEditingController();
   String activity, location, note, type = 'Public';
@@ -35,6 +35,7 @@ class _AddActivityState extends State<AddActivity> {
   DateTimePicker start = new DateTimePicker();
   DateTimePicker end = new DateTimePicker();
   int _peopleCount = 1;
+  String _mode;
   bool proposeTime = false;
   //bool _autovalidate = false;
 
@@ -178,6 +179,58 @@ class _AddActivityState extends State<AddActivity> {
                               CollabrationCarousel(),
                               SizedBox(height: 10.0),
                               Text(
+                                "Activity Mode",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Color(primary),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              radioGroup(),
+                              _mode == "online" 
+                              ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    "Activity Code",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Color(primary),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  TextFormField(
+                                    controller: activityCode,
+                                    validator: (value) {
+                                      if (value.isEmpty)
+                                        return "Enter activity Code";
+                                      return null;
+                                    },
+                                    keyboardType: TextInputType.text,
+                                    autofocus: false,
+                                    autocorrect: false,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Enter Code",
+                                      contentPadding: const EdgeInsets.only(
+                                          left: 30.0,
+                                          bottom: 18.0,
+                                          top: 18.0,
+                                          right: 30.0),
+                                      filled: true,
+                                      fillColor: Color(form1),
+                                      hintStyle: TextStyle(
+                                        color: Color(formHint),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ) : Container(),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
                                 "Activity Location",
                                 style: TextStyle(
                                   fontSize: 15,
@@ -202,8 +255,9 @@ class _AddActivityState extends State<AddActivity> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => GetLocation(
-                                          
-                                            activityLocation ?? null,  zoom: 9,showMarker: false),
+                                            activityLocation ?? null,
+                                            zoom: 9,
+                                            showMarker: false),
                                       ),
                                     );
                                     if (result != null) {
@@ -378,10 +432,11 @@ class _AddActivityState extends State<AddActivity> {
                               SizedBox(
                                 height: 10,
                               ),
-                              radioGroup(),
-                              Visibility(
-                                  visible: _showDropdown,
-                                  child: selectPeople()),
+                              selectPeople(),
+                              // radioGroup(),
+                              // Visibility(
+                              //     visible: _showDropdown,
+                              //     child: selectPeople()),
                               Text(
                                 "Boradcast audience",
                                 style: TextStyle(
@@ -483,6 +538,8 @@ class _AddActivityState extends State<AddActivity> {
                                     'activity_rating': 1.0,
                                     'activity_status': 'Created',
                                     'activity_type': activity,
+                                    'activity_code' : _mode=="online" ? activityCode.text : null,
+                                    'activity_mode': _mode,
                                     'admin_id': user['email'],
                                     'admin_name': user['name'],
                                     'participants_id': [user['email']],
@@ -541,7 +598,7 @@ class _AddActivityState extends State<AddActivity> {
                                                 }),
                                           ));
                                 } //else
-                                  //setState(() => _autovalidate = true);
+                                //setState(() => _autovalidate = true);
                               },
                               child: Center(
                                 child: Text(
@@ -674,61 +731,56 @@ class _AddActivityState extends State<AddActivity> {
     );
   }
 
-  Widget radioButtons(int count, double size) {
-    return Stack(children: <Widget>[
-      SizedBox(
-        width: size,
-      ),
+  Widget radioButtons(String mode) {
+    return Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
       Radio(
-        value: count,
+        value: mode,
         activeColor: Color(primary),
-        groupValue: _peopleCount,
+        groupValue: _mode,
         onChanged: (val) {
           setState(() {
-            _peopleCount = count;
-            print(_peopleCount);
+            _mode = mode;
+            print(_mode);
           });
         },
       ),
-      for (var i = 0; i < count; i++)
-        Positioned(
-          top: 13.0,
-          left: 36.0 + 10 * i,
-          child: Icon(
-            FontAwesomeIcons.male,
-            size: 20,
-          ),
-        )
+      Text(
+        mode == "online" ? "Online" : "Offline",
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     ]);
   }
 
-  bool _showDropdown = false;
+  //bool _showDropdown = false;
   Widget radioGroup() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        radioButtons(1, 50.0),
-        radioButtons(2, 60.0),
-        radioButtons(3, 70.0),
+        radioButtons("online"),
+        radioButtons("offline"),
+        //radioButtons(3, 70.0),
         // radioButtons(4, 80.0),
-        Spacer(),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Color(primary),
-            ),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: IconButton(
-            icon: Icon(
-              FontAwesomeIcons.ellipsisH,
-            ),
-            color: Color(primary),
-            onPressed: () {
-              setState(() => _showDropdown = !_showDropdown);
-            },
-          ),
-        ),
+        // Spacer(),
+        // Container(
+        //   decoration: BoxDecoration(
+        //     border: Border.all(
+        //       color: Color(primary),
+        //     ),
+        //     borderRadius: BorderRadius.circular(6),
+        //   ),
+        //   child: IconButton(
+        //     icon: Icon(
+        //       FontAwesomeIcons.ellipsisH,
+        //     ),
+        //     color: Color(primary),
+        //     onPressed: () {
+        //       setState(() => _showDropdown = !_showDropdown);
+        //     },
+        //   ),
+        // ),
       ],
     );
   }

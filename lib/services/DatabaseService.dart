@@ -125,8 +125,18 @@ class DataService {
           'activity_rating': details['activity_rating'],
           });
        });
+      
+    if(details['activity_status'] == "Completed"){
+      List<dynamic> participantlist = plandoc['participants_present'];
+      final doc = await database.collection('users').document(CurrentUser.userEmail).get();
+      await database.runTransaction((transaction) async {
+        await transaction.update(database.collection('users').document(CurrentUser.userEmail), {
+          'coins': doc.data['coins'] + 5,
+        });
+      });
 
-      List<dynamic> participantlist = plandoc['participants_id'];
+      await notifyUser(CurrentUser.userEmail,'${plandoc['activity_type']} Activity is Completed');
+      await notifyUser(CurrentUser.userEmail,'5 coins has been added to your account');
       
       for(String str in participantlist)
       {
@@ -135,10 +145,21 @@ class DataService {
         await transaction.update(
           database.collection('users').document(str), {
           'activities_completed': doc.data['activities_completed'] + 1,
+          'coins': doc.data['coins'] + 3,
           });
-       }); 
+       });
+       await notifyUser(str,'You have completed ${plandoc['activity_type']} Activity successfully');
+       await notifyUser(str,'3 coins has been added to your account'); 
       }
-
+    } 
+      else{
+      List<dynamic> participantlist = plandoc['participants_id'];
+      for(String str in participantlist){
+        (plandoc['activity_mode'] == "online") 
+          ? await notifyUser(str,'${plandoc['activity_type']} Activity is Started and Activity code is ${plandoc['activity_code']}')
+          : await notifyUser(str,'${plandoc['activity_type']} Activity is Started');
+        }
+      } 
     }catch (e) {
       print(e.toString());
     }
@@ -219,6 +240,8 @@ class DataService {
           'coins': doc.data['coins'] - 3,
         });
       });
+      await notifyUser(CurrentUser.userEmail,'${details['activity_type']} Activity is Created');
+      await notifyUser(CurrentUser.userEmail,'3 coins are deducted from your account');
     } catch (e) {
       print(e.toString());
     }
@@ -458,7 +481,7 @@ class DataService {
         'pending_participant_id': FieldValue.arrayRemove([userEmail])
       });
       if (accept) {
-      final doc = await database.collection('users').document(CurrentUser.userEmail).get();
+      final doc = await database.collection('users').document(userEmail).get();
       await database.runTransaction((transaction) async {
         await transaction.update(database.collection('users').document(userEmail), {
           'coins': doc.data['coins'] - 2,
@@ -478,8 +501,8 @@ class DataService {
         Map messengers = groupchatSnap.data['messenger_id'];
         messengers[userEmail] = token;
         batch.updateData(groupchatSnap.reference, {'messenger_id': messengers});
-        await notifyUser(
-            userEmail, 'You have been accepted in $admin\'s Activity');
+        await notifyUser(userEmail, 'You have been accepted in $admin\'s Activity');
+        await notifyUser(userEmail,'2 coins are deducted from your account');
       } else {
         batch.updateData(planRef, {
           'blocked_participant_id': FieldValue.arrayUnion([userEmail])

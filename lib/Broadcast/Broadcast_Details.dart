@@ -1,6 +1,8 @@
+import 'package:chalo/Chat/callpage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../common/global_colors.dart';
 import '../data/User.dart';
 import '../profile/profile_page.dart';
@@ -18,6 +20,8 @@ class BroadcastActivityDetails extends StatefulWidget {
 }
 
 class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
+  final _formKey = GlobalKey<FormState>();
+  final activitycode = TextEditingController();
   double rating = 3.5;
   //List participants;
   Widget build(BuildContext context) {
@@ -125,16 +129,77 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
                             adminId: planDoc['admin_id'],
                             planId: planDoc['plan_id'],
                             current: email,
-                            showRemove: true),
-                        planDoc['activity_status'] == 'Completed'
+                            showRemove: true
+                          ),
+                          SizedBox(height: 5),
+                        if (planDoc['activity_mode'] == 'online' && planDoc['activity_status'] == 'Started')
+                          Container(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Form(
+                                  key: _formKey,
+                                  autovalidateMode: AutovalidateMode.always,
+                                  child: Container(
+                                    width: 200,
+                                    child: TextFormField(
+                                      controller: activitycode,
+                                      validator: (value) {
+                                        if (value == null ||
+                                            value != planDoc['activity_code'])
+                                          return "Enter a valid activity Code";
+                                        return null;
+                                      },
+                                      keyboardType: TextInputType.text,
+                                      autofocus: false,
+                                      autocorrect: false,
+                                      textCapitalization:
+                                          TextCapitalization.words,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: "Enter Code",
+                                        contentPadding: const EdgeInsets.only(
+                                            left: 18.0,
+                                            bottom: 18.0,
+                                            top: 18.0,
+                                            right: 18.0),
+                                        filled: true,
+                                        fillColor: Color(form1),
+                                        hintStyle: TextStyle(
+                                          color: Color(formHint),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                RaisedButton(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 15),
+                                  child: Text(
+                                    'Join',
+                                    style: TextStyle(
+                                      fontFamily: bodyText,
+                                    ),
+                                  ),
+                                  elevation: 2,
+                                  textColor: Colors.white,
+                                  color: Colors.green,
+                                  onPressed: onJoin,
+                                ),
+                              ],
+                            ),
+                          ),
+                        SizedBox(height: 10),
+                        (planDoc['activity_status'] == 'Completed')
                             ? Container()
-                            : (planDoc['activity_status'] == 'Started')
-                                ? (planDoc['participants_rated']
-                                        .contains(email))
+                              : (planDoc['activity_status'] == 'Started')
+                                ? DateTime.now().isBefore(planDoc['activity_end'].toDate().subtract(Duration(minutes: 15)))
                                     ? Container()
-                                    : DateTime.now().isBefore(planDoc['activity_end'].toDate().subtract(Duration(minutes: 15)))
+                                      : planDoc['participants_rated'].contains(email)
                                         ? Container()
-                                        : Container(
+                                          : Container(
                                             padding: EdgeInsets.all(5),
                                             child: Column(
                                               crossAxisAlignment:
@@ -157,7 +222,7 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
                                                 ),
                                                 RaisedButton(
                                                   child: Text(
-                                                    'Submit Rating',
+                                                    'Submit',
                                                     style: TextStyle(
                                                       fontFamily: bodyText,
                                                     ),
@@ -177,66 +242,60 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
                                               ],
                                             ),
                                           )
-                                : Container(
-                                    width: double.infinity,
-                                    child: RaisedButton(
-                                      onPressed: () async {
-                                        Map<String, dynamic> activityDetails = {
-                                          'activity_status': 'Started',
-                                        };
-                                        await DataService()
-                                            .updateActivityStatus(
-                                                activityDetails,
-                                                widget.planDoc);
-                                        await Future.delayed(
-                                            Duration(seconds: 1));
-                                        setState(() {});
-                                      },
-                                      elevation: 2,
-                                      textColor: Colors.white,
-                                      color: Color(primary),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      child: Text(
-                                        'Start Activity',
-                                        style: TextStyle(
-                                          fontFamily: bodyText,
+                                : DateTime.now().isBefore(planDoc['activity_start'].toDate().subtract(Duration(minutes: 5)))
+                                    ? Container()
+                                    : Container(
+                                        width: double.infinity,
+                                        child: RaisedButton(
+                                          onPressed: () async {
+                                            Map<String, dynamic>
+                                                activityDetails = {
+                                              'activity_status': 'Started',
+                                            };
+                                            await DataService()
+                                                .updateActivityStatus(
+                                                    activityDetails,
+                                                    widget.planDoc);
+                                            await Future.delayed(
+                                                Duration(seconds: 1));
+                                            setState(() {});
+                                          },
+                                          elevation: 2,
+                                          textColor: Colors.white,
+                                          color: Color(primary),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:BorderRadius.circular(10)),
+                                          child: Text(
+                                            'Start Activity',
+                                            style: TextStyle(
+                                              fontFamily: bodyText,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
                         SizedBox(height: 10),
-                        (planDoc['activity_status'] == 'Completed' || planDoc['activity_status'] == 'Created')
-                            ? (planDoc['activity_status'] == 'Completed')
-                                ? Container(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Text("Rating  ",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Color(primary),
-                                              fontFamily: heading,
-                                            )),
-                                        Text("${planDoc['activity_rating']}",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Color(primary),
-                                              fontFamily: heading,
-                                            )),
-                                        Icon(
-                                          Icons.star_outlined,
-                                          color: Color(primary),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : Container()
-                            : DateTime.now().isBefore(planDoc['activity_end'].toDate().subtract(Duration(minutes: 15)))
+                        (planDoc['activity_status'] == 'Completed')
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text("Rating  ",
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(primary))),
+                                  Text("${planDoc['activity_rating']}",
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(primary))),
+                                  Icon(
+                                    Icons.star_outlined,
+                                    color: Color(primary),
+                                  ),
+                                ],
+                              )
+                            : (planDoc['activity_status'] == 'Started')
+                              ? DateTime.now().isBefore(planDoc['activity_end'].toDate().subtract(Duration(minutes: 15)))
                                 ? Container()
                                   : Container(
                                     width: double.infinity,
@@ -245,7 +304,7 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
                                         List ratinglist =
                                             planDoc['rating_list'];
                                         double sum = 0;
-                                        for (double x in ratinglist) {
+                                        for (var x in ratinglist) {
                                           sum += x;
                                         }
                                         sum = sum / ratinglist.length;
@@ -274,8 +333,9 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
                                         ),
                                       ),
                                     ),
-                                  ),
-                        SizedBox(height: 20),
+                                  )
+                             : Container(),
+                        SizedBox(height: 10),
                         Container(
                           width: double.infinity,
                           child: RaisedButton(
@@ -330,6 +390,84 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
     await Future.delayed(Duration(seconds: 1));
     await DataService().leaveActivity(plan, delete: true);
     Navigator.of(context).pop();
+  }
+
+  Future<void> _handleCameraAndMic(Permission permission) async {
+    final status = await permission.request();
+    print(status);
+  }
+
+  Future<void> onJoin() async {
+    if (_formKey.currentState.validate()) {
+      print(activitycode.text);
+
+      await _handleCameraAndMic(Permission.camera);
+      await _handleCameraAndMic(Permission.microphone);
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CallPage(channelName: activitycode.text),
+          ));
+    }
+  }
+}
+
+class ReviewList extends StatefulWidget {
+  final List requests;
+  final List reviews;
+  final String planId, admin;
+  ReviewList(
+      {Key key,
+      @required this.requests,
+      @required this.reviews,
+      @required this.admin,
+      @required this.planId})
+      : super(key: key);
+  @override
+  _ReviewListState createState() => _ReviewListState();
+}
+
+class _ReviewListState extends State<ReviewList> {
+  @override
+  Widget build(BuildContext context) {
+    return widget.requests.length == 0
+        ? Container()
+        : ExpansionTile(
+            title: Text("Reviews",
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(primary))),
+            initiallyExpanded: false,
+            children: List<Widget>.generate(
+                widget.requests.length,
+                (index) => FutureBuilder(
+                    future: DataService().getUserDoc(widget.requests[index]),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData)
+                        return Center(child: Text('Loading ...'));
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: AssetImage("images/bgcover.jpg"),
+                        ),
+                        title: Text(
+                          '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
+                          style: TextStyle(
+                              fontFamily: bodyText,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          widget.reviews[index],
+                          style: TextStyle(
+                              fontFamily: bodyText,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400),
+                        ),
+                      );
+                    })),
+          );
   }
 }
 

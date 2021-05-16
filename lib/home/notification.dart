@@ -76,7 +76,14 @@ class _NotificationListState extends State<NotificationList> {
                           ),
                           child: ListTile(
                               title:
-                                  Text('${notifications[index].data['msg']}')),
+                                  Text(
+                                    '${notifications[index].data['msg']}',
+                                    style: TextStyle(
+                                      color: setColor(notifications[index].data['msg']),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    ),
+                                  ),
                         )));
               },
             ),
@@ -84,5 +91,11 @@ class _NotificationListState extends State<NotificationList> {
         ),
       ),
     );
+  }
+
+  Color setColor(String str) {
+    Color color = Colors.deepPurple[500];
+    color = (str.contains("removed")|| str.contains("deducted")) ? Colors.red[300] : Colors.green[400];
+    return color;
   }
 }

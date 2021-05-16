@@ -1,11 +1,8 @@
 import 'package:chalo/services/DatabaseService.dart';
 import 'package:chalo/widgets/DailogBox.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:flutter/material.dart';
-
 import 'package:intl/intl.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import '../Animation/FadeAnimation.dart';
 import '../common/global_colors.dart';
@@ -20,6 +17,7 @@ class EditActivity extends StatefulWidget {
 
 class _EditActivityState extends State<EditActivity> {
   final _formKey = GlobalKey<FormState>();
+  final activityCode = TextEditingController();
   final activityController = TextEditingController();
   String activityName, activity, note, type = 'Public';
   TextEditingController address = TextEditingController();
@@ -28,6 +26,7 @@ class _EditActivityState extends State<EditActivity> {
   DateTime endTime;
   DateTimePicker start = new DateTimePicker();
   DateTimePicker end = new DateTimePicker();
+  String _mode;
   int _peopleCount = 1;
   bool proposeTime = false;
   //bool _autovalidate = false;
@@ -61,24 +60,27 @@ class _EditActivityState extends State<EditActivity> {
             ),
           ),
           actions: <Widget>[
-            FlatButton(
-              onPressed: () {
-              //  Navigator.push(
-              //    context,
-              //    MaterialPageRoute(
-              //        builder: (BuildContext context) => EditActivity()),
-              //  );
-              },
-              child: Text(
-                "Update",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 17,
-                  fontFamily: bodyText,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            Container(
+              width: 50,
             ),
+            // FlatButton(
+            //   onPressed: () {
+            //    Navigator.push(
+            //      context,
+            //      MaterialPageRoute(
+            //          builder: (BuildContext context) => EditActivity()),
+            //    );
+            //   },
+            //   child: Text(
+            //     "Update",
+            //     style: TextStyle(
+            //       color: Colors.white,
+            //       fontSize: 17,
+            //       fontFamily: bodyText,
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //   ),
+            // ),
           ],
           elevation: 1.0,
         ),
@@ -128,17 +130,13 @@ class _EditActivityState extends State<EditActivity> {
                                           DateTime.now()
                                               .add(Duration(minutes: 30))),
                                   format: DateFormat("EEE, d MMM yyyy hh:mm a"),
-                                  validator: (value) {
-                                    if (value == null)
-                                      return 'Select Start Time';
-                                    else {
-                                      if (value.isBefore(DateTime.now()
+                                  validator: (value) {  
+                                    if (value!=null && value.isBefore(DateTime.now()
                                           .add(Duration(minutes: 29))))
                                         return 'Start time must be atleast 30 minutes later';
                                       else
                                         return null;
-                                    }
-                                  },
+                                    },
                                   onSaved: (value) {
                                     // print('start: ' + value.toString());
                                     startTime = value;
@@ -146,7 +144,7 @@ class _EditActivityState extends State<EditActivity> {
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: "Start Time",
+                                    hintText: getDate(widget.plandocu['activity_start'].toDate()),
                                     prefixIcon: Icon(
                                       Icons.timer,
                                       color: Color(primary),
@@ -177,9 +175,7 @@ class _EditActivityState extends State<EditActivity> {
                                               .add(Duration(minutes: 60))),
                                   format: DateFormat("EEE, d MMM yyyy hh:mm a"),
                                   validator: (value) {
-                                    if (value == null)
-                                      return 'Select End Time';
-                                    else {
+                                    if(value != null) {
                                       bool condition = startTime != null
                                           ? value.isBefore(startTime
                                               .add(Duration(minutes: 29)))
@@ -187,9 +183,8 @@ class _EditActivityState extends State<EditActivity> {
                                               .add(Duration(minutes: 59)));
                                       if (condition)
                                         return 'Minimum time is 30 minutes';
-                                      else
-                                        return null;
                                     }
+                                        return null;
                                   },
                                   onSaved: (value) {
                                     // print('end: ' + value.toString());
@@ -198,7 +193,7 @@ class _EditActivityState extends State<EditActivity> {
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: "End Time",
+                                    hintText: getDate(widget.plandocu['activity_end'].toDate()),
                                     prefixIcon: Icon(
                                       Icons.timer,
                                       color: Color(primary),
@@ -213,6 +208,51 @@ class _EditActivityState extends State<EditActivity> {
                                   ),
                                 ),
                               ),
+                              SizedBox(height: 10.0),
+                              Text(
+                                "Activity Mode",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Color(primary),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              radioGroup(),
+                              _mode == "online" 
+                              ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    "Activity Code",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Color(primary),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  TextFormField(
+                                    controller: activityCode,
+                                    keyboardType: TextInputType.text,
+                                    autofocus: false,
+                                    autocorrect: false,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: widget.plandocu['activity_code'],
+                                      contentPadding: const EdgeInsets.only(
+                                          left: 30.0,
+                                          bottom: 18.0,
+                                          top: 18.0,
+                                          right: 30.0),
+                                      filled: true,
+                                      fillColor: Color(form1),
+                                      hintStyle: TextStyle(
+                                        color: Color(formHint),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ) : Container(),
                               Text(
                                 "No. of peoples you'd like to join",
                                 style: TextStyle(
@@ -222,13 +262,7 @@ class _EditActivityState extends State<EditActivity> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              radioGroup(),
-                              Visibility(
-                                  visible: _showDropdown,
-                                  child: selectPeople()),
+                              selectPeople(),
                               SizedBox(
                                 height: 10,
                               ),
@@ -279,8 +313,8 @@ class _EditActivityState extends State<EditActivity> {
                                   keyboardType: TextInputType.text,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText:
-                                        "e.g. Looks like it'sgoing to be hot today, bring lots of water , Meet at Edit D of the subway....",
+                                    hintText: widget.plandocu['description'] != "" ? widget.plandocu['description']
+                                    : "e.g. Looks like it's going to be hot today, bring lots of water , Meet at Edit D of the subway....",
                                     contentPadding: const EdgeInsets.only(
                                         left: 30.0,
                                         bottom: 18.0,
@@ -318,12 +352,12 @@ class _EditActivityState extends State<EditActivity> {
                                 if (_formKey.currentState.validate()) {
                                   _formKey.currentState.save();
                                   Map<String, dynamic> activityDetails = {  
-                                    'max_participant': _peopleCount + 1,
-                                    'participant_type': selectedGender,
-                                    'activity_start':
-                                        Timestamp.fromDate(startTime),
-                                    'activity_end': Timestamp.fromDate(endTime),
-                                    'description': note,
+                                    'max_participant': _peopleCount == 1 ? widget.plandocu['max_participant'] : (_peopleCount + 1),
+                                    'activity_mode': _mode,
+                                    'participant_type': selectedGender ,
+                                    'activity_start': startTime == null ? widget.plandocu['activity_start'] : Timestamp.fromDate(startTime),
+                                    'activity_end': startTime == null ? widget.plandocu['activity_end'] : Timestamp.fromDate(endTime),
+                                    'description': note == null ? widget.plandocu['description'] : note,
                                   };
                                   // print(activityDetails);
                                   showDialog(
@@ -376,6 +410,12 @@ class _EditActivityState extends State<EditActivity> {
         ),
       ),
     );
+  }
+
+  String getDate(date) {
+    //var formattedDate = DateFormat.yMMMd().add_jm().format(date);
+    var formattedDate = DateFormat("EEE, d MMM yyyy hh:mm a").format(date);
+    return formattedDate;
   }
 
   Map<String, String> gender = {
@@ -484,61 +524,37 @@ class _EditActivityState extends State<EditActivity> {
     );
   }
 
-  Widget radioButtons(int count, double size) {
-    return Stack(children: <Widget>[
-      SizedBox(
-        width: size,
-      ),
+  Widget radioButtons(String mode) {
+    return Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
       Radio(
-        value: count,
+        value: mode,
         activeColor: Color(primary),
-        groupValue: _peopleCount,
+        groupValue: _mode,
         onChanged: (val) {
           setState(() {
-            _peopleCount = count;
-            print(_peopleCount);
+            _mode = mode;
+            print(_mode);
           });
         },
       ),
-      for (var i = 0; i < count; i++)
-        Positioned(
-          top: 13.0,
-          left: 36.0 + 10 * i,
-          child: Icon(
-            FontAwesomeIcons.male,
-            size: 20,
-          ),
-        )
+      Text(
+        mode == "online" ? "Online" : "Offline",
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     ]);
   }
 
-  bool _showDropdown = false;
   Widget radioGroup() {
+    if(_mode==null)
+      _mode = widget.plandocu["activity_mode"];
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        radioButtons(1, 50.0),
-        radioButtons(2, 60.0),
-        radioButtons(3, 70.0),
-        // radioButtons(4, 80.0),
-        Spacer(),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Color(primary),
-            ),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: IconButton(
-            icon: Icon(
-              FontAwesomeIcons.ellipsisH,
-            ),
-            color: Color(primary),
-            onPressed: () {
-              setState(() => _showDropdown = !_showDropdown);
-            },
-          ),
-        ),
+        radioButtons("online"),
+        radioButtons("offline"),
       ],
     );
   }
