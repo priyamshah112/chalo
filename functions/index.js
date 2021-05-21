@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const { firestore } = require('firebase-admin');
 admin.initializeApp(functions.config().functions);
 
 const db = admin.firestore();
@@ -55,6 +56,41 @@ exports.activityNotification = functions.firestore
                     });
                 }
             }
+        } catch (e) {
+            console.log('Error:', e);
+        }
+    });
+
+
+    exports.broadcastNotification = functions.firestore
+    .document('user_plans/{planDoc}')
+    .onUpdate(async (snapshot, context) => {
+
+        var msg, msg1;
+        const newValue = snapshot.after.data();
+        var planid = newValue.current_plans[newValue.current_plans.length];
+
+        const doc = await db.collection("plan").document(planid).get().then(
+            
+        );
+        const doc1 = await db.collection("users").document(doc.data().admin_id).get();
+
+        if(newValue.admin_plans.contains(planid))
+         msg1 = doc.data().admin_name+" has Created a new "+ doc.data().activity_type; 
+        else
+         msg = "You have been added to "+doc.data().admin_name+"'s activity";
+
+        var value = doc1.data().token;
+        try {
+                if (value !== null) {
+                    admin.messaging().sendToDevice(value, {
+                        notification: {
+                            title: msg,
+                            body: "Enjoy..!",
+                            clickAction: 'FLUTTER_NOTIFICATION_CLICK'
+                        }
+                    });
+                }
         } catch (e) {
             console.log('Error:', e);
         }

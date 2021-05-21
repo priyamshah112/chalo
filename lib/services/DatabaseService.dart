@@ -226,12 +226,14 @@ class DataService {
       // print(plandoc.documentID);
       // print(groupchatdoc.documentID);
       // print(locationdoc.documentID);
+      String name = details['admin_id'].split('.')[0];
       await database.runTransaction((transaction) async {
         await transaction.update(plandoc, {
           'group_chat': groupchatdoc,
           'location_id': locationdoc,
           'plan_id': plandoc.documentID,
-          'activity_logo': activity.documents[0].data['logo']
+          'activity_logo': activity.documents[0].data['logo'],
+          'ratingMap.'+name : 0.0,
         });
       });
       final doc = await database.collection('users').document(CurrentUser.userEmail).get();
@@ -335,16 +337,38 @@ class DataService {
     batch.commit();
   }
 
-  Future<bool> setRatingList(DocumentReference planRef, double rating, String email) async{
-    try{
+  Future<bool> setRatingList(DocumentSnapshot plandoc, Map details) async{
+    // try{
+    //   await database.runTransaction((transaction) async {
+    //     await transaction.update(planRef, {
+    //       'rating_list': FieldValue.arrayUnion([rating]),
+    //       'participants_rated': FieldValue.arrayUnion([email]),
+    //     });
+    //   });
+    //   return true;
+    // } catch(e){
+    //   print(e.toString());
+    //   return false;
+    // }
+    try {
+      final doc = await database.collection('plan').document(plandoc.documentID).get();
+      details.forEach((k,v) async => {
       await database.runTransaction((transaction) async {
-        await transaction.update(planRef, {
-          'rating_list': FieldValue.arrayUnion([rating]),
-          'participants_rated': FieldValue.arrayUnion([email]),
+        await transaction.update(
+          database.collection('plan').document(plandoc.documentID), {
+            'ratingMap.$k' : doc.data['ratingMap']['$k'] + v,
+        });
+      }),
+      });
+
+      await database.runTransaction((transaction) async {
+        await transaction.update(
+          database.collection('plan').document(plandoc.documentID),{
+          'participants_rated': FieldValue.arrayUnion([CurrentUser.userEmail]),
         });
       });
       return true;
-    } catch(e){
+    } catch (e) {
       print(e.toString());
       return false;
     }
@@ -352,9 +376,11 @@ class DataService {
 
   Future<bool> requestPresent(DocumentReference planRef, String email) async{
     try{
+      String k = email.split('.')[0];
       await database.runTransaction((transaction) async {
         await transaction.update(planRef, {
-          'participants_present': FieldValue.arrayUnion([email])
+          'participants_present': FieldValue.arrayUnion([email]),
+          'ratingMap.'+k : 0.0,
         });
       });
       return true;

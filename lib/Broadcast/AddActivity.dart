@@ -546,7 +546,7 @@ class _AddActivityState extends State<AddActivity> {
                                     'participants_rated': [],
                                     'blocked_participant_id': [],
                                     'rating_list': [],
-                                    'participants_present': [],
+                                    'participants_present': [user['email']],
                                     'pending_participant_id': [],
                                     'broadcast_type': type.toLowerCase(),
                                     'max_participant': _peopleCount + 1,

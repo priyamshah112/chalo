@@ -192,59 +192,10 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
                             ),
                           ),
                         SizedBox(height: 10),
-                        (planDoc['activity_status'] == 'Completed')
-                            ? Container()
-                              : (planDoc['activity_status'] == 'Started')
-                                ? DateTime.now().isBefore(planDoc['activity_end'].toDate().subtract(Duration(minutes: 15)))
-                                    ? Container()
-                                      : planDoc['participants_rated'].contains(email)
-                                        ? Container()
-                                          : Container(
-                                            padding: EdgeInsets.all(5),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: <Widget>[
-                                                Text(
-                                                  "Rating",
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 18,
-                                                    color: Color(primary),
-                                                    //fontFamily: heading,
-                                                  ),
-                                                ),
-                                                StarRating(
-                                                  rating: rating,
-                                                  onRatingChanged: (rating) =>
-                                                      setState(() =>
-                                                          this.rating = rating),
-                                                ),
-                                                RaisedButton(
-                                                  child: Text(
-                                                    'Submit',
-                                                    style: TextStyle(
-                                                      fontFamily: bodyText,
-                                                    ),
-                                                  ),
-                                                  elevation: 2,
-                                                  textColor: Colors.white,
-                                                  color: Colors.green,
-                                                  onPressed: () async {
-                                                    await DataService()
-                                                        .setRatingList(
-                                                            planDoc.reference,
-                                                            rating,
-                                                            email);
-                                                    setState(() {});
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                : DateTime.now().isBefore(planDoc['activity_start'].toDate().subtract(Duration(minutes: 5)))
-                                    ? Container()
-                                    : Container(
+                        (planDoc['activity_status'] == 'Created')
+                           ? DateTime.now().isBefore(planDoc['activity_start'].toDate().subtract(Duration(minutes: 5)))
+                                ? Container()
+                                  : Container(
                                         width: double.infinity,
                                         child: RaisedButton(
                                           onPressed: () async {
@@ -272,29 +223,10 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
                                             ),
                                           ),
                                         ),
-                                      ),
+                                      )
+                              : Container(),    
                         SizedBox(height: 10),
-                        (planDoc['activity_status'] == 'Completed')
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Text("Rating  ",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(primary))),
-                                  Text("${planDoc['activity_rating']}",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(primary))),
-                                  Icon(
-                                    Icons.star_outlined,
-                                    color: Color(primary),
-                                  ),
-                                ],
-                              )
-                            : (planDoc['activity_status'] == 'Started')
+                        (planDoc['activity_status'] == 'Started')
                               ? DateTime.now().isBefore(planDoc['activity_end'].toDate().subtract(Duration(minutes: 15)))
                                 ? Container()
                                   : Container(
@@ -334,7 +266,7 @@ class _BroadcastActivityDetailsState extends State<BroadcastActivityDetails> {
                                       ),
                                     ),
                                   )
-                             : Container(),
+                              : Container(),  
                         SizedBox(height: 10),
                         Container(
                           width: double.infinity,

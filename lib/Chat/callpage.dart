@@ -51,7 +51,7 @@ class _CallPageState extends State<CallPage> {
     _addAgoraEventHandlers();
     // await _engine.enableWebSdkInteroperability(true);
     await _engine.setParameters(
-      "{\"che.video.lowBitRateStreamParameter\":{\"width\":320,\"height\":180,\"frameRate\":5,\"bitRate\":140}}");
+      "{\"che.video.lowBitRateStreamParameter\":{\"width\":160,\"height\":120,\"frameRate\":15,\"bitRate\":65}}");
     await _engine.joinChannel(null, widget.channelName, null, 0);
   }
 

@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:chalo/Chat/callpage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -149,8 +151,8 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                                       ],
                                                     ),
                                                   )
-                                                : (plan['participant_type'] == "mixed" 
-                                                   || CurrentUser.usergender.toLowerCase() == plan['participant_type'])
+                                                : (plan['participant_type'] == "mixed" || CurrentUser.usergender.toLowerCase() == plan['participant_type'])
+                                                   && (plan['activity_status']!="Completed")
                                                     ? FlatButton(
                                                         onPressed: () async {
                                                           setState(() =>
@@ -181,11 +183,8 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                                     : Container(),
                                           ),
                                           SizedBox(height: 5),
-                                          (plan['participant_type'] ==
-                                                      "mixed" ||
-                                                  CurrentUser.usergender
-                                                          .toLowerCase() ==
-                                                      plan['participant_type'])
+                                          (plan['participant_type'] == "mixed" || CurrentUser.usergender.toLowerCase() == plan['participant_type'])
+                                            && (plan['activity_status']!="Completed")
                                               ? requestSent
                                                   ? FlatButton(
                                                       onPressed: () async {
@@ -243,7 +242,7 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                               SizedBox(height: 5),
                               if (participants.contains(email) &&
                                   plan['activity_mode'] == 'online' &&
-                                  plan['activity_status'] == 'Started')
+                                  plan['activity_status'] == 'Started' && plan['participants_present'].contains(CurrentUser.userEmail))
                                 Container(
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -289,7 +288,8 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                       ),
                                       SizedBox(width: 10),
                                       RaisedButton(
-                                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 15),
                                         child: Text(
                                           'Join',
                                           style: TextStyle(
@@ -305,77 +305,10 @@ class _ActivityDetailsState extends State<ActivityDetails> {
                                   ),
                                 ),
                               SizedBox(height: 10),
-                              if (plan['activity_status'] == 'Completed' && participants.contains(email))
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Text("Rating  ",
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(primary))),
-                                    Text("${plan['activity_rating']}",
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(primary))),
-                                    Icon(
-                                      Icons.star_outlined,
-                                      color: Color(primary),
-                                    ),
-                                  ],
-                                ),
-                              if (plan['activity_status'] == 'Started' && participants.contains(email))
+                              if (plan['activity_status'] == 'Started' &&
+                                  participants.contains(email))
                                 isPresent
-                                  ? (plan['participants_rated'].contains(email)
-                                      && DateTime.now().isBefore(plan['activity_end'].toDate().subtract(Duration(minutes: 15))))
-                                        ? Container()
-                                          : Container(
-                                                padding: EdgeInsets.all(5),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: <Widget>[
-                                                    Text(
-                                                      "Rating",
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 18,
-                                                        color: Color(primary),
-                                                        //fontFamily: heading,
-                                                      ),
-                                                    ),
-                                                    StarRating(
-                                                      rating: rating,
-                                                      onRatingChanged:
-                                                          (rating) => setState(
-                                                              () =>
-                                                                  this.rating =
-                                                                      rating),
-                                                    ),
-                                                    RaisedButton(
-                                                      child: Text(
-                                                        'Submit',
-                                                        style: TextStyle(
-                                                          fontFamily: bodyText,
-                                                        ),
-                                                      ),
-                                                      elevation: 2,
-                                                      textColor: Colors.white,
-                                                      color: Colors.green,
-                                                      onPressed: () async {
-                                                        await DataService()
-                                                            .setRatingList(
-                                                                plan.reference,
-                                                                rating,
-                                                                email);
-                                                        setState(() {});
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              )
+                                    ? Container()
                                     : Container(
                                         child: RaisedButton(
                                           child: Text(
@@ -500,18 +433,38 @@ class ParticipantList extends StatefulWidget {
 }
 
 class _ParticipantListState extends State<ParticipantList> {
+  HashMap<dynamic, dynamic> localMap = new HashMap<dynamic, dynamic>();
+  bool check = false;
+  bool isRating = false;
+  
   @override
   Widget build(BuildContext context) {
+
+    if(widget.planDoc['participants_rated'].contains(CurrentUser.userEmail))
+     setState(() => check = true);
+
+    if((widget.planDoc['activity_status']=="Completed") &&
+        (widget.planDoc['ratingMap'].length == widget.planDoc['participants_rated'].length)){
+          int l = widget.planDoc['participants_rated'].length - 1;
+          widget.planDoc['ratingMap'].forEach((k,v) => {
+          localMap.update( k, (e) => (v/l).round(), ifAbsent: () => (v/l).round())
+        }
+      );
+      isRating = true;
+    }
+
+    print(localMap);
+    
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
       children: <Widget>[
         Text(
-          "Participants",
+          widget.planDoc['activity_status'] == "Completed" ? 
+          "Ratings" : "Participants",
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: 20,
             color: Color(primary),
-            fontFamily: heading,
           ),
         ),
         SizedBox(height: 5),
@@ -521,8 +474,7 @@ class _ParticipantListState extends State<ParticipantList> {
               itemCount: widget.participants.length,
               itemBuilder: (context, index) {
                 return FutureBuilder(
-                    future:
-                        DataService().getUserDoc(widget.participants[index]),
+                    future: DataService().getUserDoc(widget.participants[index]),
                     builder: (context, snapshot) {
                       return Card(
                         elevation: 0,
@@ -567,8 +519,11 @@ class _ParticipantListState extends State<ParticipantList> {
                                                 ])),
                                 leading: Row(
                                   mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: <Widget>[
-                                    (widget.showRemove &&  widget.participants[index] != widget.adminId)
+                                    (widget.showRemove &&
+                                            widget.participants[index] !=
+                                                widget.adminId)
                                         ? GestureDetector(
                                             child: Icon(Icons.clear,
                                                 color: Colors.red),
@@ -577,10 +532,13 @@ class _ParticipantListState extends State<ParticipantList> {
                                                 widget.participants[index],
                                                 snapshot.data['first_name']))
                                         : Text(''),
-                                    SizedBox(width: 3),    
+                                    SizedBox(width: 3),
                                     CircleAvatar(
-                                      backgroundImage: snapshot.data['profile_pic'] != null
-                                          ? NetworkImage(snapshot.data['profile_pic'])
+                                      backgroundImage: snapshot
+                                                  .data['profile_pic'] !=
+                                              null
+                                          ? NetworkImage(
+                                              snapshot.data['profile_pic'])
                                           : AssetImage("images/bgcover.jpg"),
                                     ),
                                   ],
@@ -589,26 +547,92 @@ class _ParticipantListState extends State<ParticipantList> {
                                   '${snapshot.data['first_name']} ${snapshot.data['last_name']}',
                                   style: TextStyle(
                                       fontFamily: bodyText,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w400),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
                                 ),
-                                subtitle: Text('1 Actvity Done'),
-                                trailing: widget.participants[index] ==
-                                        widget.adminId
-                                    ? Text('Admin',
-                                        style: TextStyle(color: Color(primary)))
-                                    : (widget.planDoc['activity_status'] != "Created")
-                                        ? (widget.presentList).contains(widget.participants[index])
-                                            ? Text('Present')
-                                            : (widget.planDoc['activity_status'] == "Completed")
-                                                ? Text('Absent')
-                                                : Text('Waiting')
-                                        : Text(''),
+                                subtitle: Text(
+                                  '${snapshot.data['activities_completed']} Activities Completed',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                trailing: (widget.planDoc['activity_status'] == "Completed" && widget.participants.contains(CurrentUser.userEmail))
+                                    ? (widget.presentList.contains(widget.participants[index]))
+                                      ? (widget.participants[index]!=CurrentUser.userEmail || isRating) 
+                                        ? (widget.planDoc['ratingMap'].length == widget.planDoc['participants_rated'].length)
+                                           ? Container(
+                                              child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: <Widget>[
+                                                  Text("${localMap[widget.participants[index].split('.')[0]]}.0",
+                                                    style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Color(primary))),
+                                                  Icon(
+                                                    Icons.star_outlined,
+                                                    color: Color(primary),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                          : Container(
+                                            width: 125,
+                                            height: 150,
+                                            child: StarRating(
+                                              rating: (localMap[widget.participants[index].split('.')[0]] == null) 
+                                                 ? 3.5 : localMap[widget.participants[index].split('.')[0]],
+                                              onRatingChanged: (rating) => setState(() => localMap.update(
+                                                  widget.participants[index].split('.')[0],
+                                                  (e) => rating,
+                                                  ifAbsent: () => rating
+                                                  )
+                                                ),
+                                              ) 
+                                            )
+                                         : Text('Present')   
+                                      : Text('Absent') 
+                                    : (widget.participants[index] == widget.adminId)
+                                        ? Text(
+                                            'Admin',
+                                            style: TextStyle(
+                                                color: Color(primary)),
+                                          )
+                                        : (widget.planDoc['activity_status'] != "Created")
+                                            ? (widget.presentList).contains(widget.participants[index])
+                                                ? Text('Present')
+                                                  : (widget.planDoc['activity_status'] == "Completed")
+                                                    ? Text('Absent')
+                                                      : Text('Waiting')
+                                            : Text(''),
                               ),
                       );
                     });
               }),
         ),
+      SizedBox(height: 5),
+      (check || (widget.planDoc['ratingMap'].length == widget.planDoc['participants_rated'].length)) 
+       ? Container()
+       : (widget.planDoc['activity_status'] == "Completed" && widget.participants.contains(CurrentUser.userEmail))
+          ? RaisedButton(
+              child: Text(
+                'Submit',
+              style: TextStyle(
+                fontFamily: bodyText,
+              ),
+            ),
+            elevation: 2,
+            textColor: Colors.white,
+            color: Colors.green,
+            onPressed: () async {
+              await DataService().setRatingList(widget.planDoc, localMap);
+              setState(() {
+                check = true;
+              });
+              },
+            )
+          : Container(),    
       ],
     );
   }
@@ -766,14 +790,15 @@ class ActivityDetailCard extends StatelessWidget {
       elevation: 0,
     );
   }
-  Future<void> viewMap(GeoPoint pos) async{
+
+  Future<void> viewMap(GeoPoint pos) async {
     final lat = pos.latitude.toString();
     final lon = pos.longitude.toString();
-    String _url = "http://maps.google.com/maps?q="+lat+","+lon+"+(My+Point)&z=14&ll="+lat+","+lon;
+    String _url = "http://maps.google.com/maps?q=$lat,$lon+(My+Point)&z=14&ll=$lat,$lon";
     print(_url);
-    try{
+    try {
       await launch(_url);
-    } catch(e){
+    } catch (e) {
       print(e.toString());
     }
   }

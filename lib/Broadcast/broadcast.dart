@@ -111,7 +111,7 @@ class _BroadcastState extends State<Broadcast> {
                       value: "All Activity",
                       stream: Firestore.instance
                           .collection('plan')
-                          .where('admin_id', isEqualTo: curr)
+                          .where('admin_id', isEqualTo: curr) 
                           .snapshots(),
                       showUserActivities: true,
                       onTapGoto: (doc) => Navigator.push(
